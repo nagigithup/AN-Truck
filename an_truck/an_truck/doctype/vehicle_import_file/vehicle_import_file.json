@@ -1,0 +1,342 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-09-12 17:53:24.588452",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "engine": "InnoDB",
+ "field_order": [
+  "operations_tab",
+  "transaction_control_panel",
+  "transaction_control_panel_html",
+  "transaction_lists_html",
+  "import_details_tab",
+  "general_section",
+  "naming_series",
+  "import_title",
+  "company",
+  "supplier",
+  "status",
+  "country_of_origin",
+  "notes",
+  "contract_attachment",
+  "column_break_dcoi",
+  "contract_number",
+  "contract_date",
+  "supplier_currency",
+  "total_contract_amount",
+  "transaction_exchange_rate",
+  "company_currency",
+  "total_contract_amount_company_currency",
+  "shipping_tab",
+  "shipping_section",
+  "expected_shipping_date",
+  "actual_shipping_date",
+  "expected_arrival_date",
+  "actual_arrival_date",
+  "port_of_loading",
+  "port_of_destination",
+  "bill_of_lading_number",
+  "bill_of_lading_attachment",
+  "container_numbers",
+  "shipping_notes",
+  "column_break_kysg",
+  "total_expected_vehicles",
+  "total_received_vehicles",
+  "total_remaining_vehicles",
+  "total_created_vehicles"
+ ],
+ "fields": [
+  {
+   "fieldname": "operations_tab",
+   "fieldtype": "Tab Break",
+   "label": "Operations"
+  },
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break",
+   "label": "General Information"
+  },
+  {
+   "fieldname": "transaction_control_panel",
+   "fieldtype": "Section Break",
+   "label": "Transaction Control Panel"
+  },
+  {
+   "fieldname": "transaction_control_panel_html",
+   "fieldtype": "HTML",
+   "label": "Transaction Control Panel"
+  },
+  {
+   "fieldname": "transaction_lists_html",
+   "fieldtype": "HTML",
+   "label": "Embedded Transaction Lists"
+  },
+  {
+   "fieldname": "import_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Import Details"
+  },
+  {
+   "fieldname": "shipping_tab",
+   "fieldtype": "Tab Break",
+   "label": "Shipping and Totals"
+  },
+  {
+   "fieldname": "shipping_section",
+   "fieldtype": "Section Break",
+   "label": "Shipping and Totals"
+  },
+  {
+   "default": "VIF-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "VIF-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "import_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Import Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nContract Confirmed\nUnder Manufacturing\nReady to Ship\nIn Transit\nAt Port\nUnder Clearance\nPartially Received\nFully Received\nCompleted\nCancelled",
+   "reqd": 1
+  },
+  {
+   "fieldname": "country_of_origin",
+   "fieldtype": "Link",
+   "label": "Country of Origin",
+   "options": "Country"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "contract_attachment",
+   "fieldtype": "Attach",
+   "label": "Contract Attachment"
+  },
+  {
+   "fieldname": "contract_number",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Contract Number"
+  },
+  {
+   "fieldname": "contract_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Contract Date"
+  },
+  {
+   "fieldname": "supplier_currency",
+   "fieldtype": "Link",
+   "label": "Supplier Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "total_contract_amount",
+   "fieldtype": "Currency",
+   "label": "Total Contract Amount",
+   "options": "supplier_currency"
+  },
+  {
+   "default": "1",
+   "fieldname": "transaction_exchange_rate",
+   "fieldtype": "Float",
+   "label": "Transaction Exchange Rate"
+  },
+  {
+   "fieldname": "company_currency",
+   "fieldtype": "Link",
+   "label": "Company Currency",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_contract_amount_company_currency",
+   "fieldtype": "Currency",
+   "label": "Total Contract Amount in Company Currency",
+   "options": "company_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_expected_vehicles",
+   "fieldtype": "Int",
+   "label": "Expected Vehicles"
+  },
+  {
+   "fieldname": "total_received_vehicles",
+   "fieldtype": "Int",
+   "label": "Received Vehicles",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_remaining_vehicles",
+   "fieldtype": "Int",
+   "label": "Remaining Vehicles",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_created_vehicles",
+   "fieldtype": "Int",
+   "label": "Created Vehicle Masters",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expected_shipping_date",
+   "fieldtype": "Date",
+   "label": "Expected Shipping Date"
+  },
+  {
+   "fieldname": "actual_shipping_date",
+   "fieldtype": "Date",
+   "label": "Actual Shipping Date"
+  },
+  {
+   "fieldname": "expected_arrival_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Expected Arrival Date"
+  },
+  {
+   "fieldname": "actual_arrival_date",
+   "fieldtype": "Date",
+   "label": "Actual Arrival Date"
+  },
+  {
+   "fieldname": "port_of_loading",
+   "fieldtype": "Data",
+   "label": "Port of Loading"
+  },
+  {
+   "fieldname": "port_of_destination",
+   "fieldtype": "Data",
+   "label": "Port of Destination"
+  },
+  {
+   "fieldname": "bill_of_lading_number",
+   "fieldtype": "Data",
+   "label": "Bill of Lading Number"
+  },
+  {
+   "fieldname": "bill_of_lading_attachment",
+   "fieldtype": "Attach",
+   "label": "Bill of Lading Attachment"
+  },
+  {
+   "fieldname": "container_numbers",
+   "fieldtype": "Small Text",
+   "label": "Container Numbers"
+  },
+  {
+   "fieldname": "shipping_notes",
+   "fieldtype": "Small Text",
+   "label": "Shipping Notes"
+  },
+  {
+   "fieldname": "vehicle_summary_html",
+   "fieldtype": "HTML",
+   "label": "Vehicle Summary"
+  },
+  {
+   "fieldname": "column_break_dcoi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_kysg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_llep",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "links": [],
+ "modified": "2026-09-12 18:10:29.695759",
+ "modified_by": "Administrator",
+ "module": "AN Truck",
+ "name": "Vehicle Import File",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Import User",
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Receiving User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Viewer"
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "import_title,supplier,contract_number,status",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "import_title",
+ "track_changes": 1
+}

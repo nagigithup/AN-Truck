@@ -4,3 +4,6 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
+an_truck.patches.v1_0.create_custom_fields_and_roles
+an_truck.patches.v1_0.extend_unified_transaction_fields
+an_truck.patches.v1_0.add_vehicle_registration_fields

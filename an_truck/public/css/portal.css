@@ -1,0 +1,49 @@
+.an-truck-home {
+	padding: 24px;
+	color: var(--text-color);
+	letter-spacing: 0;
+}
+
+.an-home-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 24px;
+}
+
+.an-home-heading h2 { font-size: 18px; margin: 0; }
+.an-home-heading span { margin-inline-start: 12px; }
+.an-home-metrics {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.an-home-metric {
+	appearance: none;
+	background: var(--fg-color, #fff);
+	border: 1px solid var(--border-color, #e5e5e5);
+	border-radius: 6px;
+	color: inherit;
+	padding: 20px;
+	min-width: 0;
+	min-height: 130px;
+	text-align: start;
+	cursor: pointer;
+}
+
+.an-home-metric:hover { background: var(--control-bg, #f5f5f5); }
+.an-home-metric:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.an-home-metric-label { display: flex; align-items: start; gap: 8px; font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.an-home-metric-label .icon { flex-shrink: 0; margin-top: 3px; }
+.an-home-metric strong { display: block; margin-top: 16px; font-size: 28px; line-height: 1; font-weight: 600; }
+
+@media (max-width: 1000px) {
+	.an-home-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 480px) {
+	.an-truck-home { padding: 16px 8px; }
+	.an-home-metrics { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+}

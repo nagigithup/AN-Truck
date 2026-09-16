@@ -1,0 +1,146 @@
+{
+ "doctype": "Workspace Sidebar",
+ "name": "AN Truck",
+ "title": "AN Truck",
+ "app": "an_truck",
+ "module": "AN Truck",
+ "standard": 1,
+ "header_icon": "truck",
+ "items": [
+  {
+   "type": "Link",
+   "label": "Main",
+   "link_to": "an-truck-portal",
+   "icon": "house",
+   "link_type": "Page"
+  },
+  {
+   "type": "Link",
+   "label": "Vehicle Import Files",
+   "link_to": "Vehicle Import File",
+   "icon": "truck",
+   "link_type": "DocType"
+  },
+  {
+   "type": "Link",
+   "label": "Supplier",
+   "link_to": "Supplier",
+   "icon": "users",
+   "link_type": "DocType"
+  },
+  {
+   "type": "Link",
+   "label": "Purchase Order",
+   "link_to": "Purchase Order",
+   "icon": "shopping-cart",
+   "link_type": "DocType",
+   "route_options": "{\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "Purchase Receipt",
+   "link_to": "Purchase Receipt",
+   "icon": "package",
+   "link_type": "DocType",
+   "route_options": "{\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "Purchase Invoice",
+   "link_to": "Purchase Invoice",
+   "icon": "file-text",
+   "link_type": "DocType",
+   "route_options": "{\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "Supplier Payment",
+   "link_to": "Payment Entry",
+   "icon": "credit-card",
+   "link_type": "DocType",
+   "route_options": "{\"payment_type\":\"Pay\",\"party_type\":\"Supplier\",\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "Landed Cost Voucher",
+   "link_to": "Landed Cost Voucher",
+   "icon": "layers",
+   "link_type": "DocType",
+   "route_options": "{\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "Vehicle Master",
+   "link_to": "Vehicle Master",
+   "icon": "key",
+   "link_type": "DocType"
+  },
+  {
+   "type": "Link",
+   "label": "VIN / Serial Number",
+   "link_to": "Serial No",
+   "icon": "hash",
+   "link_type": "DocType"
+  },
+  {
+   "type": "Link",
+   "label": "Vehicle Inspection",
+   "link_to": "Quality Inspection",
+   "icon": "search",
+   "link_type": "DocType"
+  },
+  {
+   "type": "Link",
+   "label": "ارصدة الموردين",
+   "link_to": "Accounts Payable",
+   "icon": "chart-no-axes-combined",
+   "link_type": "Report"
+  },
+  {
+   "type": "Link",
+   "label": "Customer",
+   "link_to": "Customer",
+   "icon": "user",
+   "link_type": "DocType"
+  },
+  {
+   "type": "Link",
+   "label": "Sales Quotations",
+   "link_to": "Quotation",
+   "icon": "file",
+   "link_type": "DocType",
+   "route_options": "{\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "Sales Orders",
+   "link_to": "Sales Order",
+   "icon": "shopping-bag",
+   "link_type": "DocType",
+   "route_options": "{\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "Sales Invoices",
+   "link_to": "Sales Invoice",
+   "icon": "receipt",
+   "link_type": "DocType",
+   "route_options": "{\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "Customer Payments",
+   "link_to": "Payment Entry",
+   "icon": "credit-card",
+   "link_type": "DocType",
+   "route_options": "{\"payment_type\":\"Receive\",\"party_type\":\"Customer\",\"custom_vehicle_import_file\":\"[\\\"is\\\",\\\"set\\\"]\"}"
+  },
+  {
+   "type": "Link",
+   "label": "ارصدة العملاء",
+   "link_to": "Accounts Receivable",
+   "icon": "chart-no-axes-combined",
+   "link_type": "Report"
+  }
+ ]
+}

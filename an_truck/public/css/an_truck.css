@@ -1,0 +1,471 @@
+.an-truck-summary {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+	gap: 10px;
+	margin: 10px 0 16px;
+}
+
+.an-truck-summary > div {
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	padding: 12px 14px;
+	background: var(--fg-color);
+}
+
+.an-truck-summary strong {
+	display: block;
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 500;
+	margin-bottom: 4px;
+}
+
+.an-truck-summary span {
+	color: var(--text-color);
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.an-truck-statuses {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.an-truck-pill {
+	border: 1px solid var(--border-color);
+	border-radius: 999px;
+	color: var(--text-muted);
+	padding: 3px 10px;
+}
+
+.an-truck-form [data-fieldname="transaction_control_panel_html"],
+.an-truck-form [data-fieldname="transaction_lists_html"] {
+	width: 100%;
+}
+
+.an-truck-form .form-dashboard {
+	display: none;
+}
+
+.an-truck-ops {
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	box-shadow: var(--shadow-xs);
+	margin-bottom: 16px;
+	padding: 18px;
+}
+
+.an-truck-hero {
+	align-items: flex-start;
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+	margin-bottom: 14px;
+}
+
+.an-truck-kicker {
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 600;
+	margin-bottom: 4px;
+	text-transform: uppercase;
+}
+
+.an-truck-hero h3 {
+	font-size: 20px;
+	font-weight: 650;
+	line-height: 1.25;
+	margin: 0;
+}
+
+.an-truck-hero p {
+	color: var(--text-muted);
+	margin: 5px 0 0;
+}
+
+.an-truck-status-badge {
+	background: var(--control-bg);
+	border: 1px solid var(--border-color);
+	border-radius: 999px;
+	color: var(--text-color);
+	font-size: 12px;
+	font-weight: 600;
+	padding: 5px 12px;
+	white-space: nowrap;
+}
+
+.an-truck-view-switch {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+
+.an-truck-actions {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.an-truck-action-group {
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	padding: 12px;
+}
+
+.an-truck-action-group h5 {
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 650;
+	margin: 0 0 8px;
+	text-transform: uppercase;
+}
+
+.an-truck-action-group > div {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.an-truck-action {
+	max-width: 100%;
+	white-space: normal;
+}
+
+.an-truck-lists {
+	display: grid;
+	gap: 16px;
+	margin-top: 16px;
+}
+
+.an-truck-list-section {
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	padding: 14px;
+}
+
+.an-truck-list-section h4 {
+	font-size: 16px;
+	font-weight: 650;
+	margin: 0 0 12px;
+}
+
+.an-truck-list-section h5 {
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 600;
+	margin: 10px 0 6px;
+	text-transform: uppercase;
+}
+
+.an-truck-table {
+	background: var(--fg-color);
+	margin-bottom: 10px;
+	table-layout: fixed;
+}
+
+.an-truck-table th,
+.an-truck-table td {
+	overflow-wrap: anywhere;
+	vertical-align: middle;
+}
+
+.an-truck-table .btn-link {
+	padding: 0;
+	white-space: normal;
+}
+
+.an-truck-portal-page {
+	margin: -15px -15px 0;
+}
+
+.an-portal-shell {
+	--portal-sidebar-width: 220px;
+	background: #f7f7f7;
+	display: grid;
+	grid-template-columns: var(--portal-sidebar-width) minmax(0, 1fr);
+	min-height: calc(100vh - 60px);
+}
+
+.an-portal-shell.an-portal-right {
+	grid-template-columns: minmax(0, 1fr) var(--portal-sidebar-width);
+}
+
+.an-portal-shell.an-portal-right .an-portal-sidebar {
+	border-left: 1px solid #ededed;
+	border-right: 0;
+	grid-column: 2;
+	grid-row: 1;
+}
+
+.an-portal-shell.an-portal-right .an-portal-main {
+	grid-column: 1;
+	grid-row: 1;
+}
+
+.an-portal-sidebar {
+	background: #f4f4f4;
+	border-right: 1px solid #ededed;
+	height: calc(100vh - 60px);
+	overflow-y: auto;
+	padding: 10px 4px;
+	position: sticky;
+	top: 0;
+	z-index: 2;
+}
+
+.an-portal-brand {
+	align-items: center;
+	color: #111827;
+	display: flex;
+	gap: 10px;
+	justify-content: space-between;
+	margin: 0 2px 20px;
+	padding: 4px 2px;
+}
+
+.an-portal-brand strong,
+.an-portal-brand span {
+	display: block;
+	line-height: 1.25;
+}
+
+.an-portal-brand strong {
+	font-size: 16px;
+	font-weight: 650;
+}
+
+.an-portal-brand span {
+	font-size: 14px;
+}
+
+.an-portal-avatar {
+	align-items: center;
+	background: #737682;
+	border-radius: 10px;
+	color: #fff;
+	display: inline-flex;
+	font-size: 20px;
+	font-weight: 700;
+	height: 36px;
+	justify-content: center;
+	width: 36px;
+}
+
+.an-portal-menu {
+	display: grid;
+	gap: 4px;
+}
+
+.an-portal-menu-item {
+	align-items: center;
+	background: transparent;
+	border: 0;
+	border-radius: 8px;
+	color: #374151;
+	display: grid;
+	font-size: 14px;
+	gap: 8px;
+	grid-template-columns: minmax(0, 1fr) 18px;
+	line-height: 1.25;
+	min-height: 30px;
+	padding: 5px 8px;
+	text-align: start;
+	width: 100%;
+}
+
+.an-portal-menu-item .an-portal-icon {
+	background: transparent;
+	height: 18px;
+	margin: 0;
+	width: 18px;
+}
+
+.an-portal-menu-item span:not(.an-portal-icon) {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.an-portal-menu-item.active {
+	background: #fff;
+	box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+	color: #111827;
+}
+
+.an-portal-menu-item:hover {
+	background: #fff;
+}
+
+.an-portal-main {
+	min-width: 0;
+	padding: 22px 24px;
+}
+
+.an-portal-header {
+	align-items: flex-start;
+	background: #fff;
+	border: 1px solid #ededed;
+	border-radius: 8px;
+	display: flex;
+	gap: 16px;
+	justify-content: space-between;
+	margin-bottom: 16px;
+	padding: 18px;
+}
+
+.an-portal-kicker,
+.an-portal-section-title {
+	color: var(--text-muted);
+	font-size: 12px;
+	font-weight: 700;
+	margin-bottom: 8px;
+	text-transform: uppercase;
+}
+
+.an-portal-header h2 {
+	font-size: 24px;
+	font-weight: 700;
+	letter-spacing: 0;
+	line-height: 1.2;
+	margin: 0;
+}
+
+.an-portal-header p {
+	color: var(--text-muted);
+	margin: 8px 0 0;
+	max-width: 640px;
+}
+
+.an-portal-meta {
+	background: #f8f8f8;
+	border: 1px solid #ededed;
+	border-radius: 8px;
+	min-width: 180px;
+	padding: 10px 12px;
+	text-align: end;
+}
+
+.an-portal-meta strong,
+.an-portal-meta span {
+	display: block;
+}
+
+.an-portal-meta span {
+	color: var(--text-muted);
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+.an-portal-grid {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.an-portal-card {
+	background: #fff;
+	border: 1px solid #ededed;
+	border-radius: 8px;
+	color: var(--text-color);
+	min-height: 96px;
+	padding: 14px;
+	text-align: start;
+}
+
+.an-portal-card:hover {
+	border-color: var(--primary);
+	box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.an-portal-icon {
+	align-items: center;
+	background: #f3f4f6;
+	border-radius: 8px;
+	display: inline-flex;
+	height: 32px;
+	justify-content: center;
+	margin-bottom: 10px;
+	width: 32px;
+}
+
+.an-portal-card span:not(.an-portal-icon) {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.an-portal-kpi strong {
+	display: block;
+	font-size: 24px;
+	font-weight: 750;
+	line-height: 1;
+	margin-top: 10px;
+}
+
+.an-portal-quick {
+	margin-top: 20px;
+}
+
+.an-portal-action-card {
+	min-height: 86px;
+}
+
+@media (max-width: 768px) {
+	.an-truck-hero {
+		display: block;
+	}
+
+	.an-truck-status-badge {
+		display: inline-block;
+		margin-top: 10px;
+	}
+
+	.an-truck-actions {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 1100px) {
+	.an-portal-shell.an-portal-right,
+	.an-portal-shell {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.an-portal-sidebar {
+		border-bottom: 1px solid #ededed;
+		border-left: 0;
+		border-right: 0;
+		height: auto;
+		position: static;
+	}
+
+	.an-portal-shell.an-portal-right .an-portal-sidebar,
+	.an-portal-shell.an-portal-right .an-portal-main {
+		grid-column: 1;
+		grid-row: auto;
+	}
+}
+
+@media (max-width: 640px) {
+	.an-portal-main {
+		padding: 14px;
+	}
+
+	.an-portal-header {
+		display: block;
+	}
+
+	.an-portal-meta {
+		margin-top: 12px;
+		text-align: start;
+	}
+
+	.an-portal-grid {
+		grid-template-columns: 1fr;
+	}
+}

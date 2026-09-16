@@ -1,0 +1,65 @@
+{
+ "app": "an_truck",
+ "charts": [],
+ "content": "[{\"id\":\"an_truck_header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>AN Truck</b></span>\",\"col\":12}},{\"id\":\"an_truck_portal\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Main\",\"col\":3}},{\"id\":\"an_truck_imports\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Vehicle Import Files\",\"col\":6}},{\"id\":\"an_truck_vehicles\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Vehicle Masters\",\"col\":6}}]",
+ "creation": "2026-09-12 00:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "truck",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "AN Truck",
+ "links": [],
+ "modified": "2026-09-12 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "AN Truck",
+ "name": "AN Truck",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [
+  {
+   "document_type": "Vehicle Import File",
+   "label": "Vehicle Import Files",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Vehicle Master",
+   "label": "Vehicle Masters",
+   "quick_list_filter": "[[\"disabled\",\"=\",0]]"
+  }
+ ],
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "AN Truck Manager"
+  },
+  {
+   "role": "AN Truck Import User"
+  },
+  {
+   "role": "AN Truck Receiving User"
+  },
+  {
+   "role": "AN Truck Viewer"
+  }
+ ],
+ "sequence_id": 28,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "icon": "menu",
+   "label": "Main",
+   "link_to": "an-truck-portal",
+   "type": "Page"
+  }
+ ],
+ "title": "AN Truck"
+}

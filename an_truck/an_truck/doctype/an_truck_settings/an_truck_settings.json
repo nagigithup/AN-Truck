@@ -1,0 +1,23 @@
+{
+ "actions": [],
+ "doctype": "DocType",
+ "document_type": "Setup",
+ "engine": "InnoDB",
+ "field_order": ["vehicle_item_group", "require_import_file_on_vehicle_receipt", "auto_create_vehicle_master"],
+ "fields": [
+  {"fieldname": "vehicle_item_group", "fieldtype": "Link", "label": "Vehicle Item Group", "options": "Item Group"},
+  {"default": "1", "fieldname": "require_import_file_on_vehicle_receipt", "fieldtype": "Check", "label": "Require Import File on Vehicle Receipt"},
+  {"default": "1", "fieldname": "auto_create_vehicle_master", "fieldtype": "Check", "label": "Auto Create Vehicle Master"}
+ ],
+ "issingle": 1,
+ "module": "AN Truck",
+ "name": "AN Truck Settings",
+ "permissions": [
+  {"role": "System Manager", "read": 1, "write": 1},
+  {"role": "AN Truck Manager", "read": 1, "write": 1},
+  {"role": "AN Truck Import User", "read": 1},
+  {"role": "AN Truck Receiving User", "read": 1}
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC"
+}

@@ -8,7 +8,7 @@ app_license = "mit"
 # Apps
 # ------------------
 
-# required_apps = []
+required_apps = ["erpnext"]
 
 # Each item in the list will be shown as an app in the apps page
 # add_to_apps_screen = [
@@ -25,7 +25,7 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/an_truck/css/an_truck.css"
+app_include_css = "/assets/an_truck/css/an_truck.css"
 # app_include_js = "/assets/an_truck/js/an_truck.js"
 
 # include js, css files in header of web template
@@ -43,7 +43,14 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"Vehicle Import File": "public/js/vehicle_import_file.js",
+	"Purchase Order": "public/js/purchase_order.js",
+	"Purchase Receipt": "public/js/purchase_receipt.js",
+	"Purchase Invoice": "public/js/purchase_invoice.js",
+	"Landed Cost Voucher": "public/js/landed_cost_voucher.js",
+	"Payment Entry": "public/js/payment_entry.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -60,9 +67,12 @@ app_license = "mit"
 # home_page = "login"
 
 # website user home page (by Role)
-# role_home_page = {
-# 	"Role": "home_page"
-# }
+role_home_page = {
+	"AN Truck Manager": "/desk/an-truck-portal",
+	"AN Truck Import User": "/desk/an-truck-portal",
+	"AN Truck Receiving User": "/desk/an-truck-portal",
+	"AN Truck Viewer": "/desk/an-truck-portal",
+}
 
 # Generators
 # ----------
@@ -138,13 +148,75 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Purchase Order": {
+		"validate": "an_truck.services.validate_import_file_for_purchase_doc",
+	},
+	"Purchase Receipt": {
+		"before_validate": "an_truck.services.before_validate_purchase_receipt",
+		"on_submit": "an_truck.services.on_submit_purchase_receipt",
+		"on_cancel": "an_truck.services.on_cancel_purchase_receipt",
+	},
+	"Purchase Invoice": {
+		"validate": "an_truck.services.validate_purchase_invoice",
+	},
+	"Landed Cost Voucher": {
+		"validate": "an_truck.services.validate_landed_cost_voucher",
+		"on_submit": "an_truck.services.on_landed_cost_change",
+		"on_cancel": "an_truck.services.on_landed_cost_change",
+	},
+	"Payment Entry": {
+		"validate": "an_truck.services.validate_payment_entry",
+	},
+	"Vehicle": {
+		"validate": "an_truck.services.validate_vehicle_registration",
+	},
+	"Sales Order": {
+		"on_submit": "an_truck.services.on_submit_sales_order",
+		"on_cancel": "an_truck.services.on_cancel_sales_order",
+	},
+	"Delivery Note": {
+		"on_submit": "an_truck.services.on_submit_delivery_note",
+		"on_cancel": "an_truck.services.on_cancel_delivery_note",
+	},
+	"Sales Invoice": {
+		"on_submit": "an_truck.services.on_submit_sales_invoice",
+		"on_cancel": "an_truck.services.on_cancel_sales_invoice",
+	},
+}
+
+fixtures = [
+	{
+		"dt": "Custom Field",
+		"filters": [["name", "in", [
+			"Purchase Order-custom_vehicle_import_file",
+			"Purchase Receipt-custom_vehicle_import_file",
+			"Purchase Invoice-custom_vehicle_import_file",
+			"Landed Cost Voucher-custom_vehicle_import_file",
+			"Payment Entry-custom_vehicle_import_file",
+			"Quotation-custom_vehicle_import_file",
+			"Sales Order-custom_vehicle_import_file",
+			"Delivery Note-custom_vehicle_import_file",
+			"Sales Invoice-custom_vehicle_import_file",
+			"Quotation Item-custom_vehicle_master",
+			"Quotation Item-custom_vin",
+			"Quotation Item-custom_vehicle_import_file",
+			"Sales Order Item-custom_vehicle_master",
+			"Sales Order Item-custom_vin",
+			"Sales Order Item-custom_vehicle_import_file",
+			"Delivery Note Item-custom_vehicle_master",
+			"Delivery Note Item-custom_vin",
+			"Delivery Note Item-custom_vehicle_import_file",
+			"Sales Invoice Item-custom_vehicle_master",
+			"Sales Invoice Item-custom_vin",
+			"Sales Invoice Item-custom_vehicle_import_file",
+			"Vehicle-custom_vehicle_import_file",
+			"Vehicle-custom_vehicle_master",
+			"Vehicle-custom_vin",
+			"Vehicle-custom_registration_status",
+		]]],
+	},
+]
 
 # Scheduled Tasks
 # ---------------
@@ -255,4 +327,3 @@ app_license = "mit"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

@@ -1,0 +1,402 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "field:vin",
+ "creation": "2026-09-12 17:53:24.309530",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "engine": "InnoDB",
+ "field_order": [
+  "identification_section",
+  "vin",
+  "chassis_number",
+  "item_code",
+  "item_name",
+  "vehicle_status",
+  "specifications",
+  "disabled",
+  "column_break_fnsh",
+  "vehicle_information",
+  "brand",
+  "model",
+  "model_year",
+  "color",
+  "engine_number",
+  "engine_type",
+  "transmission",
+  "fuel_type",
+  "manufacturing_date",
+  "country_of_origin",
+  "vehicle_photo",
+  "specification_attachment",
+  "column_break_ogen",
+  "cost_information",
+  "purchase_valuation_rate",
+  "landed_cost_added",
+  "final_valuation_rate",
+  "cost_currency",
+  "notes",
+  "column_break_efib",
+  "import_and_purchasing_references",
+  "vehicle_import_file",
+  "supplier",
+  "purchase_order",
+  "purchase_receipt",
+  "purchase_receipt_item",
+  "warehouse",
+  "receipt_date",
+  "company",
+  "sales_references",
+  "quotation",
+  "sales_order",
+  "delivery_note",
+  "sales_invoice",
+  "customer",
+  "selling_rate"
+ ],
+ "fields": [
+  {
+   "fieldname": "identification_section",
+   "fieldtype": "Section Break",
+   "label": "Identification"
+  },
+  {
+   "fieldname": "vin",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "VIN",
+   "options": "Serial No",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "chassis_number",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Chassis Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Item Code",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Item Name",
+   "read_only": 1
+  },
+  {
+   "default": "Received",
+   "fieldname": "vehicle_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Vehicle Status",
+   "options": "Ordered\nIn Transit\nReceived\nUnder Inspection\nAvailable\nReserved\nSold\nDelivered\nUnder Maintenance\nReceipt Cancelled",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "vehicle_import_file",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Vehicle Import File",
+   "options": "Vehicle Import File"
+  },
+  {
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Supplier",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Purchase Order",
+   "options": "Purchase Order"
+  },
+  {
+   "fieldname": "purchase_receipt",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Purchase Receipt",
+   "options": "Purchase Receipt"
+  },
+  {
+   "fieldname": "purchase_receipt_item",
+   "fieldtype": "Data",
+   "label": "Purchase Receipt Item"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "receipt_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Receipt Date"
+  },
+  {
+   "fieldname": "brand",
+   "fieldtype": "Data",
+   "label": "Brand"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model"
+  },
+  {
+   "fieldname": "model_year",
+   "fieldtype": "Int",
+   "label": "Model Year"
+  },
+  {
+   "fieldname": "color",
+   "fieldtype": "Data",
+   "label": "Color"
+  },
+  {
+   "fieldname": "engine_number",
+   "fieldtype": "Data",
+   "label": "Engine Number"
+  },
+  {
+   "fieldname": "engine_type",
+   "fieldtype": "Data",
+   "label": "Engine Type"
+  },
+  {
+   "fieldname": "transmission",
+   "fieldtype": "Data",
+   "label": "Transmission"
+  },
+  {
+   "fieldname": "fuel_type",
+   "fieldtype": "Select",
+   "label": "Fuel Type",
+   "options": "\nDiesel\nPetrol\nElectric\nHybrid\nOther"
+  },
+  {
+   "fieldname": "manufacturing_date",
+   "fieldtype": "Date",
+   "label": "Manufacturing Date"
+  },
+  {
+   "fieldname": "country_of_origin",
+   "fieldtype": "Link",
+   "label": "Country of Origin",
+   "options": "Country"
+  },
+  {
+   "fieldname": "specifications",
+   "fieldtype": "Long Text",
+   "label": "Specifications"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "vehicle_photo",
+   "fieldtype": "Attach Image",
+   "label": "Vehicle Photo"
+  },
+  {
+   "fieldname": "specification_attachment",
+   "fieldtype": "Attach",
+   "label": "Specification Attachment"
+  },
+  {
+   "fieldname": "purchase_valuation_rate",
+   "fieldtype": "Currency",
+   "label": "Purchase Valuation Rate",
+   "options": "cost_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "landed_cost_added",
+   "fieldtype": "Currency",
+   "label": "Landed Cost Added",
+   "options": "cost_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "final_valuation_rate",
+   "fieldtype": "Currency",
+   "label": "Final Valuation Rate",
+   "options": "cost_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_currency",
+   "fieldtype": "Link",
+   "label": "Cost Currency",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fnsh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "vehicle_information",
+   "fieldtype": "Heading",
+   "label": "Vehicle Information"
+  },
+  {
+   "fieldname": "column_break_ogen",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_information",
+   "fieldtype": "Heading",
+   "label": "Cost Information"
+  },
+  {
+   "fieldname": "column_break_efib",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "import_and_purchasing_references",
+   "fieldtype": "Heading",
+   "label": "Import and Purchasing References"
+  },
+  {
+   "fieldname": "sales_references",
+   "fieldtype": "Section Break",
+   "label": "Sales References"
+  },
+  {
+   "fieldname": "quotation",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Quotation",
+   "options": "Quotation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_order",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Sales Order",
+   "options": "Sales Order",
+   "read_only": 1
+  },
+  {
+   "fieldname": "delivery_note",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Delivery Note",
+   "options": "Delivery Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "selling_rate",
+   "fieldtype": "Currency",
+   "label": "Selling Rate",
+   "options": "cost_currency",
+   "read_only": 1
+  }
+ ],
+ "links": [],
+ "modified": "2026-09-12 18:23:56.551362",
+ "modified_by": "Administrator",
+ "module": "AN Truck",
+ "name": "Vehicle Master",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Manager",
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Import User"
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Receiving User",
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Viewer"
+  }
+ ],
+ "row_format": "Dynamic",
+ "search_fields": "vin,chassis_number,item_code,supplier,vehicle_import_file,purchase_receipt",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "vin",
+ "track_changes": 1
+}
