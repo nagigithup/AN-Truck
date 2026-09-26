@@ -31,9 +31,24 @@ class VehicleMaster(Document):
 		if self.company and not self.cost_currency:
 			self.cost_currency = frappe.db.get_value("Company", self.company, "default_currency")
 		if self.purchase_receipt_item:
-			self.purchase_valuation_rate = frappe.db.get_value("Purchase Receipt Item", self.purchase_receipt_item, "valuation_rate") or self.purchase_valuation_rate
+			self.purchase_valuation_rate = get_purchase_rate(self.purchase_receipt_item)
 		self.landed_cost_added = get_landed_cost_added(self.purchase_receipt, self.purchase_receipt_item)
-		self.final_valuation_rate = self.purchase_valuation_rate or 0
+		self.final_valuation_rate = flt(self.purchase_valuation_rate) + flt(self.landed_cost_added)
+
+
+def get_purchase_rate(purchase_receipt_item):
+	"""Return the item price in company currency, before landed costs."""
+	if not purchase_receipt_item:
+		return 0
+	row = frappe.db.get_value(
+		"Purchase Receipt Item",
+		purchase_receipt_item,
+		["base_net_rate", "base_rate", "valuation_rate"],
+		as_dict=True,
+	)
+	if not row:
+		return 0
+	return flt(row.base_net_rate) or flt(row.base_rate) or flt(row.valuation_rate)
 
 
 def get_landed_cost_added(purchase_receipt, purchase_receipt_item=None):

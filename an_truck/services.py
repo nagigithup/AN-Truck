@@ -2,7 +2,6 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt
 
-
 CUSTOM_FIELD = "custom_vehicle_import_file"
 DOWNSTREAM_STATUSES = {"Reserved", "Sold", "Delivered", "Under Maintenance"}
 
@@ -144,7 +143,7 @@ def create_or_update_vehicle_master(doc, row, vin):
 		"purchase_receipt_item": row.name,
 		"warehouse": row.warehouse,
 		"receipt_date": doc.posting_date,
-		"purchase_valuation_rate": row.get("valuation_rate"),
+		"purchase_valuation_rate": flt(row.get("base_net_rate")) or flt(row.get("base_rate")) or flt(row.get("valuation_rate")),
 		"cost_currency": company_currency,
 		"vehicle_status": "Received",
 		"disabled": 0,

@@ -7,40 +7,6 @@ frappe.ui.form.on("Vehicle Import File", {
 	},
 });
 
-const ACTION_GROUPS = [
-	{
-		title: __("Purchasing"),
-		view: "purchase",
-		actions: [
-			["create_purchase_order", __("Create Purchase Order"), "Purchase Order", show_purchase_order_dialog, "primary"],
-			["create_purchase_receipt", __("Record Purchase Receipt"), "Purchase Receipt", show_purchase_receipt_dialog],
-			["create_purchase_invoice", __("Create Purchase Invoice"), "Purchase Invoice", show_purchase_invoice_dialog],
-			["supplier_payment", __("Record Supplier Payment"), "Payment Entry", (frm) => show_payment_dialog(frm, "Purchase Invoice")],
-			["add_landed_cost", __("Add Landed Cost"), "Landed Cost Voucher", show_landed_cost_dialog],
-		],
-	},
-	{
-		title: __("Sales and Delivery"),
-		view: "sales",
-		actions: [
-			["create_customer_quotation", __("Create Customer Quotation"), "Quotation", show_quotation_dialog],
-			["create_sales_order", __("Create Sales Order"), "Sales Order", show_sales_order_dialog, "primary"],
-			["create_delivery_note", __("Create Delivery Note"), "Delivery Note", show_delivery_note_dialog],
-			["create_sales_invoice", __("Create Sales Invoice"), "Sales Invoice", show_sales_invoice_dialog],
-			["customer_payment", __("Record Customer Payment"), "Payment Entry", (frm) => show_payment_dialog(frm, "Sales Invoice")],
-		],
-	},
-	{
-		title: __("Vehicles"),
-		view: "all",
-		actions: [
-			["view_vehicles", __("View Vehicles"), "Vehicle Master", (frm) => frappe.set_route("List", "Vehicle Master", { vehicle_import_file: frm.doc.name })],
-			["complete_vehicle_information", __("Complete Vehicle Information"), "Vehicle Master", show_vehicle_info_dialog],
-			["start_vehicle_inspection", __("Start Vehicle Inspection"), "Vehicle Master", show_inspection_dialog],
-		],
-	},
-];
-
 function prepare_unified_layout(frm) {
 	frm.$wrapper.addClass("an-truck-form");
 	if (frm.dashboard?.wrapper) {
@@ -65,15 +31,6 @@ function render_control_panel(frm) {
 	const wrapper = frm.fields_dict.transaction_control_panel_html?.$wrapper;
 	if (!wrapper) return;
 	const summary = frm.an_truck_data?.summary || {};
-	const active_view = get_operational_view();
-	const groups = ACTION_GROUPS.map((group) => {
-		if (group.view !== "all" && group.view !== active_view) return "";
-		const actions = group.actions
-			.filter((action) => can_create(frm, action[2]) || action[0] === "view_vehicles")
-			.map((action) => `<button class="btn btn-sm ${action[4] === "primary" ? "btn-primary" : "btn-default"} an-truck-action" data-action="${action[0]}">${action[1]}</button>`)
-			.join("");
-		return actions ? `<div class="an-truck-action-group"><h5>${group.title}</h5><div>${actions}</div></div>` : "";
-	}).join("");
 	wrapper.html(`
 		<div class="an-truck-ops">
 			<div class="an-truck-hero">
@@ -84,10 +41,6 @@ function render_control_panel(frm) {
 				</div>
 				<div class="an-truck-status-badge">${frappe.utils.escape_html(summary.status || frm.doc.status || "")}</div>
 			</div>
-			<div class="an-truck-view-switch">
-				<button class="btn btn-xs ${active_view === "purchase" ? "btn-primary" : "btn-default"}" data-an-truck-view="purchase">${__("Purchase View")}</button>
-				<button class="btn btn-xs ${active_view === "sales" ? "btn-primary" : "btn-default"}" data-an-truck-view="sales">${__("Sales View")}</button>
-			</div>
 			<div class="an-truck-summary an-truck-summary-ops">
 				<div><strong>${__("Expected")}</strong><span>${summary.expected || 0}</span></div>
 				<div><strong>${__("Received")}</strong><span>${summary.received || 0}</span></div>
@@ -95,26 +48,8 @@ function render_control_panel(frm) {
 				<div><strong>${__("Created Vehicle Masters")}</strong><span>${summary.created || 0}</span></div>
 				<div><strong>${__("Contract Amount")}</strong><span>${format_currency(summary.contract_amount || 0, summary.currency)}</span></div>
 			</div>
-			<div class="an-truck-actions">${groups}</div>
 		</div>
 	`);
-	wrapper.find("[data-an-truck-view]").on("click", function () {
-		sessionStorage.setItem("an_truck_vif_view", $(this).data("an-truck-view"));
-		render_control_panel(frm);
-	});
-	wrapper.find(".an-truck-action").on("click", function () {
-		const action_name = $(this).data("action");
-		const action = ACTION_GROUPS.flatMap((group) => group.actions).find((item) => item[0] === action_name);
-		if (action) action[3](frm);
-	});
-}
-
-function get_operational_view() {
-	return sessionStorage.getItem("an_truck_vif_view") || "purchase";
-}
-
-function can_create(frm, doctype) {
-	return Boolean(frm.an_truck_data?.permissions?.[doctype]?.create);
 }
 
 function render_summary(frm) {
@@ -131,35 +66,32 @@ function render_transaction_lists(frm) {
 	wrapper.html(`
 		<div class="an-truck-lists">
 			${render_doc_group(__("Purchasing"), [
-				[__("Purchase Orders"), "Purchase Order", docs.purchase_orders],
-				[__("Purchase Receipts"), "Purchase Receipt", docs.purchase_receipts],
-				[__("Purchase Invoices"), "Purchase Invoice", docs.purchase_invoices],
-				[__("Supplier Payments"), "Payment Entry", docs.supplier_payments],
-				[__("Landed Cost Vouchers"), "Landed Cost Voucher", docs.landed_cost_vouchers],
+				[__("Purchase Orders"), docs.purchase_orders],
+				[__("Purchase Receipts"), docs.purchase_receipts],
+				[__("Purchase Invoices"), docs.purchase_invoices],
+				[__("Supplier Payments"), docs.supplier_payments],
+				[__("Landed Cost Vouchers"), docs.landed_cost_vouchers],
 			])}
 			${render_vehicle_group(vehicles)}
 			${render_doc_group(__("Sales"), [
-				[__("Quotations"), "Quotation", docs.quotations],
-				[__("Sales Orders"), "Sales Order", docs.sales_orders],
-				[__("Delivery Notes"), "Delivery Note", docs.delivery_notes],
-				[__("Sales Invoices"), "Sales Invoice", docs.sales_invoices],
-				[__("Customer Payments"), "Payment Entry", docs.customer_payments],
+				[__("Quotations"), docs.quotations],
+				[__("Sales Orders"), docs.sales_orders],
+				[__("Delivery Notes"), docs.delivery_notes],
+				[__("Sales Invoices"), docs.sales_invoices],
+				[__("Customer Payments"), docs.customer_payments],
 			])}
 		</div>
 	`);
-	wrapper.find("[data-open-doctype]").on("click", function () {
-		frappe.set_route("Form", $(this).data("open-doctype"), $(this).data("open-name"));
-	});
 }
 
 function render_doc_group(title, sections) {
-	return `<section class="an-truck-list-section"><h4>${title}</h4>${sections.map(([label, doctype, rows]) => render_doc_table(label, doctype, rows || [])).join("")}</section>`;
+	return `<section class="an-truck-list-section"><h4>${title}</h4>${sections.map(([label, rows]) => render_doc_table(label, rows || [])).join("")}</section>`;
 }
 
-function render_doc_table(label, doctype, rows) {
+function render_doc_table(label, rows) {
 	const body = rows.length ? rows.map((row) => `
 		<tr>
-			<td>${link_button(doctype, row.name)}</td>
+			<td>${display_value(row.name)}</td>
 			<td>${frappe.datetime.str_to_user(row.date || "")}</td>
 			<td>${frappe.utils.escape_html(row.party || "")}</td>
 			<td>${frappe.utils.escape_html(row.currency || "")}</td>
@@ -177,7 +109,7 @@ function render_doc_table(label, doctype, rows) {
 function render_vehicle_group(vehicles) {
 	const body = vehicles.length ? vehicles.map((row) => `
 		<tr>
-			<td>${link_button("Vehicle Master", row.name, row.vin)}</td>
+			<td>${display_value(row.vin || row.name)}</td>
 			<td>${frappe.utils.escape_html(row.item_code || "")}</td>
 			<td>${frappe.utils.escape_html(row.model || "")}</td>
 			<td>${frappe.utils.escape_html(row.color || "")}</td>
@@ -193,8 +125,8 @@ function render_vehicle_group(vehicles) {
 	</table></section>`;
 }
 
-function link_button(doctype, name, label) {
-	return `<button class="btn btn-xs btn-link" data-open-doctype="${doctype}" data-open-name="${name}">${frappe.utils.escape_html(label || name || "")}</button>`;
+function display_value(value) {
+	return `<span>${frappe.utils.escape_html(value || "")}</span>`;
 }
 
 function docstatus_label(docstatus) {

@@ -7,8 +7,11 @@ from unittest.mock import patch
 import frappe
 from frappe.tests import IntegrationTestCase
 
-from an_truck.an_truck.doctype.vehicle_master.vehicle_master import VehicleMaster, get_landed_cost_added
-
+from an_truck.an_truck.doctype.vehicle_master.vehicle_master import (
+	VehicleMaster,
+	get_landed_cost_added,
+	get_purchase_rate,
+)
 
 # On IntegrationTestCase, the doctype test records and all
 # link-field test record dependencies are recursively loaded
@@ -43,7 +46,7 @@ class TestVehicleMasterCostCalculation(unittest.TestCase):
 			):
 				self.assertAlmostEqual(get_landed_cost_added("PR-1", "PRI-1"), 3333.3333333333335)
 
-	def test_final_valuation_rate_uses_purchase_receipt_valuation_rate(self):
+	def test_final_valuation_rate_adds_landed_cost_to_purchase_rate(self):
 		vm = VehicleMaster(
 			{
 				"doctype": "Vehicle Master",
@@ -55,8 +58,8 @@ class TestVehicleMasterCostCalculation(unittest.TestCase):
 		)
 
 		def get_value(doctype, name, fieldname, as_dict=False):
-			if fieldname == "valuation_rate":
-				return 35833.333333333
+			if fieldname == ["base_net_rate", "base_rate", "valuation_rate"]:
+				return frappe._dict(base_net_rate=32500, base_rate=32500, valuation_rate=35833.333333333)
 			return frappe._dict(landed_cost_voucher_amount=10000, stock_qty=3, qty=3)
 
 		with (
@@ -66,6 +69,13 @@ class TestVehicleMasterCostCalculation(unittest.TestCase):
 		):
 			vm.refresh_costs()
 
-		self.assertAlmostEqual(vm.purchase_valuation_rate, 35833.333333333)
+		self.assertAlmostEqual(vm.purchase_valuation_rate, 32500)
 		self.assertAlmostEqual(vm.landed_cost_added, 3333.3333333333335)
 		self.assertAlmostEqual(vm.final_valuation_rate, 35833.333333333)
+
+	def test_purchase_rate_excludes_landed_cost(self):
+		with patch(
+			"an_truck.an_truck.doctype.vehicle_master.vehicle_master.frappe.db.get_value",
+			return_value=frappe._dict(base_net_rate=35000, base_rate=35000, valuation_rate=45000),
+		):
+			self.assertEqual(get_purchase_rate("PRI-1"), 35000)

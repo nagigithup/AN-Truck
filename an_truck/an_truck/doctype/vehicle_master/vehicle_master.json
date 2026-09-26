@@ -53,7 +53,10 @@
   "delivery_note",
   "sales_invoice",
   "customer",
-  "selling_rate"
+  "selling_rate",
+  "profit_distributed",
+  "profit_distributed_on",
+  "profit_distributed_by"
  ],
  "fields": [
   {
@@ -341,6 +344,33 @@
    "fieldtype": "Currency",
    "label": "Selling Rate",
    "options": "cost_currency",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "Indicates that the profit/loss for this vehicle has already been distributed between the partners.",
+   "fieldname": "profit_distributed",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Profit Distributed",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "profit_distributed_on",
+   "fieldtype": "Datetime",
+   "hidden": 1,
+   "label": "Profit Distributed On",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "profit_distributed_by",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Profit Distributed By",
+   "no_copy": 1,
+   "options": "User",
    "read_only": 1
   }
  ],
