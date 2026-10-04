@@ -1,0 +1,119 @@
+{% extends "templates/web.html" %}
+
+{% block style %}
+<link rel="stylesheet" href="/assets/an_truck/css/warranty_provider.css">
+{% endblock %}
+
+{% block page_content %}
+<main class="wp-shell" data-branch-mode="{{ portal_context.branch_mode }}">
+	<header class="wp-header">
+		<div>
+			<p class="wp-eyebrow">After-sales service</p>
+			<h1>Warranty Provider Portal</h1>
+			<p>{{ portal_context.provider.label }}</p>
+		</div>
+		<div class="wp-user">{{ portal_context.user }}</div>
+	</header>
+
+	<nav class="wp-tabs" aria-label="Portal sections">
+		<button class="active" data-view="dashboard">Dashboard</button>
+		<button data-view="search">Exact VIN Search</button>
+		<button data-view="claims">Claims</button>
+	</nav>
+
+	<div id="wp-alert" class="wp-alert" hidden></div>
+
+	<section id="view-dashboard" class="wp-view">
+		<div id="wp-counts" class="wp-stat-grid"></div>
+		<div class="wp-panel">
+			<div class="wp-panel-title"><h2>Recent claims</h2><button class="wp-link" data-view-link="claims">View all</button></div>
+			<div id="wp-recent"></div>
+		</div>
+	</section>
+
+	<section id="view-search" class="wp-view" hidden>
+		<div class="wp-panel wp-search-panel">
+			<h2>Find a vehicle warranty</h2>
+			<p>Enter the complete VIN or chassis number. Partial searches are not supported.</p>
+			<form id="vin-search-form" class="wp-inline-form">
+				<label><span>VIN / chassis number</span><input id="vin-input" maxlength="64" autocomplete="off" required></label>
+				<button class="wp-primary" type="submit">Search exact VIN</button>
+			</form>
+		</div>
+		<div id="warranty-result"></div>
+	</section>
+
+	<section id="view-claims" class="wp-view" hidden>
+		<div class="wp-panel-title"><h2>Warranty claims</h2><button id="refresh-claims" class="wp-secondary">Refresh</button></div>
+		<div id="wp-claims" class="wp-panel"></div>
+	</section>
+
+	<section id="view-claim" class="wp-view" hidden>
+		<div class="wp-panel-title"><button id="back-to-claims" class="wp-link">← Claims</button><div id="claim-actions"></div></div>
+		<form id="claim-form">
+			<div class="wp-panel">
+				<h2 id="claim-title">Warranty claim</h2>
+				<div id="claim-meta" class="wp-meta"></div>
+				<div class="wp-grid">
+					<label class="wide"><span>Complaint</span><textarea name="complaint" required></textarea></label>
+					<label><span>Failure date</span><input type="date" name="custom_failure_date"></label>
+					<label><span>Current odometer</span><input type="number" min="0" step="1" name="custom_current_odometer"></label>
+				</div>
+			</div>
+			<div class="wp-panel">
+				<h3>Inspection and diagnosis</h3>
+				<div class="wp-grid">
+					<label><span>Inspection date</span><input type="date" name="custom_inspection_date"></label>
+					<label><span>Technician</span><input name="custom_technician_name"></label>
+					<label class="wide"><span>Diagnosis</span><textarea name="custom_diagnosis"></textarea></label>
+					<label class="wide"><span>Inspection details</span><textarea name="custom_inspection_details"></textarea></label>
+					<label class="wide"><span>Root cause</span><textarea name="custom_root_cause"></textarea></label>
+				</div>
+			</div>
+			<div class="wp-panel">
+				<h3>Provider assessment</h3>
+				<div class="wp-grid">
+					<label><span>Recommendation</span><select name="custom_provider_recommendation"><option></option><option>Covered</option><option>Partially Covered</option><option>Not Covered</option><option>Requires Company Review</option></select></label>
+					<label><span>Reason</span><textarea name="custom_provider_reason"></textarea></label>
+					<label class="wide"><span>Technical notes</span><textarea name="custom_provider_technical_notes"></textarea></label>
+				</div>
+			</div>
+			<div class="wp-panel"><div class="wp-panel-title"><h3>Spare parts</h3><button type="button" id="add-part" class="wp-secondary">Add part</button></div><div id="parts-table"></div></div>
+			<div class="wp-panel"><div class="wp-panel-title"><h3>Labor and services</h3><button type="button" id="add-service" class="wp-secondary">Add service</button></div><div id="services-table"></div></div>
+			<div class="wp-panel">
+				<h3>Other charges</h3>
+				<div class="wp-grid"><label><span>Total</span><input type="number" min="0" step="0.01" name="custom_other_charges"></label><label><span>Covered amount</span><input type="number" min="0" step="0.01" name="custom_other_covered_amount"></label></div>
+			</div>
+			<div class="wp-panel"><h3>Cost summary</h3><div id="cost-summary" class="wp-stat-grid"></div></div>
+			<div class="wp-panel">
+				<div class="wp-panel-title"><h3>Private documents</h3></div>
+				<div id="documents-list"></div>
+				<div class="wp-grid wp-upload">
+					<label><span>Document type</span><select id="document-type"><option>Inspection Report</option><option>Repair Report</option><option>Repair Invoice</option><option>Spare Part Invoice</option><option>Vehicle Photo</option><option>Damaged Part Photo</option><option>Other Supporting Document</option></select></label>
+					<label><span>File (private, max 10 MB)</span><input id="document-file" type="file" accept=".pdf,.png,.jpg,.jpeg,.webp"></label>
+					<button id="upload-document" type="button" class="wp-secondary">Upload securely</button>
+				</div>
+			</div>
+			<div class="wp-form-actions"><button id="save-claim" class="wp-primary" type="submit">Save changes</button></div>
+		</form>
+	</section>
+</main>
+
+<dialog id="create-claim-dialog" class="wp-dialog">
+	<form id="create-claim-form" method="dialog">
+		<h2>Create warranty claim</h2>
+		<input type="hidden" name="vehicle_warranty">
+		<div class="wp-grid">
+			<label class="wide"><span>Complaint</span><textarea name="complaint" required></textarea></label>
+			<label><span>Failure date</span><input type="date" name="custom_failure_date" required></label>
+			<label id="create-branch-label"><span>Provider branch</span><select name="branch"></select></label>
+		</div>
+		<div class="wp-form-actions"><button type="button" class="wp-secondary" data-close-dialog>Cancel</button><button type="submit" class="wp-primary">Create claim</button></div>
+	</form>
+</dialog>
+{% endblock %}
+
+{% block script %}
+<script>window.warrantyPortalBootstrap = {{ portal_context | tojson }};</script>
+<script src="/assets/an_truck/js/warranty_provider_portal.js"></script>
+{% endblock %}

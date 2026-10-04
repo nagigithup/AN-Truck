@@ -1,0 +1,43 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "naming_series:",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["naming_series", "warranty_provider", "branch_name", "branch_name_arabic", "branch_code", "active", "location_section", "address", "city", "region", "country", "google_maps_url", "contact_section", "contact_person", "mobile", "phone", "email", "working_hours", "notes"],
+ "fields": [
+  {"fieldname":"naming_series","fieldtype":"Select","label":"Series","options":"WPB-.#####","default":"WPB-.#####","reqd":1,"no_copy":1},
+  {"fieldname":"warranty_provider","fieldtype":"Link","label":"Warranty Provider","options":"Warranty Provider","reqd":1,"in_list_view":1,"in_standard_filter":1},
+  {"fieldname":"branch_name","fieldtype":"Data","label":"Branch Name","reqd":1,"in_list_view":1},
+  {"fieldname":"branch_name_arabic","fieldtype":"Data","label":"Branch Name Arabic"},
+  {"fieldname":"branch_code","fieldtype":"Data","label":"Branch Code","reqd":1,"in_list_view":1,"in_standard_filter":1},
+  {"fieldname":"active","fieldtype":"Check","label":"Active","default":"1","in_list_view":1,"in_standard_filter":1},
+  {"fieldname":"location_section","fieldtype":"Section Break","label":"Location"},
+  {"fieldname":"address","fieldtype":"Link","label":"Address","options":"Address"},
+  {"fieldname":"city","fieldtype":"Data","label":"City","reqd":1,"in_list_view":1,"in_standard_filter":1},
+  {"fieldname":"region","fieldtype":"Data","label":"Region","in_standard_filter":1},
+  {"fieldname":"country","fieldtype":"Link","label":"Country","options":"Country","default":"Saudi Arabia"},
+  {"fieldname":"google_maps_url","fieldtype":"Data","label":"Google Maps URL","options":"URL"},
+  {"fieldname":"contact_section","fieldtype":"Section Break","label":"Contact"},
+  {"fieldname":"contact_person","fieldtype":"Data","label":"Contact Person"},
+  {"fieldname":"mobile","fieldtype":"Data","label":"Mobile","options":"Phone"},
+  {"fieldname":"phone","fieldtype":"Data","label":"Phone","options":"Phone"},
+  {"fieldname":"email","fieldtype":"Data","label":"Email","options":"Email"},
+  {"fieldname":"working_hours","fieldtype":"Small Text","label":"Working Hours"},
+  {"fieldname":"notes","fieldtype":"Text Editor","label":"Notes"}
+ ],
+ "links": [],
+ "module": "AN Truck",
+ "name": "Warranty Provider Branch",
+ "naming_rule": "By \"Naming Series\" field",
+ "permissions": [
+  {"role":"System Manager","read":1,"write":1,"create":1,"delete":1,"print":1,"report":1,"export":1},
+  {"role":"AN Truck Warranty Manager","read":1,"write":1,"create":1,"delete":1,"print":1,"report":1,"export":1},
+  {"role":"AN Truck Warranty User","read":1,"print":1,"report":1}
+ ],
+ "search_fields": "branch_name,branch_name_arabic,branch_code,city,region",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "title_field": "branch_name",
+ "track_changes": 1
+}

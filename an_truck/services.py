@@ -300,9 +300,15 @@ def on_submit_delivery_note(doc, method=None):
 			vm.save(ignore_permissions=True)
 	if doc.get(CUSTOM_FIELD):
 		refresh_import_file(doc.get(CUSTOM_FIELD))
+	from an_truck.warranty.activation import activate_warranties_from_delivery
+
+	activate_warranties_from_delivery(doc)
 
 
 def on_cancel_delivery_note(doc, method=None):
+	from an_truck.warranty.activation import cancel_warranties_for_source
+
+	cancel_warranties_for_source("Delivery Note", doc.name)
 	for row in doc.get("items", []):
 		if row.get("custom_vehicle_master"):
 			vm = frappe.get_doc("Vehicle Master", row.custom_vehicle_master)
@@ -326,9 +332,15 @@ def on_submit_sales_invoice(doc, method=None):
 			vm.save(ignore_permissions=True)
 	if doc.get(CUSTOM_FIELD):
 		refresh_import_file(doc.get(CUSTOM_FIELD))
+	from an_truck.warranty.activation import activate_warranties_from_sales_invoice
+
+	activate_warranties_from_sales_invoice(doc)
 
 
 def on_cancel_sales_invoice(doc, method=None):
+	from an_truck.warranty.activation import cancel_warranties_for_source
+
+	cancel_warranties_for_source("Sales Invoice", doc.name)
 	for row in doc.get("items", []):
 		if row.get("custom_vehicle_master"):
 			vm = frappe.get_doc("Vehicle Master", row.custom_vehicle_master)

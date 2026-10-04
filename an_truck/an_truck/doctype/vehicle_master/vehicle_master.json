@@ -8,422 +8,205 @@
  "document_type": "Document",
  "engine": "InnoDB",
  "field_order": [
-  "identification_section",
-  "vin",
-  "chassis_number",
-  "item_code",
-  "item_name",
-  "vehicle_status",
-  "specifications",
-  "disabled",
-  "column_break_fnsh",
-  "vehicle_information",
-  "brand",
-  "model",
-  "model_year",
-  "color",
-  "engine_number",
-  "engine_type",
-  "transmission",
-  "fuel_type",
-  "manufacturing_date",
-  "country_of_origin",
-  "vehicle_photo",
-  "specification_attachment",
-  "column_break_ogen",
-  "cost_information",
-  "purchase_valuation_rate",
-  "landed_cost_added",
-  "final_valuation_rate",
-  "cost_currency",
-  "notes",
-  "column_break_efib",
-  "import_and_purchasing_references",
-  "vehicle_import_file",
-  "supplier",
-  "purchase_order",
-  "purchase_receipt",
-  "purchase_receipt_item",
-  "warehouse",
-  "receipt_date",
-  "company",
-  "sales_references",
-  "quotation",
-  "sales_order",
-  "delivery_note",
-  "sales_invoice",
-  "customer",
-  "selling_rate",
-  "profit_distributed",
-  "profit_distributed_on",
-  "profit_distributed_by"
+  "identification_section", "vin", "chassis_number", "item_code", "item_name", "brand", "model", "model_year", "vehicle_type", "drive_configuration", "column_break_fnsh", "color", "manufacturing_date", "country_of_origin", "vehicle_status", "disabled", "vehicle_photo", "specification_attachment",
+  "chassis_dimensions_section", "overall_chassis_length_mm", "vehicle_width_mm", "chassis_dimensions_column", "cab_height_mm", "wheelbase_mm",
+  "weights_capacity_section", "curb_weight_kg", "gross_vehicle_weight_kg", "weights_capacity_column", "gross_combination_weight_kg", "payload_capacity", "payload_capacity_unit",
+  "engine_specifications_section", "engine_number", "engine_model", "engine_type", "emission_standard", "horsepower_hp", "maximum_torque_nm", "engine_specifications_column", "number_of_cylinders", "engine_displacement_l", "fuel_type", "fuel_consumption", "fuel_consumption_unit_description",
+  "transmission_section", "transmission_brand", "transmission_model", "transmission", "transmission_column", "forward_gears", "reverse_gears", "gear_ratio_details",
+  "clutch_section", "clutch_brand", "clutch_type", "clutch_column", "clutch_specification",
+  "braking_system_section", "brake_system_type", "abs", "braking_system_column", "brake_system_brand", "brake_system_description",
+  "cabin_specifications_section", "cabin_type", "number_of_seats", "sleeper_bed", "air_conditioning", "cabin_specifications_column", "safety_features", "cabin_features_equipment",
+  "axles_section", "number_of_axles", "front_axle_brand", "front_axle_type", "front_axle_capacity_ton", "axles_column", "rear_axle_brand", "rear_axle_type", "rear_axle_capacity_ton", "rear_axle_ratio",
+  "tyres_section", "front_tyre_size", "rear_tyre_size", "number_of_tyres", "tyres_column", "tyre_specification_notes",
+  "suspension_section", "front_suspension_type", "rear_suspension_type", "suspension_column", "suspension_description",
+  "fuel_tank_section", "fuel_tank_material", "fuel_tank_capacity_l", "fuel_tank_column", "number_of_fuel_tanks",
+  "fifth_wheel_section", "fifth_wheel_size", "fifth_wheel_brand", "fifth_wheel_column", "fifth_wheel_type",
+  "additional_specifications_section", "technical_specifications", "specifications",
+  "registration_section", "plate_number", "registration_status", "registration_date", "registration_column", "registration_expiry_date", "registration_reference", "registration_notes",
+  "import_and_purchasing_references", "vehicle_import_file", "supplier", "purchase_order", "purchase_receipt", "purchase_receipt_item", "column_break_efib", "warehouse", "receipt_date", "company",
+  "cost_information", "purchase_valuation_rate", "landed_cost_added", "column_break_ogen", "final_valuation_rate", "cost_currency",
+  "sales_references", "customer", "quotation", "sales_order", "sales_column", "sales_invoice", "delivery_note", "selling_rate", "profit_distributed", "profit_distributed_on", "profit_distributed_by",
+  "notes_section", "notes", "vehicle_information"
  ],
  "fields": [
-  {
-   "fieldname": "identification_section",
-   "fieldtype": "Section Break",
-   "label": "Identification"
-  },
-  {
-   "fieldname": "vin",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "VIN",
-   "options": "Serial No",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "fieldname": "chassis_number",
-   "fieldtype": "Data",
-   "in_standard_filter": 1,
-   "label": "Chassis Number",
-   "read_only": 1
-  },
-  {
-   "fieldname": "item_code",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Item Code",
-   "options": "Item",
-   "reqd": 1
-  },
-  {
-   "fieldname": "item_name",
-   "fieldtype": "Data",
-   "label": "Item Name",
-   "read_only": 1
-  },
-  {
-   "default": "Received",
-   "fieldname": "vehicle_status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Vehicle Status",
-   "options": "Ordered\nIn Transit\nReceived\nUnder Inspection\nAvailable\nReserved\nSold\nDelivered\nUnder Maintenance\nReceipt Cancelled",
-   "reqd": 1
-  },
-  {
-   "default": "0",
-   "fieldname": "disabled",
-   "fieldtype": "Check",
-   "label": "Disabled"
-  },
-  {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Company",
-   "options": "Company",
-   "reqd": 1
-  },
-  {
-   "fieldname": "vehicle_import_file",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Vehicle Import File",
-   "options": "Vehicle Import File"
-  },
-  {
-   "fieldname": "supplier",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Supplier",
-   "options": "Supplier"
-  },
-  {
-   "fieldname": "purchase_order",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Purchase Order",
-   "options": "Purchase Order"
-  },
-  {
-   "fieldname": "purchase_receipt",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Purchase Receipt",
-   "options": "Purchase Receipt"
-  },
-  {
-   "fieldname": "purchase_receipt_item",
-   "fieldtype": "Data",
-   "label": "Purchase Receipt Item"
-  },
-  {
-   "fieldname": "warehouse",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Warehouse",
-   "options": "Warehouse"
-  },
-  {
-   "fieldname": "receipt_date",
-   "fieldtype": "Date",
-   "in_standard_filter": 1,
-   "label": "Receipt Date"
-  },
-  {
-   "fieldname": "brand",
-   "fieldtype": "Data",
-   "label": "Brand"
-  },
-  {
-   "fieldname": "model",
-   "fieldtype": "Data",
-   "label": "Model"
-  },
-  {
-   "fieldname": "model_year",
-   "fieldtype": "Int",
-   "label": "Model Year"
-  },
-  {
-   "fieldname": "color",
-   "fieldtype": "Data",
-   "label": "Color"
-  },
-  {
-   "fieldname": "engine_number",
-   "fieldtype": "Data",
-   "label": "Engine Number"
-  },
-  {
-   "fieldname": "engine_type",
-   "fieldtype": "Data",
-   "label": "Engine Type"
-  },
-  {
-   "fieldname": "transmission",
-   "fieldtype": "Data",
-   "label": "Transmission"
-  },
-  {
-   "fieldname": "fuel_type",
-   "fieldtype": "Select",
-   "label": "Fuel Type",
-   "options": "\nDiesel\nPetrol\nElectric\nHybrid\nOther"
-  },
-  {
-   "fieldname": "manufacturing_date",
-   "fieldtype": "Date",
-   "label": "Manufacturing Date"
-  },
-  {
-   "fieldname": "country_of_origin",
-   "fieldtype": "Link",
-   "label": "Country of Origin",
-   "options": "Country"
-  },
-  {
-   "fieldname": "specifications",
-   "fieldtype": "Long Text",
-   "label": "Specifications"
-  },
-  {
-   "fieldname": "notes",
-   "fieldtype": "Small Text",
-   "label": "Notes"
-  },
-  {
-   "fieldname": "vehicle_photo",
-   "fieldtype": "Attach Image",
-   "label": "Vehicle Photo"
-  },
-  {
-   "fieldname": "specification_attachment",
-   "fieldtype": "Attach",
-   "label": "Specification Attachment"
-  },
-  {
-   "fieldname": "purchase_valuation_rate",
-   "fieldtype": "Currency",
-   "label": "Purchase Valuation Rate",
-   "options": "cost_currency",
-   "read_only": 1
-  },
-  {
-   "fieldname": "landed_cost_added",
-   "fieldtype": "Currency",
-   "label": "Landed Cost Added",
-   "options": "cost_currency",
-   "read_only": 1
-  },
-  {
-   "fieldname": "final_valuation_rate",
-   "fieldtype": "Currency",
-   "label": "Final Valuation Rate",
-   "options": "cost_currency",
-   "read_only": 1
-  },
-  {
-   "fieldname": "cost_currency",
-   "fieldtype": "Link",
-   "label": "Cost Currency",
-   "options": "Currency",
-   "read_only": 1
-  },
-  {
-   "fieldname": "column_break_fnsh",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "vehicle_information",
-   "fieldtype": "Heading",
-   "label": "Vehicle Information"
-  },
-  {
-   "fieldname": "column_break_ogen",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "cost_information",
-   "fieldtype": "Heading",
-   "label": "Cost Information"
-  },
-  {
-   "fieldname": "column_break_efib",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "import_and_purchasing_references",
-   "fieldtype": "Heading",
-   "label": "Import and Purchasing References"
-  },
-  {
-   "fieldname": "sales_references",
-   "fieldtype": "Section Break",
-   "label": "Sales References"
-  },
-  {
-   "fieldname": "quotation",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Quotation",
-   "options": "Quotation",
-   "read_only": 1
-  },
-  {
-   "fieldname": "sales_order",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Sales Order",
-   "options": "Sales Order",
-   "read_only": 1
-  },
-  {
-   "fieldname": "delivery_note",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Delivery Note",
-   "options": "Delivery Note",
-   "read_only": 1
-  },
-  {
-   "fieldname": "sales_invoice",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Sales Invoice",
-   "options": "Sales Invoice",
-   "read_only": 1
-  },
-  {
-   "fieldname": "customer",
-   "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Customer",
-   "options": "Customer",
-   "read_only": 1
-  },
-  {
-   "fieldname": "selling_rate",
-   "fieldtype": "Currency",
-   "label": "Selling Rate",
-   "options": "cost_currency",
-   "read_only": 1
-  },
-  {
-   "default": "0",
-   "description": "Indicates that the profit/loss for this vehicle has already been distributed between the partners.",
-   "fieldname": "profit_distributed",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Profit Distributed",
-   "no_copy": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "profit_distributed_on",
-   "fieldtype": "Datetime",
-   "hidden": 1,
-   "label": "Profit Distributed On",
-   "no_copy": 1,
-   "read_only": 1
-  },
-  {
-   "fieldname": "profit_distributed_by",
-   "fieldtype": "Link",
-   "hidden": 1,
-   "label": "Profit Distributed By",
-   "no_copy": 1,
-   "options": "User",
-   "read_only": 1
-  }
+  {"fieldname":"identification_section","fieldtype":"Section Break","label":"Vehicle Identity"},
+  {"fieldname":"vin","fieldtype":"Link","in_list_view":1,"in_standard_filter":1,"label":"VIN / Chassis Number","options":"Serial No","reqd":1,"unique":1},
+  {"fieldname":"chassis_number","fieldtype":"Data","hidden":1,"label":"Chassis Number","read_only":1},
+  {"fieldname":"item_code","fieldtype":"Link","in_list_view":1,"in_standard_filter":1,"label":"Item Code","options":"Item","reqd":1},
+  {"fieldname":"item_name","fieldtype":"Data","label":"Item Name","read_only":1},
+  {"fieldname":"brand","fieldtype":"Data","in_standard_filter":1,"label":"Brand / Make"},
+  {"fieldname":"model","fieldtype":"Data","in_standard_filter":1,"label":"Model"},
+  {"fieldname":"model_year","fieldtype":"Int","in_standard_filter":1,"label":"Model Year","non_negative":1},
+  {"fieldname":"vehicle_type","fieldtype":"Data","in_standard_filter":1,"label":"Vehicle Type"},
+  {"fieldname":"drive_configuration","fieldtype":"Data","in_standard_filter":1,"label":"Drive Configuration"},
+  {"fieldname":"column_break_fnsh","fieldtype":"Column Break"},
+  {"fieldname":"color","fieldtype":"Data","label":"Color"},
+  {"fieldname":"manufacturing_date","fieldtype":"Date","label":"Manufacturing Date"},
+  {"fieldname":"country_of_origin","fieldtype":"Link","label":"Country of Origin","options":"Country"},
+  {"default":"Received","fieldname":"vehicle_status","fieldtype":"Select","in_list_view":1,"in_standard_filter":1,"label":"Vehicle Status","options":"Ordered\nIn Transit\nReceived\nUnder Inspection\nAvailable\nReserved\nSold\nDelivered\nUnder Maintenance\nReceipt Cancelled","reqd":1},
+  {"default":"0","fieldname":"disabled","fieldtype":"Check","label":"Disabled"},
+  {"fieldname":"vehicle_photo","fieldtype":"Attach Image","label":"Vehicle Photo"},
+  {"fieldname":"specification_attachment","fieldtype":"Attach","label":"Specification Attachment"},
+
+  {"collapsible":1,"fieldname":"chassis_dimensions_section","fieldtype":"Section Break","label":"Chassis Dimensions"},
+  {"fieldname":"overall_chassis_length_mm","fieldtype":"Float","label":"Overall Chassis Length (mm)","non_negative":1},
+  {"fieldname":"vehicle_width_mm","fieldtype":"Float","label":"Vehicle Width (mm)","non_negative":1},
+  {"fieldname":"chassis_dimensions_column","fieldtype":"Column Break"},
+  {"fieldname":"cab_height_mm","fieldtype":"Float","label":"Cab Height (mm)","non_negative":1},
+  {"fieldname":"wheelbase_mm","fieldtype":"Float","label":"Wheelbase (mm)","non_negative":1},
+
+  {"collapsible":1,"fieldname":"weights_capacity_section","fieldtype":"Section Break","label":"Weights & Capacity"},
+  {"fieldname":"curb_weight_kg","fieldtype":"Float","label":"Chassis / Curb Weight (kg)","non_negative":1},
+  {"fieldname":"gross_vehicle_weight_kg","fieldtype":"Float","label":"Gross Vehicle Weight / GVW (kg)","non_negative":1},
+  {"fieldname":"weights_capacity_column","fieldtype":"Column Break"},
+  {"fieldname":"gross_combination_weight_kg","fieldtype":"Float","label":"Gross Combination / Towing Weight (kg)","non_negative":1},
+  {"fieldname":"payload_capacity","fieldtype":"Float","label":"Payload Capacity","non_negative":1},
+  {"default":"kg","fieldname":"payload_capacity_unit","fieldtype":"Select","label":"Payload Capacity Unit","options":"kg\nTon"},
+
+  {"collapsible":1,"fieldname":"engine_specifications_section","fieldtype":"Section Break","label":"Engine Specifications"},
+  {"fieldname":"engine_number","fieldtype":"Data","label":"Engine Number"},
+  {"fieldname":"engine_model","fieldtype":"Data","in_standard_filter":1,"label":"Engine Model"},
+  {"fieldname":"engine_type","fieldtype":"Data","label":"Engine Type"},
+  {"fieldname":"emission_standard","fieldtype":"Data","label":"Emission Standard"},
+  {"fieldname":"horsepower_hp","fieldtype":"Float","in_standard_filter":1,"label":"Horsepower (HP)","non_negative":1},
+  {"fieldname":"maximum_torque_nm","fieldtype":"Float","label":"Maximum Torque (N.m)","non_negative":1},
+  {"fieldname":"engine_specifications_column","fieldtype":"Column Break"},
+  {"fieldname":"number_of_cylinders","fieldtype":"Int","label":"Number of Cylinders","non_negative":1},
+  {"fieldname":"engine_displacement_l","fieldtype":"Float","label":"Engine Displacement (L)","non_negative":1},
+  {"fieldname":"fuel_type","fieldtype":"Select","label":"Fuel Type","options":"\nDiesel\nPetrol\nElectric\nHybrid\nOther"},
+  {"fieldname":"fuel_consumption","fieldtype":"Float","label":"Fuel Consumption","non_negative":1},
+  {"fieldname":"fuel_consumption_unit_description","fieldtype":"Data","label":"Fuel Consumption Unit / Description"},
+
+  {"collapsible":1,"fieldname":"transmission_section","fieldtype":"Section Break","label":"Transmission / Gearbox"},
+  {"fieldname":"transmission_brand","fieldtype":"Data","label":"Transmission Brand"},
+  {"fieldname":"transmission_model","fieldtype":"Data","in_standard_filter":1,"label":"Transmission Model"},
+  {"fieldname":"transmission","fieldtype":"Data","label":"Transmission Type"},
+  {"fieldname":"transmission_column","fieldtype":"Column Break"},
+  {"fieldname":"forward_gears","fieldtype":"Int","label":"Number of Forward Gears","non_negative":1},
+  {"fieldname":"reverse_gears","fieldtype":"Int","label":"Number of Reverse Gears","non_negative":1},
+  {"fieldname":"gear_ratio_details","fieldtype":"Small Text","label":"Gear Ratio / Gear Details"},
+
+  {"collapsible":1,"fieldname":"clutch_section","fieldtype":"Section Break","label":"Clutch"},
+  {"fieldname":"clutch_brand","fieldtype":"Data","label":"Clutch Brand"},
+  {"fieldname":"clutch_type","fieldtype":"Data","label":"Clutch Type"},
+  {"fieldname":"clutch_column","fieldtype":"Column Break"},
+  {"fieldname":"clutch_specification","fieldtype":"Small Text","label":"Clutch Specification / Description"},
+
+  {"collapsible":1,"fieldname":"braking_system_section","fieldtype":"Section Break","label":"Braking System"},
+  {"fieldname":"brake_system_type","fieldtype":"Data","label":"Brake System Type"},
+  {"default":"0","fieldname":"abs","fieldtype":"Check","label":"ABS"},
+  {"fieldname":"braking_system_column","fieldtype":"Column Break"},
+  {"fieldname":"brake_system_brand","fieldtype":"Data","label":"Brake System Brand"},
+  {"fieldname":"brake_system_description","fieldtype":"Small Text","label":"Brake System Description"},
+
+  {"collapsible":1,"fieldname":"cabin_specifications_section","fieldtype":"Section Break","label":"Cabin Specifications"},
+  {"fieldname":"cabin_type","fieldtype":"Data","label":"Cabin Type"},
+  {"fieldname":"number_of_seats","fieldtype":"Int","label":"Number of Seats","non_negative":1},
+  {"default":"0","fieldname":"sleeper_bed","fieldtype":"Check","label":"Sleeper / Bed"},
+  {"default":"0","fieldname":"air_conditioning","fieldtype":"Check","label":"Air Conditioning"},
+  {"fieldname":"cabin_specifications_column","fieldtype":"Column Break"},
+  {"fieldname":"safety_features","fieldtype":"Small Text","label":"Safety Features"},
+  {"fieldname":"cabin_features_equipment","fieldtype":"Small Text","label":"Cabin Features / Equipment"},
+
+  {"collapsible":1,"fieldname":"axles_section","fieldtype":"Section Break","label":"Axles"},
+  {"fieldname":"number_of_axles","fieldtype":"Int","label":"Number of Axles","non_negative":1},
+  {"fieldname":"front_axle_brand","fieldtype":"Data","label":"Front Axle Brand"},
+  {"fieldname":"front_axle_type","fieldtype":"Data","label":"Front Axle Type"},
+  {"fieldname":"front_axle_capacity_ton","fieldtype":"Float","label":"Front Axle Capacity (Ton)","non_negative":1},
+  {"fieldname":"axles_column","fieldtype":"Column Break"},
+  {"fieldname":"rear_axle_brand","fieldtype":"Data","label":"Rear Axle Brand"},
+  {"fieldname":"rear_axle_type","fieldtype":"Data","label":"Rear Axle Type"},
+  {"fieldname":"rear_axle_capacity_ton","fieldtype":"Float","label":"Rear Axle Capacity (Ton)","non_negative":1},
+  {"fieldname":"rear_axle_ratio","fieldtype":"Float","label":"Rear Axle Ratio","non_negative":1},
+
+  {"collapsible":1,"fieldname":"tyres_section","fieldtype":"Section Break","label":"Tyres"},
+  {"fieldname":"front_tyre_size","fieldtype":"Data","label":"Front Tyre Size"},
+  {"fieldname":"rear_tyre_size","fieldtype":"Data","label":"Rear Tyre Size"},
+  {"fieldname":"number_of_tyres","fieldtype":"Int","label":"Number of Tyres","non_negative":1},
+  {"fieldname":"tyres_column","fieldtype":"Column Break"},
+  {"fieldname":"tyre_specification_notes","fieldtype":"Small Text","label":"Tyre Specification / Notes"},
+
+  {"collapsible":1,"fieldname":"suspension_section","fieldtype":"Section Break","label":"Suspension"},
+  {"fieldname":"front_suspension_type","fieldtype":"Data","label":"Front Suspension Type"},
+  {"fieldname":"rear_suspension_type","fieldtype":"Data","label":"Rear Suspension Type"},
+  {"fieldname":"suspension_column","fieldtype":"Column Break"},
+  {"fieldname":"suspension_description","fieldtype":"Small Text","label":"Suspension Description"},
+
+  {"collapsible":1,"fieldname":"fuel_tank_section","fieldtype":"Section Break","label":"Fuel Tank"},
+  {"fieldname":"fuel_tank_material","fieldtype":"Data","label":"Fuel Tank Material"},
+  {"fieldname":"fuel_tank_capacity_l","fieldtype":"Float","label":"Fuel Tank Capacity (L)","non_negative":1},
+  {"fieldname":"fuel_tank_column","fieldtype":"Column Break"},
+  {"fieldname":"number_of_fuel_tanks","fieldtype":"Int","label":"Number of Fuel Tanks","non_negative":1},
+
+  {"collapsible":1,"fieldname":"fifth_wheel_section","fieldtype":"Section Break","label":"Fifth Wheel / Coupling"},
+  {"fieldname":"fifth_wheel_size","fieldtype":"Data","label":"Fifth Wheel Size"},
+  {"fieldname":"fifth_wheel_brand","fieldtype":"Data","label":"Fifth Wheel Brand"},
+  {"fieldname":"fifth_wheel_column","fieldtype":"Column Break"},
+  {"fieldname":"fifth_wheel_type","fieldtype":"Data","label":"Fifth Wheel Type"},
+
+  {"collapsible":1,"fieldname":"additional_specifications_section","fieldtype":"Section Break","label":"Additional Technical Specifications"},
+  {"fieldname":"technical_specifications","fieldtype":"Table","label":"Additional Technical Specifications","options":"Vehicle Technical Specification"},
+  {"description":"Legacy free-text specification content retained for existing records.","fieldname":"specifications","fieldtype":"Long Text","label":"Specifications"},
+
+  {"collapsible":1,"fieldname":"registration_section","fieldtype":"Section Break","label":"Registration"},
+  {"fieldname":"plate_number","fieldtype":"Data","in_standard_filter":1,"label":"Plate Number"},
+  {"fieldname":"registration_status","fieldtype":"Select","in_standard_filter":1,"label":"Registration Status","options":"\nUnregistered\nPending\nRegistered\nExpired\nCancelled"},
+  {"fieldname":"registration_date","fieldtype":"Date","label":"Registration Date"},
+  {"fieldname":"registration_column","fieldtype":"Column Break"},
+  {"fieldname":"registration_expiry_date","fieldtype":"Date","label":"Registration Expiry Date"},
+  {"fieldname":"registration_reference","fieldtype":"Data","label":"Registration / Traffic Reference"},
+  {"fieldname":"registration_notes","fieldtype":"Small Text","label":"Registration Notes"},
+
+  {"collapsible":1,"fieldname":"import_and_purchasing_references","fieldtype":"Section Break","label":"Import & Purchasing References"},
+  {"fieldname":"vehicle_import_file","fieldtype":"Link","in_list_view":1,"in_standard_filter":1,"label":"Vehicle Import File","options":"Vehicle Import File"},
+  {"fieldname":"supplier","fieldtype":"Link","in_standard_filter":1,"label":"Supplier","options":"Supplier"},
+  {"fieldname":"purchase_order","fieldtype":"Link","in_standard_filter":1,"label":"Purchase Order","options":"Purchase Order"},
+  {"fieldname":"purchase_receipt","fieldtype":"Link","in_standard_filter":1,"label":"Purchase Receipt","options":"Purchase Receipt"},
+  {"fieldname":"purchase_receipt_item","fieldtype":"Data","label":"Purchase Receipt Item"},
+  {"fieldname":"column_break_efib","fieldtype":"Column Break"},
+  {"fieldname":"warehouse","fieldtype":"Link","in_standard_filter":1,"label":"Warehouse","options":"Warehouse"},
+  {"fieldname":"receipt_date","fieldtype":"Date","in_standard_filter":1,"label":"Receipt Date"},
+  {"fieldname":"company","fieldtype":"Link","in_standard_filter":1,"label":"Company","options":"Company","reqd":1},
+
+  {"collapsible":1,"fieldname":"cost_information","fieldtype":"Section Break","label":"Cost Information"},
+  {"fieldname":"purchase_valuation_rate","fieldtype":"Currency","label":"Purchase Valuation Rate","options":"cost_currency","read_only":1},
+  {"fieldname":"landed_cost_added","fieldtype":"Currency","label":"Landed Cost Added","options":"cost_currency","read_only":1},
+  {"fieldname":"column_break_ogen","fieldtype":"Column Break"},
+  {"fieldname":"final_valuation_rate","fieldtype":"Currency","label":"Final Valuation Rate","options":"cost_currency","read_only":1},
+  {"fieldname":"cost_currency","fieldtype":"Link","label":"Cost Currency","options":"Currency","read_only":1},
+
+  {"collapsible":1,"fieldname":"sales_references","fieldtype":"Section Break","label":"Sales & Warranty"},
+  {"fieldname":"customer","fieldtype":"Link","in_standard_filter":1,"label":"Customer","options":"Customer","read_only":1},
+  {"fieldname":"quotation","fieldtype":"Link","in_standard_filter":1,"label":"Quotation","options":"Quotation","read_only":1},
+  {"fieldname":"sales_order","fieldtype":"Link","in_standard_filter":1,"label":"Sales Order","options":"Sales Order","read_only":1},
+  {"fieldname":"sales_column","fieldtype":"Column Break"},
+  {"fieldname":"sales_invoice","fieldtype":"Link","in_standard_filter":1,"label":"Sales Invoice","options":"Sales Invoice","read_only":1},
+  {"fieldname":"delivery_note","fieldtype":"Link","in_standard_filter":1,"label":"Delivery Note","options":"Delivery Note","read_only":1},
+  {"fieldname":"selling_rate","fieldtype":"Currency","label":"Selling Rate","options":"cost_currency","read_only":1},
+  {"default":"0","description":"Indicates that the profit/loss for this vehicle has already been distributed between the partners.","fieldname":"profit_distributed","fieldtype":"Check","hidden":1,"label":"Profit Distributed","no_copy":1,"read_only":1},
+  {"fieldname":"profit_distributed_on","fieldtype":"Datetime","hidden":1,"label":"Profit Distributed On","no_copy":1,"read_only":1},
+  {"fieldname":"profit_distributed_by","fieldtype":"Link","hidden":1,"label":"Profit Distributed By","no_copy":1,"options":"User","read_only":1},
+
+  {"fieldname":"notes_section","fieldtype":"Section Break","label":"Notes"},
+  {"fieldname":"notes","fieldtype":"Small Text","label":"Notes"},
+  {"fieldname":"vehicle_information","fieldtype":"Heading","hidden":1,"label":"Vehicle Information"}
  ],
  "links": [],
- "modified": "2026-09-12 18:23:56.551362",
+ "modified": "2026-10-04 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "AN Truck",
  "name": "Vehicle Master",
  "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
-  {
-   "create": 1,
-   "delete": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "System Manager",
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "AN Truck Manager",
-   "write": 1
-  },
-  {
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "AN Truck Import User"
-  },
-  {
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "AN Truck Receiving User",
-   "write": 1
-  },
-  {
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "AN Truck Viewer"
-  }
+  {"create":1,"delete":1,"export":1,"print":1,"read":1,"report":1,"role":"System Manager","write":1},
+  {"create":1,"delete":1,"export":1,"print":1,"read":1,"report":1,"role":"AN Truck Manager","write":1},
+  {"print":1,"read":1,"report":1,"role":"AN Truck Import User"},
+  {"print":1,"read":1,"report":1,"role":"AN Truck Receiving User","write":1},
+  {"print":1,"read":1,"report":1,"role":"AN Truck Viewer"}
  ],
  "row_format": "Dynamic",
- "search_fields": "vin,chassis_number,item_code,supplier,vehicle_import_file,purchase_receipt",
+ "search_fields": "vin,item_code,brand,model,vehicle_type,drive_configuration,engine_model,transmission_model",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

@@ -45,6 +45,8 @@ app_include_css = "/assets/an_truck/css/an_truck.css"
 # include js in doctype views
 doctype_js = {
 	"Vehicle Import File": "public/js/vehicle_import_file.js",
+	"Vehicle Master": "public/js/vehicle_master_warranty.js",
+	"Warranty Claim": "public/js/warranty_claim.js",
 	"Purchase Order": "public/js/purchase_order.js",
 	"Purchase Receipt": "public/js/purchase_receipt.js",
 	"Purchase Invoice": "public/js/purchase_invoice.js",
@@ -149,6 +151,17 @@ role_home_page = {
 # Hook on document methods and events
 
 doc_events = {
+	"Company": {
+		"validate": "an_truck.warranty.timezone.validate_company_warranty_timezone",
+	},
+	"Warranty Claim": {
+		"before_validate": "an_truck.warranty.claim.before_validate_warranty_claim",
+		"validate": "an_truck.warranty.claim.validate_warranty_claim",
+		"on_trash": "an_truck.warranty.claim.prevent_warranty_claim_delete",
+	},
+	"File": {
+		"validate": "an_truck.warranty.claim.validate_claim_file",
+	},
 	"Purchase Order": {
 		"validate": "an_truck.services.validate_import_file_for_purchase_doc",
 	},
@@ -183,6 +196,21 @@ doc_events = {
 		"on_submit": "an_truck.services.on_submit_sales_invoice",
 		"on_cancel": "an_truck.services.on_cancel_sales_invoice",
 	},
+}
+
+permission_query_conditions = {
+	"Warranty Claim": "an_truck.warranty.access.claim_permission_query",
+}
+
+has_permission = {
+	"Warranty Claim": "an_truck.warranty.access.claim_has_permission",
+}
+
+scheduler_events = {
+	"hourly": [
+		"an_truck.warranty.tasks.expire_vehicle_warranties",
+		"an_truck.warranty.tasks.send_warranty_expiry_reminders",
+	],
 }
 
 fixtures = [

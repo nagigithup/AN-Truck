@@ -5,30 +5,12 @@ import unittest
 from unittest.mock import patch
 
 import frappe
-from frappe.tests import IntegrationTestCase
 
 from an_truck.an_truck.doctype.vehicle_master.vehicle_master import (
 	VehicleMaster,
 	get_landed_cost_added,
 	get_purchase_rate,
 )
-
-# On IntegrationTestCase, the doctype test records and all
-# link-field test record dependencies are recursively loaded
-# Use these module variables to add/remove to/from that list
-EXTRA_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
-IGNORE_TEST_RECORD_DEPENDENCIES = []  # eg. ["User"]
-
-
-
-class IntegrationTestVehicleMaster(IntegrationTestCase):
-	"""
-	Integration tests for VehicleMaster.
-	Use this class for testing interactions between multiple components.
-	"""
-
-	pass
-
 
 class TestVehicleMasterCostCalculation(unittest.TestCase):
 	def test_landed_cost_added_is_split_per_purchase_receipt_stock_qty(self):

@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt
+from frappe.utils import flt, getdate
 
 
 class VehicleMaster(Document):
@@ -23,6 +23,7 @@ class VehicleMaster(Document):
 		self.item_code = self.item_code or serial.item_code
 		self.item_name = frappe.db.get_value("Item", self.item_code, "item_name") if self.item_code else self.item_name
 		self.warehouse = self.warehouse or serial.warehouse
+		self.validate_registration_dates()
 
 	def before_save(self):
 		self.refresh_costs()
@@ -34,6 +35,14 @@ class VehicleMaster(Document):
 			self.purchase_valuation_rate = get_purchase_rate(self.purchase_receipt_item)
 		self.landed_cost_added = get_landed_cost_added(self.purchase_receipt, self.purchase_receipt_item)
 		self.final_valuation_rate = flt(self.purchase_valuation_rate) + flt(self.landed_cost_added)
+
+	def validate_registration_dates(self):
+		if (
+			self.registration_date
+			and self.registration_expiry_date
+			and getdate(self.registration_expiry_date) < getdate(self.registration_date)
+		):
+			frappe.throw(_("Registration Expiry Date cannot be before Registration Date."))
 
 
 def get_purchase_rate(purchase_receipt_item):

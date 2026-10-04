@@ -1,0 +1,13 @@
+.warranty-dashboard-page { padding-bottom: 3rem; }
+.warranty-dashboard-page h3 { margin: 1.6rem 0 .8rem; }
+.warranty-kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:.8rem; }
+.warranty-kpi-card { border:1px solid var(--border-color); background:var(--card-bg); border-radius:12px; padding:1rem; text-align:left; min-height:105px; box-shadow:0 3px 12px rgba(0,0,0,.04); }
+button.warranty-kpi-card { cursor:pointer; }
+.warranty-kpi-card span { color:var(--text-muted); display:block; font-size:.82rem; }
+.warranty-kpi-card strong { display:block; color:#176b4d; font-size:1.65rem; margin-top:.45rem; }
+.warranty-chart-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:1rem; }
+.warranty-chart-card,.warranty-lookup-card { border:1px solid var(--border-color); background:var(--card-bg); border-radius:14px; padding:1.1rem; }
+.warranty-chart-card h4 { margin:0 0 .75rem; }
+.warranty-lookup-card { display:grid; grid-template-columns:1fr minmax(300px, .7fr); gap:1rem; align-items:center; }
+.warranty-vin-search { display:flex; gap:.5rem; }.vin-result { grid-column:1/-1; padding:.8rem; background:var(--subtle-fg); border-radius:10px; }.vin-result>span { margin-left:.7rem; color:#176b4d; }.vin-actions { display:flex; flex-wrap:wrap; gap:1rem; margin-top:.6rem; }.vin-actions a { cursor:pointer; font-weight:600; }
+@media(max-width:700px){.warranty-lookup-card{grid-template-columns:1fr}.warranty-chart-grid{grid-template-columns:1fr}}

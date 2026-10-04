@@ -1,7 +1,7 @@
 {
  "app": "an_truck",
  "charts": [],
- "content": "[{\"id\":\"an_truck_header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>AN Truck</b></span>\",\"col\":12}},{\"id\":\"an_truck_portal\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Main\",\"col\":3}},{\"id\":\"an_truck_imports\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Vehicle Import Files\",\"col\":6}},{\"id\":\"an_truck_vehicles\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Vehicle Masters\",\"col\":6}}]",
+ "content": "[{\"id\":\"an_truck_header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>AN Truck</b></span>\",\"col\":12}},{\"id\":\"an_truck_portal\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Main\",\"col\":3}},{\"id\":\"warranty_header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Vehicle Warranty</b></span>\",\"col\":12}},{\"id\":\"warranty_dashboard\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warranty Dashboard\",\"col\":3}},{\"id\":\"warranty_lookup\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warranty Lookup by VIN\",\"col\":3}},{\"id\":\"warranty_providers\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warranty Providers\",\"col\":3}},{\"id\":\"warranty_templates\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Coverage Templates\",\"col\":3}},{\"id\":\"vehicle_warranties\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Vehicle Warranties\",\"col\":6}},{\"id\":\"warranty_claims\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Warranty Claims\",\"col\":6}},{\"id\":\"warranty_reports_header\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\"><b>Warranty Reports</b></span>\",\"col\":12}},{\"id\":\"warranty_claims_report\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warranty Claims Report\",\"col\":3}},{\"id\":\"expiring_warranties_report\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Expiring Warranties\",\"col\":3}},{\"id\":\"provider_performance_report\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Provider Performance\",\"col\":3}},{\"id\":\"warranty_history_report\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warranty History by VIN\",\"col\":3}},{\"id\":\"warranty_backfill_preview\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Historical Warranty Backfill\",\"col\":3}},{\"id\":\"warranty_data_quality\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Warranty Data Quality\",\"col\":3}},{\"id\":\"an_truck_imports\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Vehicle Import Files\",\"col\":6}},{\"id\":\"an_truck_vehicles\",\"type\":\"quick_list\",\"data\":{\"quick_list_name\":\"Vehicle Masters\",\"col\":6}}]",
  "creation": "2026-09-12 00:00:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
@@ -31,6 +31,16 @@
    "document_type": "Vehicle Master",
    "label": "Vehicle Masters",
    "quick_list_filter": "[[\"disabled\",\"=\",0]]"
+  },
+  {
+   "document_type": "Vehicle Warranty",
+   "label": "Vehicle Warranties",
+   "quick_list_filter": "[]"
+  },
+  {
+   "document_type": "Warranty Claim",
+   "label": "Warranty Claims",
+   "quick_list_filter": "[]"
   }
  ],
  "roles": [
@@ -48,6 +58,12 @@
   },
   {
    "role": "AN Truck Viewer"
+  },
+  {
+   "role": "AN Truck Warranty Manager"
+  },
+  {
+   "role": "AN Truck Warranty User"
   }
  ],
  "sequence_id": 28,
@@ -59,6 +75,76 @@
    "label": "Main",
    "link_to": "an-truck-portal",
    "type": "Page"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Warranty Providers",
+   "link_to": "Warranty Provider",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Coverage Templates",
+   "link_to": "Warranty Coverage Template",
+   "type": "DocType"
+  },
+  {
+   "color": "Green",
+   "icon": "dashboard",
+   "label": "Warranty Dashboard",
+   "link_to": "warranty-dashboard",
+   "type": "Page"
+  },
+  {
+   "color": "Blue",
+   "icon": "search",
+   "label": "Warranty Lookup by VIN",
+   "link_to": "warranty-dashboard",
+   "type": "Page"
+  },
+  {
+   "color": "Blue",
+   "icon": "list",
+   "label": "Warranty Claims Report",
+   "link_to": "Warranty Claims",
+   "type": "Report"
+  },
+  {
+   "color": "Orange",
+   "icon": "calendar",
+   "label": "Expiring Warranties",
+   "link_to": "Expiring Warranties",
+   "type": "Report"
+  },
+  {
+   "color": "Purple",
+   "icon": "users",
+   "label": "Provider Performance",
+   "link_to": "Provider Performance",
+   "type": "Report"
+  },
+  {
+   "color": "Blue",
+   "icon": "history",
+   "label": "Warranty History by VIN",
+   "link_to": "Warranty Claim History by VIN",
+   "type": "Report"
+  },
+  {
+   "color": "Orange",
+   "icon": "upload-cloud",
+   "label": "Historical Warranty Backfill",
+   "link_to": "Historical Warranty Backfill Preview",
+   "type": "Report"
+  },
+  {
+   "color": "Red",
+   "icon": "error",
+   "label": "Warranty Data Quality",
+   "link_to": "Warranty Data Quality",
+   "type": "Report"
   }
  ],
  "title": "AN Truck"

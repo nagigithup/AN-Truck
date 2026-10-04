@@ -1,0 +1,1 @@
+from an_truck.warranty.reporting import warranty_claim_history_by_vin as execute

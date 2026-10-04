@@ -1,0 +1,22 @@
+{
+ "actions": [],
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "fields": [
+  {"fieldname":"coverage_category","fieldtype":"Link","label":"Coverage Component","options":"Warranty Coverage Category","reqd":1,"in_list_view":1},
+  {"fieldname":"service_type","fieldtype":"Data","label":"Service Type","reqd":1,"in_list_view":1},
+  {"fieldname":"description","fieldtype":"Small Text","label":"Description","in_list_view":1},
+  {"fieldname":"technician","fieldtype":"Data","label":"Technician","in_list_view":1},
+  {"fieldname":"hours","fieldtype":"Float","label":"Hours","reqd":1,"in_list_view":1},
+  {"fieldname":"rate","fieldtype":"Currency","label":"Rate","options":"parent.custom_currency","reqd":1,"in_list_view":1},
+  {"fieldname":"amount","fieldtype":"Currency","label":"Amount","options":"parent.custom_currency","read_only":1,"in_list_view":1},
+  {"fieldname":"coverage_status","fieldtype":"Select","label":"Coverage Status","options":"Inside Warranty\nOutside Warranty\nPartially Covered\nPending Approval","default":"Pending Approval","reqd":1,"in_list_view":1},
+  {"fieldname":"covered_amount","fieldtype":"Currency","label":"Covered Amount","options":"parent.custom_currency","in_list_view":1},
+  {"fieldname":"customer_payable_amount","fieldtype":"Currency","label":"Customer Payable","options":"parent.custom_currency","read_only":1},
+  {"fieldname":"notes","fieldtype":"Small Text","label":"Notes"}
+ ],
+ "istable": 1,
+ "module": "AN Truck",
+ "name": "Warranty Claim Service"
+}

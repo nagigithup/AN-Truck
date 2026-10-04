@@ -1,0 +1,1 @@
+"""Standard system notification metadata."""

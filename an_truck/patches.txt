@@ -8,3 +8,8 @@ an_truck.patches.v1_0.create_custom_fields_and_roles
 an_truck.patches.v1_0.extend_unified_transaction_fields
 an_truck.patches.v1_0.add_vehicle_registration_fields
 an_truck.patches.v1_0.recalculate_vehicle_costs
+an_truck.patches.v1_0.setup_vehicle_warranty
+an_truck.patches.v1_0.add_company_warranty_timezone
+an_truck.patches.v1_0.add_warranty_reporting_indexes
+an_truck.patches.v1_0.add_warranty_phase6_indexes
+an_truck.patches.v1_0.add_warranty_phase6_query_indexes

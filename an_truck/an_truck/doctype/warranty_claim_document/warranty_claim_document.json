@@ -1,0 +1,19 @@
+{
+ "actions": [],
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "fields": [
+  {"fieldname":"document_type","fieldtype":"Select","label":"Document Type","options":"Repair Invoice\nSpare Part Invoice\nInspection Report\nRepair Report\nVehicle Photo\nDamaged Part Photo\nOther Supporting Document","reqd":1,"in_list_view":1},
+  {"fieldname":"file","fieldtype":"Attach","label":"Private File","reqd":1,"in_list_view":1},
+  {"fieldname":"invoice_number","fieldtype":"Data","label":"Invoice Number","in_list_view":1},
+  {"fieldname":"invoice_date","fieldtype":"Date","label":"Invoice Date"},
+  {"fieldname":"invoice_amount","fieldtype":"Currency","label":"Invoice Amount Excluding VAT","options":"parent.custom_currency"},
+  {"fieldname":"vat_amount","fieldtype":"Currency","label":"VAT","options":"parent.custom_currency"},
+  {"fieldname":"total_including_vat","fieldtype":"Currency","label":"Total Including VAT","options":"parent.custom_currency","read_only":1,"in_list_view":1},
+  {"fieldname":"notes","fieldtype":"Small Text","label":"Notes"}
+ ],
+ "istable": 1,
+ "module": "AN Truck",
+ "name": "Warranty Claim Document"
+}

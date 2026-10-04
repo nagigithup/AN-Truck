@@ -3,11 +3,15 @@
  "doctype": "DocType",
  "document_type": "Setup",
  "engine": "InnoDB",
- "field_order": ["vehicle_item_group", "require_import_file_on_vehicle_receipt", "auto_create_vehicle_master"],
+ "field_order": ["vehicle_item_group", "require_import_file_on_vehicle_receipt", "auto_create_vehicle_master", "warranty_section", "auto_activate_vehicle_warranty", "default_warranty_provider", "default_warranty_coverage_template"],
  "fields": [
   {"fieldname": "vehicle_item_group", "fieldtype": "Link", "label": "Vehicle Item Group", "options": "Item Group"},
   {"default": "1", "fieldname": "require_import_file_on_vehicle_receipt", "fieldtype": "Check", "label": "Require Import File on Vehicle Receipt"},
-  {"default": "1", "fieldname": "auto_create_vehicle_master", "fieldtype": "Check", "label": "Auto Create Vehicle Master"}
+  {"default": "1", "fieldname": "auto_create_vehicle_master", "fieldtype": "Check", "label": "Auto Create Vehicle Master"},
+  {"fieldname": "warranty_section", "fieldtype": "Section Break", "label": "Vehicle Warranty"},
+  {"default": "1", "fieldname": "auto_activate_vehicle_warranty", "fieldtype": "Check", "label": "Auto Activate Warranty on Confirmed Delivery"},
+  {"fieldname": "default_warranty_provider", "fieldtype": "Link", "label": "Default Warranty Provider", "options": "Warranty Provider"},
+  {"fieldname": "default_warranty_coverage_template", "fieldtype": "Link", "label": "Default Warranty Coverage Template", "options": "Warranty Coverage Template"}
  ],
  "issingle": 1,
  "module": "AN Truck",
@@ -16,7 +20,9 @@
   {"role": "System Manager", "read": 1, "write": 1},
   {"role": "AN Truck Manager", "read": 1, "write": 1},
   {"role": "AN Truck Import User", "read": 1},
-  {"role": "AN Truck Receiving User", "read": 1}
+  {"role": "AN Truck Receiving User", "read": 1},
+  {"role": "AN Truck Warranty Manager", "read": 1, "write": 1},
+  {"role": "AN Truck Warranty User", "read": 1}
  ],
  "sort_field": "modified",
  "sort_order": "DESC"

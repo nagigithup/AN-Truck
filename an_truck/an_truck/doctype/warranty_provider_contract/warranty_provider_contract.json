@@ -1,0 +1,38 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "field:contract_number",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": ["contract_number", "warranty_provider", "contract_type", "status", "start_date", "end_date", "auto_renewal", "renewal_date", "contract_document", "terms_and_conditions", "coverage_agreement", "financial_terms", "notes"],
+ "fields": [
+  {"fieldname":"contract_number","fieldtype":"Data","label":"Contract Number","reqd":1,"unique":1,"in_list_view":1,"in_standard_filter":1},
+  {"fieldname":"warranty_provider","fieldtype":"Link","label":"Warranty Provider","options":"Warranty Provider","reqd":1,"in_list_view":1,"in_standard_filter":1},
+  {"fieldname":"contract_type","fieldtype":"Select","label":"Contract Type","options":"Fixed Period\nAnnual\nOpen Ended","reqd":1,"in_list_view":1},
+  {"fieldname":"status","fieldtype":"Select","label":"Status","options":"Draft\nActive\nExpired\nTerminated","default":"Draft","reqd":1,"in_list_view":1,"in_standard_filter":1},
+  {"fieldname":"start_date","fieldtype":"Date","label":"Start Date","reqd":1,"in_standard_filter":1},
+  {"fieldname":"end_date","fieldtype":"Date","label":"End Date","in_standard_filter":1},
+  {"fieldname":"auto_renewal","fieldtype":"Check","label":"Auto Renewal"},
+  {"fieldname":"renewal_date","fieldtype":"Date","label":"Renewal Date"},
+  {"fieldname":"contract_document","fieldtype":"Attach","label":"Contract Document"},
+  {"fieldname":"terms_and_conditions","fieldtype":"Text Editor","label":"Terms and Conditions"},
+  {"fieldname":"coverage_agreement","fieldtype":"Text Editor","label":"Coverage Agreement"},
+  {"fieldname":"financial_terms","fieldtype":"Text Editor","label":"Financial Terms","permlevel":1},
+  {"fieldname":"notes","fieldtype":"Text Editor","label":"Notes"}
+ ],
+ "links": [],
+ "module": "AN Truck",
+ "name": "Warranty Provider Contract",
+ "naming_rule": "By fieldname",
+ "permissions": [
+  {"role":"System Manager","read":1,"write":1,"create":1,"delete":1,"print":1,"report":1,"export":1},
+  {"role":"AN Truck Warranty Manager","read":1,"write":1,"create":1,"delete":1,"print":1,"report":1,"export":1},
+  {"role":"AN Truck Warranty Manager","permlevel":1,"read":1,"write":1},
+  {"role":"AN Truck Warranty User","read":1,"print":1,"report":1}
+ ],
+ "search_fields": "contract_number,warranty_provider,status",
+ "sort_field": "start_date",
+ "sort_order": "DESC",
+ "title_field": "contract_number",
+ "track_changes": 1
+}

@@ -1,0 +1,18 @@
+{
+ "actions": [],
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "fields": [
+  {"fieldname":"coverage_category","fieldtype":"Link","label":"Component / Coverage Category","options":"Warranty Coverage Category","reqd":1,"in_list_view":1},
+  {"fieldname":"description","fieldtype":"Small Text","label":"Description","in_list_view":1},
+  {"fieldname":"covered","fieldtype":"Check","label":"Covered","default":"1","in_list_view":1},
+  {"fieldname":"coverage_limit","fieldtype":"Currency","label":"Coverage Limit","in_list_view":1},
+  {"fieldname":"mileage_limit","fieldtype":"Float","label":"Mileage Limit","in_list_view":1},
+  {"fieldname":"conditions","fieldtype":"Small Text","label":"Conditions"},
+  {"fieldname":"exclusions","fieldtype":"Small Text","label":"Exclusions"}
+ ],
+ "istable": 1,
+ "module": "AN Truck",
+ "name": "Warranty Coverage Item"
+}
