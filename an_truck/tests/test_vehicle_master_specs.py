@@ -67,6 +67,21 @@ class TestVehicleMasterSpecifications(IntegrationTestCase):
 		]
 		self.assertEqual(sections, expected)
 
+	def test_vehicle_master_standard_filters_are_limited_to_operational_fields(self):
+		meta = frappe.get_meta("Vehicle Master")
+		self.assertEqual(meta.title_field, "vin")
+		standard_filters = {
+			field.fieldname for field in meta.fields if field.in_standard_filter
+		}
+		self.assertEqual(standard_filters, {
+			"vin", "item_name", "vehicle_status", "plate_number",
+			"vehicle_import_file", "supplier", "customer",
+		})
+		self.assertEqual(
+			meta.search_fields,
+			"vin,item_name,vehicle_status,plate_number,vehicle_import_file,supplier,customer",
+		)
+
 	def test_vehicle_master_arabic_labels_are_complete_and_unambiguous(self):
 		with open(frappe.get_app_path("an_truck", "translations", "ar.csv"), encoding="utf-8", newline="") as handle:
 			rows = list(csv.reader(handle))
@@ -84,6 +99,7 @@ class TestVehicleMasterSpecifications(IntegrationTestCase):
 		self.assertEqual(translations["VIN / Chassis Number"], "رقم الشاسيه")
 		self.assertEqual(translations["Vehicle Identity"], "بيانات المركبة")
 		self.assertEqual(translations["Sales & Warranty"], "المبيعات والضمان")
+		self.assertEqual(translations["Item Name"], "اسم السيارة")
 
 	def test_registration_expiry_cannot_precede_registration(self):
 		vehicle = VehicleMaster({
