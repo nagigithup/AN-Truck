@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_import": 1,
- "autoname": "naming_series:",
+ "autoname": "field:import_title",
  "creation": "2026-09-12 17:53:24.588452",
  "doctype": "DocType",
  "document_type": "Document",
@@ -45,7 +45,9 @@
   "total_expected_vehicles",
   "total_received_vehicles",
   "total_remaining_vehicles",
-  "total_created_vehicles"
+  "total_created_vehicles",
+  "vehicle_summary_html",
+  "column_break_llep"
  ],
  "fields": [
   {
@@ -101,7 +103,8 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Import Title",
-   "reqd": 1
+   "reqd": 1,
+   "unique": 1
   },
   {
    "fieldname": "company",
@@ -284,11 +287,11 @@
   }
  ],
  "links": [],
- "modified": "2026-09-12 18:10:29.695759",
+ "modified": "2026-10-04 13:02:02.924463",
  "modified_by": "Administrator",
  "module": "AN Truck",
  "name": "Vehicle Import File",
- "naming_rule": "By \"Naming Series\" field",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
