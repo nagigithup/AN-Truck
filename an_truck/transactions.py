@@ -56,6 +56,7 @@ def _set_if_present(doc, values):
 
 def _assert_import_doc(doctype, name, import_file, submitted=True):
 	doc = frappe.get_doc(doctype, name)
+	doc.check_permission("read")
 	if submitted and doc.docstatus != 1:
 		frappe.throw(_("{0} {1} must be submitted.").format(_(doctype), name))
 	if doc.get(CUSTOM_FIELD) != import_file:
@@ -74,8 +75,187 @@ def get_unified_screen_data(vehicle_import_file):
 	}
 
 
+@frappe.whitelist()
+def get_import_workspace(vehicle_import_file):
+	"""Return one permission-aware payload for the employee import workspace.
+
+	All operational values are derived from the existing Vehicle Import File,
+	ERPNext buying/stock documents, and Vehicle Master records.  This endpoint
+	does not persist a second workflow or status model.
+	"""
+	vif = _require_import_file(vehicle_import_file)
+	documents = _get_documents(vif.name)
+	vehicles = _get_workspace_vehicles(vif.name)
+	costs = _get_landed_cost_rows(documents.get("landed_cost_vouchers") or [])
+	permissions = _get_permissions()
+	summary = _get_workspace_summary(vif, documents, vehicles, costs)
+	return {
+		"import_file": _get_import_file_header(vif),
+		"summary": summary,
+		"process": _get_process(vif, summary, documents),
+		"purchase": _get_purchase_summary(documents),
+		"receiving": _get_receiving_summary(summary, documents),
+		"vehicles": vehicles,
+		"costs": {
+			"rows": costs,
+			"total": sum(flt(row.get("base_amount") or row.get("amount")) for row in costs if row.get("docstatus") == 1),
+			"currency": vif.company_currency,
+		},
+		"documents": documents,
+		"activity": _get_activity(vif, documents),
+		"permissions": permissions,
+		"next_actions": _get_next_actions(vif, summary, documents, permissions),
+	}
+
+
+def _get_import_file_header(vif):
+	return {
+		"name": vif.name,
+		"title": vif.import_title,
+		"company": vif.company,
+		"supplier": vif.supplier,
+		"status": vif.status,
+		"contract_number": vif.contract_number,
+		"contract_date": vif.contract_date,
+		"country_of_origin": vif.country_of_origin,
+		"supplier_currency": vif.supplier_currency,
+		"company_currency": vif.company_currency,
+		"total_contract_amount": vif.total_contract_amount,
+		"total_contract_amount_company_currency": vif.total_contract_amount_company_currency,
+		"expected_shipping_date": vif.expected_shipping_date,
+		"actual_shipping_date": vif.actual_shipping_date,
+		"expected_arrival_date": vif.expected_arrival_date,
+		"actual_arrival_date": vif.actual_arrival_date,
+		"port_of_loading": vif.port_of_loading,
+		"port_of_destination": vif.port_of_destination,
+		"bill_of_lading_number": vif.bill_of_lading_number,
+		"modified": vif.modified,
+	}
+
+
+def _get_workspace_summary(vif, documents, vehicles, costs):
+	active_pos = [row for row in documents.get("purchase_orders", []) if row.docstatus < 2]
+	submitted_costs = [row for row in costs if row.get("docstatus") == 1]
+	expected = flt(vif.total_expected_vehicles)
+	received = flt(vif.total_received_vehicles)
+	created = len([row for row in vehicles if not row.get("disabled")])
+	if not expected and active_pos:
+		expected = sum(flt(row.get("total_qty")) for row in active_pos)
+	return {
+		"status": vif.status,
+		"purchase_status": _purchase_status(active_pos),
+		"receiving_status": _receiving_status(expected, received),
+		"expected": expected,
+		"received": received,
+		"remaining": max(expected - received, 0),
+		"created": created,
+		"vins_entered": len({row.get("vin") for row in vehicles if row.get("vin") and not row.get("disabled")}),
+		"currency": vif.company_currency,
+		"supplier_currency": vif.supplier_currency,
+		"contract_amount": flt(vif.total_contract_amount_company_currency),
+		"purchase_value": sum(flt(row.get("amount")) for row in active_pos),
+		"additional_cost": sum(flt(row.get("base_amount") or row.get("amount")) for row in submitted_costs),
+		"final_valuation": sum(flt(row.get("final_valuation_rate")) for row in vehicles if not row.get("disabled")),
+		"last_update": vif.modified,
+	}
+
+
+def _purchase_status(purchase_orders):
+	if not purchase_orders:
+		return "Not Started"
+	submitted = [row for row in purchase_orders if row.docstatus == 1]
+	if not submitted:
+		return "Draft"
+	if submitted and all(flt(row.get("per_received")) >= 100 for row in submitted):
+		return "Received"
+	if any(flt(row.get("per_received")) > 0 for row in submitted):
+		return "Partially Received"
+	return "Ordered"
+
+
+def _receiving_status(expected, received):
+	if received <= 0:
+		return "Not Received"
+	if expected and received >= expected:
+		return "Fully Received"
+	return "Partially Received"
+
+
+def _get_process(vif, summary, documents):
+	has_po = any(row.docstatus < 2 for row in documents.get("purchase_orders", []))
+	has_cost = any(row.docstatus == 1 for row in documents.get("landed_cost_vouchers", []))
+	shipping_started = bool(vif.actual_shipping_date or vif.bill_of_lading_number or vif.status in {"In Transit", "At Port", "Under Clearance", "Partially Received", "Fully Received", "Completed"})
+	receipt_complete = bool(summary["expected"] and summary["received"] >= summary["expected"])
+	steps = [
+		("import_file", "Import File", True),
+		("purchase_order", "Purchase Order", has_po),
+		("shipping", "Supplier / Shipping", shipping_started),
+		("receiving", "Vehicle Receipt", receipt_complete),
+		("vin", "VIN Entry", bool(summary["received"] and summary["vins_entered"] >= summary["received"])),
+		("vehicles", "Vehicle Records", bool(summary["received"] and summary["created"] >= summary["received"])),
+		("costs", "Import Costs", has_cost),
+		("completed", "Completed", vif.status == "Completed"),
+	]
+	current = next((index for index, step in enumerate(steps) if not step[2]), len(steps) - 1)
+	return [
+		{"key": key, "label": label, "state": "complete" if complete else "current" if index == current else "pending"}
+		for index, (key, label, complete) in enumerate(steps)
+	]
+
+
+def _get_purchase_summary(documents):
+	orders = documents.get("purchase_orders") or []
+	active = [row for row in orders if row.docstatus < 2]
+	return {"orders": orders, "primary": active[0] if active else None}
+
+
+def _get_receiving_summary(summary, documents):
+	orders = [row for row in documents.get("purchase_orders", []) if row.docstatus == 1 and flt(row.get("per_received")) < 100]
+	return {
+		"purchase_orders": orders,
+		"expected": summary["expected"],
+		"received": summary["received"],
+		"remaining": summary["remaining"],
+	}
+
+
+def _get_next_actions(vif, summary, documents, permissions):
+	actions = []
+	active_orders = [row for row in documents.get("purchase_orders", []) if row.docstatus < 2]
+	receivable_orders = [row for row in active_orders if row.docstatus == 1 and flt(row.get("per_received")) < 100]
+	can_add_order = not active_orders or (
+		summary.get("remaining", 0) > 0
+		and active_orders
+		and all(row.docstatus == 1 and flt(row.get("per_received")) >= 100 for row in active_orders)
+	)
+	if can_add_order and permissions.get("Purchase Order", {}).get("create"):
+		actions.append("create_purchase_order")
+	if receivable_orders and permissions.get("Purchase Receipt", {}).get("create"):
+		actions.append("receive_vehicles")
+	if documents.get("purchase_receipts") and permissions.get("Landed Cost Voucher", {}).get("create"):
+		actions.append("add_import_cost")
+	if vif.status == "Completed":
+		actions.append("completed")
+	return actions
+
+
+def _get_activity(vif, documents):
+	activity = [{"type": "import_file", "label": "Import File created", "document": vif.name, "timestamp": vif.creation}]
+	labels = {
+		"purchase_orders": "Purchase Order created",
+		"purchase_receipts": "Vehicles received",
+		"purchase_invoices": "Purchase Invoice created",
+		"landed_cost_vouchers": "Landed Cost updated",
+	}
+	for key, label in labels.items():
+		for row in documents.get(key, []):
+			activity.append({"type": key, "label": label, "document": row.name, "timestamp": row.get("modified") or row.get("date"), "docstatus": row.docstatus})
+	return sorted(activity, key=lambda row: str(row.get("timestamp") or ""), reverse=True)[:20]
+
+
 def _get_permissions():
 	doctypes = [
+		"Vehicle Import File",
 		"Purchase Order",
 		"Purchase Receipt",
 		"Purchase Invoice",
@@ -87,7 +267,15 @@ def _get_permissions():
 		"Sales Invoice",
 		"Vehicle Master",
 	]
-	return {doctype: {"create": frappe.has_permission(doctype, "create"), "read": frappe.has_permission(doctype, "read")} for doctype in doctypes}
+	return {
+		doctype: {
+			"create": frappe.has_permission(doctype, "create"),
+			"read": frappe.has_permission(doctype, "read"),
+			"write": frappe.has_permission(doctype, "write"),
+			"submit": frappe.has_permission(doctype, "submit"),
+		}
+		for doctype in doctypes
+	}
 
 
 def _get_summary(vif):
@@ -104,30 +292,59 @@ def _get_summary(vif):
 
 def _get_documents(import_file):
 	def rows(doctype, filters=None, fields=None):
+		if not frappe.has_permission(doctype, "read"):
+			return []
 		filters = filters or {}
 		filters[CUSTOM_FIELD] = import_file
-		return frappe.get_all(doctype, filters=filters, fields=fields, order_by="modified desc", limit=50)
+		return frappe.get_list(doctype, filters=filters, fields=fields, order_by="modified desc", limit=50)
 
-	common_purchase = ["name", "transaction_date as date", "supplier as party", "currency", "grand_total as amount", "status", "docstatus"]
-	common_stock = ["name", "posting_date as date", "supplier as party", "currency", "grand_total as amount", "status", "docstatus"]
-	common_sales = ["name", "transaction_date as date", "customer as party", "currency", "grand_total as amount", "status", "docstatus"]
-	quotation_fields = ["name", "transaction_date as date", "party_name as party", "currency", "grand_total as amount", "status", "docstatus"]
-	return {
+	common_purchase = ["name", "transaction_date as date", "supplier as party", "currency", "grand_total as amount", "total_qty", "status", "docstatus", "creation", "modified"]
+	common_stock = ["name", "posting_date as date", "supplier as party", "currency", "grand_total as amount", "total_qty", "status", "docstatus", "creation", "modified"]
+	common_sales = ["name", "transaction_date as date", "customer as party", "currency", "grand_total as amount", "status", "docstatus", "creation", "modified"]
+	quotation_fields = ["name", "transaction_date as date", "party_name as party", "currency", "grand_total as amount", "status", "docstatus", "creation", "modified"]
+	documents = {
 		"purchase_orders": rows("Purchase Order", fields=common_purchase + ["per_received", "per_billed"]),
 		"purchase_receipts": rows("Purchase Receipt", fields=common_stock),
-		"purchase_invoices": rows("Purchase Invoice", fields=["name", "posting_date as date", "supplier as party", "currency", "grand_total as amount", "outstanding_amount", "status", "docstatus"]),
-		"supplier_payments": rows("Payment Entry", {"payment_type": "Pay"}, ["name", "posting_date as date", "party", "paid_from_account_currency as currency", "paid_amount as amount", "status", "docstatus"]),
-		"landed_cost_vouchers": rows("Landed Cost Voucher", fields=["name", "posting_date as date", "company as party", "total_taxes_and_charges as amount", "docstatus"]),
+		"purchase_invoices": rows("Purchase Invoice", fields=["name", "posting_date as date", "supplier as party", "currency", "grand_total as amount", "outstanding_amount", "status", "docstatus", "creation", "modified"]),
+		"supplier_payments": rows("Payment Entry", {"payment_type": "Pay"}, ["name", "posting_date as date", "party", "paid_from_account_currency as currency", "paid_amount as amount", "status", "docstatus", "creation", "modified"]),
+		"landed_cost_vouchers": rows("Landed Cost Voucher", fields=["name", "posting_date as date", "company as party", "total_taxes_and_charges as amount", "docstatus", "creation", "modified"]),
 		"quotations": rows("Quotation", fields=quotation_fields),
 		"sales_orders": rows("Sales Order", fields=common_sales + ["per_delivered", "per_billed"]),
-		"delivery_notes": rows("Delivery Note", fields=["name", "posting_date as date", "customer as party", "currency", "grand_total as amount", "status", "docstatus"]),
-		"sales_invoices": rows("Sales Invoice", fields=["name", "posting_date as date", "customer as party", "currency", "grand_total as amount", "outstanding_amount", "status", "docstatus"]),
-		"customer_payments": rows("Payment Entry", {"payment_type": "Receive"}, ["name", "posting_date as date", "party", "paid_to_account_currency as currency", "received_amount as amount", "status", "docstatus"]),
+		"delivery_notes": rows("Delivery Note", fields=["name", "posting_date as date", "customer as party", "currency", "grand_total as amount", "status", "docstatus", "creation", "modified"]),
+		"sales_invoices": rows("Sales Invoice", fields=["name", "posting_date as date", "customer as party", "currency", "grand_total as amount", "outstanding_amount", "status", "docstatus", "creation", "modified"]),
+		"customer_payments": rows("Payment Entry", {"payment_type": "Receive"}, ["name", "posting_date as date", "party", "paid_to_account_currency as currency", "received_amount as amount", "status", "docstatus", "creation", "modified"]),
 	}
+	_append_legacy_purchase_documents(import_file, documents, common_purchase, common_stock)
+	return documents
+
+
+def _append_legacy_purchase_documents(import_file, documents, purchase_fields, receipt_fields):
+	"""Include old links that predate the transaction-level import custom field."""
+	if not frappe.has_permission("Vehicle Master", "read"):
+		return
+	vehicle_links = frappe.get_list(
+		"Vehicle Master",
+		filters={"vehicle_import_file": import_file},
+		fields=["purchase_order", "purchase_receipt"],
+		limit=500,
+	)
+	for key, doctype, fieldname, fields in (
+		("purchase_orders", "Purchase Order", "purchase_order", purchase_fields + ["per_received", "per_billed"]),
+		("purchase_receipts", "Purchase Receipt", "purchase_receipt", receipt_fields),
+	):
+		if not frappe.has_permission(doctype, "read"):
+			continue
+		existing = {row.name for row in documents[key]}
+		names = {row.get(fieldname) for row in vehicle_links if row.get(fieldname)} - existing
+		if names:
+			documents[key].extend(frappe.get_list(doctype, filters={"name": ["in", list(names)]}, fields=fields, limit=500))
+		documents[key].sort(key=lambda row: str(row.get("modified") or ""), reverse=True)
 
 
 def _get_vehicles(import_file):
-	return frappe.get_all(
+	if not frappe.has_permission("Vehicle Master", "read"):
+		return []
+	return frappe.get_list(
 		"Vehicle Master",
 		filters={"vehicle_import_file": import_file},
 		fields=[
@@ -148,6 +365,102 @@ def _get_vehicles(import_file):
 		order_by="modified desc",
 		limit=200,
 	)
+
+
+def _get_workspace_vehicles(import_file):
+	if not frappe.has_permission("Vehicle Master", "read"):
+		return []
+	fields = [
+		"name", "vin", "item_code", "item_name", "brand", "model", "model_year", "color",
+		"manufacturing_date", "country_of_origin", "engine_number", "warehouse", "vehicle_status",
+		"disabled", "supplier", "purchase_order", "purchase_receipt", "receipt_date", "company",
+		"purchase_valuation_rate", "landed_cost_added", "final_valuation_rate", "cost_currency",
+		"customer", "quotation", "sales_order", "sales_invoice", "delivery_note", "selling_rate", "modified",
+	]
+	vehicles = frappe.get_list(
+		"Vehicle Master",
+		filters={"vehicle_import_file": import_file},
+		fields=fields,
+		order_by="modified desc",
+		limit=500,
+	)
+	warranties = {}
+	if frappe.db.exists("DocType", "Vehicle Warranty") and frappe.has_permission("Vehicle Warranty", "read"):
+		vins = [row.vin for row in vehicles if row.vin]
+		if vins:
+			for row in frappe.get_list(
+				"Vehicle Warranty",
+				filters={"vin": ["in", vins], "docstatus": ["<", 2]},
+				fields=["vin", "name", "status"],
+				order_by="modified desc",
+				limit=500,
+			):
+				warranties.setdefault(row.vin, {"name": row.name, "status": row.status})
+	for row in vehicles:
+		row["receiving_status"] = "Received" if row.purchase_receipt and not row.disabled else "Receipt Cancelled" if row.disabled else "Pending"
+		row["vehicle_master_status"] = "Created" if not row.disabled else "Disabled"
+		row["sales_status"] = _sales_status(row)
+		row["inspection_status"] = "In Progress" if row.vehicle_status == "Under Inspection" else None
+		row["warranty"] = warranties.get(row.vin)
+	return vehicles
+
+
+def _sales_status(vehicle):
+	if vehicle.delivery_note:
+		return "Delivered"
+	if vehicle.sales_invoice:
+		return "Sold"
+	if vehicle.sales_order:
+		return "Reserved"
+	return "Available" if vehicle.vehicle_status in {"Received", "Available"} else vehicle.vehicle_status
+
+
+def _get_landed_cost_rows(vouchers):
+	if not vouchers:
+		return []
+	parents = {row.name: row for row in vouchers}
+	rows = frappe.get_all(
+		"Landed Cost Taxes and Charges",
+		filters={"parent": ["in", list(parents)]},
+		fields=["parent", "idx", "description", "expense_account", "account_currency", "exchange_rate", "amount", "base_amount"],
+		order_by="parent desc, idx asc",
+	)
+	for row in rows:
+		voucher = parents[row.parent]
+		row.update({"voucher": voucher.name, "date": voucher.date, "docstatus": voucher.docstatus})
+	return rows
+
+
+@frappe.whitelist()
+def get_import_form_options(vehicle_import_file):
+	"""Load selectable master data only when an operation panel is opened."""
+	vif = _require_import_file(vehicle_import_file)
+	result = {"today": nowdate(), "items": [], "warehouses": [], "expense_accounts": []}
+	if frappe.has_permission("Item", "read"):
+		result["items"] = frappe.get_list(
+			"Item",
+			filters={"disabled": 0, "is_purchase_item": 1},
+			fields=["name", "item_name", "stock_uom", "has_serial_no"],
+			order_by="item_name asc",
+			limit=500,
+		)
+	if frappe.has_permission("Warehouse", "read"):
+		result["warehouses"] = frappe.get_list(
+			"Warehouse",
+			filters={"company": vif.company, "disabled": 0, "is_group": 0},
+			fields=["name"],
+			order_by="name asc",
+			limit=500,
+		)
+	if frappe.has_permission("Account", "read"):
+		result["expense_accounts"] = frappe.get_list(
+			"Account",
+			filters={"company": vif.company, "disabled": 0, "is_group": 0, "root_type": "Expense"},
+			fields=["name", "account_currency"],
+			order_by="name asc",
+			limit=500,
+		)
+	return result
 
 
 @frappe.whitelist()
