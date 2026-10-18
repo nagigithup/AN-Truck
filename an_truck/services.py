@@ -262,9 +262,38 @@ def validate_vehicle_registration(doc, method=None):
 
 
 def on_submit_sales_order(doc, method=None):
+	seen = set()
 	for row in doc.get("items", []):
 		if row.get("custom_vehicle_master"):
-			vm = frappe.get_doc("Vehicle Master", row.custom_vehicle_master)
+			if flt(row.qty) != 1:
+				frappe.throw(_("Quantity must be 1 for a VIN-linked vehicle row."))
+			if row.custom_vehicle_master in seen:
+				frappe.throw(_("Vehicle {0} is selected more than once.").format(row.custom_vehicle_master))
+			seen.add(row.custom_vehicle_master)
+			vm = frappe.get_doc("Vehicle Master", row.custom_vehicle_master, for_update=True)
+			if vm.disabled or vm.company != doc.company:
+				frappe.throw(_("Vehicle {0} is not available for this company.").format(vm.vin))
+			other_order = frappe.db.get_value(
+				"Sales Order Item",
+				{
+					"custom_vehicle_master": vm.name,
+					"docstatus": 1,
+					"parent": ["!=", doc.name],
+				},
+				"parent",
+			)
+			if other_order:
+				frappe.throw(
+					_("Vehicle {0} is already reserved by Sales Order {1}.").format(
+						vm.vin, other_order
+					)
+				)
+			if frappe.db.exists(
+				"Sales Invoice Item", {"custom_vehicle_master": vm.name, "docstatus": 1}
+			) or frappe.db.exists(
+				"Delivery Note Item", {"custom_vehicle_master": vm.name, "docstatus": 1}
+			):
+				frappe.throw(_("Vehicle {0} has already been sold or delivered.").format(vm.vin))
 			if vm.vehicle_status not in {"Received", "Available"}:
 				frappe.throw(_("Vehicle {0} is not available for reservation.").format(vm.vin))
 			vm.vehicle_status = "Reserved"
@@ -321,9 +350,39 @@ def on_cancel_delivery_note(doc, method=None):
 
 
 def on_submit_sales_invoice(doc, method=None):
+	seen = set()
 	for row in doc.get("items", []):
 		if row.get("custom_vehicle_master"):
-			vm = frappe.get_doc("Vehicle Master", row.custom_vehicle_master)
+			if flt(row.qty) != 1:
+				frappe.throw(_("Quantity must be 1 for a VIN-linked vehicle row."))
+			if row.custom_vehicle_master in seen:
+				frappe.throw(_("Vehicle {0} is selected more than once.").format(row.custom_vehicle_master))
+			seen.add(row.custom_vehicle_master)
+			vm = frappe.get_doc("Vehicle Master", row.custom_vehicle_master, for_update=True)
+			if vm.disabled or vm.company != doc.company:
+				frappe.throw(_("Vehicle {0} is not available for this company.").format(vm.vin))
+			existing_invoice = frappe.db.get_value(
+				"Sales Invoice Item",
+				{
+					"custom_vehicle_master": vm.name,
+					"docstatus": 1,
+					"parent": ["!=", doc.name],
+				},
+				"parent",
+			)
+			delivered = frappe.db.exists(
+				"Delivery Note Item", {"custom_vehicle_master": vm.name, "docstatus": 1}
+			)
+			if existing_invoice or delivered or vm.vehicle_status == "Delivered":
+				frappe.throw(_("Vehicle {0} has already been sold or delivered.").format(vm.vin))
+			linked_order = row.get("sales_order") or vm.sales_order
+			if vm.vehicle_status == "Reserved":
+				if not linked_order or vm.sales_order != linked_order:
+					frappe.throw(
+						_("Vehicle {0} is reserved by another Sales Order.").format(vm.vin)
+					)
+			elif vm.vehicle_status not in {"Received", "Available"}:
+				frappe.throw(_("Vehicle {0} is not available for sale.").format(vm.vin))
 			if vm.vehicle_status != "Delivered":
 				vm.vehicle_status = "Sold"
 			vm.customer = doc.customer

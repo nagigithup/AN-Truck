@@ -50,7 +50,7 @@ def _with_idempotency(action, import_file, key, factory):
 
 def _set_if_present(doc, values):
 	for fieldname, value in values.items():
-		if value is not None and fieldname in doc.meta.get_fieldnames():
+		if value is not None and doc.meta.has_field(fieldname):
 			doc.set(fieldname, value)
 
 
@@ -61,6 +61,33 @@ def _assert_import_doc(doctype, name, import_file, submitted=True):
 		frappe.throw(_("{0} {1} must be submitted.").format(_(doctype), name))
 	if doc.get(CUSTOM_FIELD) != import_file:
 		frappe.throw(_("{0} {1} is not linked to Vehicle Import File {2}.").format(_(doctype), name, import_file))
+	return doc
+
+
+def _assert_vehicle_delivery_source(doctype, name, import_file, vehicle_names):
+	doc = frappe.get_doc(doctype, name)
+	doc.check_permission("read")
+	if doc.docstatus != 1:
+		frappe.throw(_("{0} {1} must be submitted.").format(_(doctype), name))
+	if doc.get(CUSTOM_FIELD) == import_file:
+		return doc
+	selected = {name for name in vehicle_names if name}
+	source_vehicles = {
+		row.get("custom_vehicle_master") for row in doc.items if row.get("custom_vehicle_master")
+	}
+	valid_vehicles = set(
+		frappe.get_all(
+			"Vehicle Master",
+			filters={"name": ["in", list(selected)], "vehicle_import_file": import_file},
+			pluck="name",
+		)
+	)
+	if not selected or not selected.issubset(source_vehicles) or selected != valid_vehicles:
+		frappe.throw(
+			_("{0} {1} is not linked to Vehicle Import File {2}.").format(
+				_(doctype), name, import_file
+			)
+		)
 	return doc
 
 
@@ -220,6 +247,8 @@ def _get_receiving_summary(summary, documents):
 
 
 def _get_next_actions(vif, summary, documents, permissions):
+	if vif.status == "Completed":
+		return ["completed"]
 	actions = []
 	active_orders = [row for row in documents.get("purchase_orders", []) if row.docstatus < 2]
 	receivable_orders = [row for row in active_orders if row.docstatus == 1 and flt(row.get("per_received")) < 100]
@@ -234,8 +263,8 @@ def _get_next_actions(vif, summary, documents, permissions):
 		actions.append("receive_vehicles")
 	if documents.get("purchase_receipts") and permissions.get("Landed Cost Voucher", {}).get("create"):
 		actions.append("add_import_cost")
-	if vif.status == "Completed":
-		actions.append("completed")
+	if vif.status == "Fully Received" and permissions.get("Vehicle Import File", {}).get("write"):
+		actions.append("close_import_file")
 	return actions
 
 
@@ -303,13 +332,13 @@ def _get_documents(import_file):
 	common_sales = ["name", "transaction_date as date", "customer as party", "currency", "grand_total as amount", "status", "docstatus", "creation", "modified"]
 	quotation_fields = ["name", "transaction_date as date", "party_name as party", "currency", "grand_total as amount", "status", "docstatus", "creation", "modified"]
 	documents = {
-		"purchase_orders": rows("Purchase Order", fields=common_purchase + ["per_received", "per_billed"]),
+		"purchase_orders": rows("Purchase Order", fields=[*common_purchase, "per_received", "per_billed"]),
 		"purchase_receipts": rows("Purchase Receipt", fields=common_stock),
 		"purchase_invoices": rows("Purchase Invoice", fields=["name", "posting_date as date", "supplier as party", "currency", "grand_total as amount", "outstanding_amount", "status", "docstatus", "creation", "modified"]),
 		"supplier_payments": rows("Payment Entry", {"payment_type": "Pay"}, ["name", "posting_date as date", "party", "paid_from_account_currency as currency", "paid_amount as amount", "status", "docstatus", "creation", "modified"]),
 		"landed_cost_vouchers": rows("Landed Cost Voucher", fields=["name", "posting_date as date", "company as party", "total_taxes_and_charges as amount", "docstatus", "creation", "modified"]),
 		"quotations": rows("Quotation", fields=quotation_fields),
-		"sales_orders": rows("Sales Order", fields=common_sales + ["per_delivered", "per_billed"]),
+		"sales_orders": rows("Sales Order", fields=[*common_sales, "per_delivered", "per_billed"]),
 		"delivery_notes": rows("Delivery Note", fields=["name", "posting_date as date", "customer as party", "currency", "grand_total as amount", "status", "docstatus", "creation", "modified"]),
 		"sales_invoices": rows("Sales Invoice", fields=["name", "posting_date as date", "customer as party", "currency", "grand_total as amount", "outstanding_amount", "status", "docstatus", "creation", "modified"]),
 		"customer_payments": rows("Payment Entry", {"payment_type": "Receive"}, ["name", "posting_date as date", "party", "paid_to_account_currency as currency", "received_amount as amount", "status", "docstatus", "creation", "modified"]),
@@ -329,7 +358,7 @@ def _append_legacy_purchase_documents(import_file, documents, purchase_fields, r
 		limit=500,
 	)
 	for key, doctype, fieldname, fields in (
-		("purchase_orders", "Purchase Order", "purchase_order", purchase_fields + ["per_received", "per_billed"]),
+		("purchase_orders", "Purchase Order", "purchase_order", [*purchase_fields, "per_received", "per_billed"]),
 		("purchase_receipts", "Purchase Receipt", "purchase_receipt", receipt_fields),
 	):
 		if not frappe.has_permission(doctype, "read"):
@@ -422,12 +451,32 @@ def _get_landed_cost_rows(vouchers):
 	rows = frappe.get_all(
 		"Landed Cost Taxes and Charges",
 		filters={"parent": ["in", list(parents)]},
-		fields=["parent", "idx", "description", "expense_account", "account_currency", "exchange_rate", "amount", "base_amount"],
+		fields=["name", "parent", "idx", "description", "expense_account", "account_currency", "exchange_rate", "amount", "base_amount"],
 		order_by="parent desc, idx asc",
 	)
+	attachments = {}
+	if rows:
+		for file in frappe.get_all(
+			"File",
+			filters={
+				"attached_to_doctype": "Landed Cost Taxes and Charges",
+				"attached_to_name": ["in", [row.name for row in rows]],
+				"is_folder": 0,
+			},
+			fields=["name", "file_name", "file_url", "attached_to_name"],
+			order_by="creation asc",
+		):
+			attachments.setdefault(file.attached_to_name, []).append(file)
 	for row in rows:
 		voucher = parents[row.parent]
-		row.update({"voucher": voucher.name, "date": voucher.date, "docstatus": voucher.docstatus})
+		row.update(
+			{
+				"voucher": voucher.name,
+				"date": voucher.date,
+				"docstatus": voucher.docstatus,
+				"attachments": attachments.get(row.name, []),
+			}
+		)
 	return rows
 
 
@@ -606,13 +655,53 @@ def create_purchase_invoice(vehicle_import_file, data=None, submit_now=0, idempo
 		else:
 			frappe.throw(_("Select Purchase Order or Purchase Receipt as source."))
 		_assert_import_doc(source_type, source_name, vif.name)
+		if source_type == "Purchase Order":
+			frappe.get_doc("Purchase Order", source_name, for_update=True)
+			draft_invoice = frappe.db.get_value(
+				"Purchase Invoice Item",
+				{"purchase_order": source_name, "docstatus": 0},
+				"parent",
+			)
+			if draft_invoice:
+				frappe.throw(
+					_("Draft Purchase Invoice {0} already exists for this Purchase Order.").format(
+						draft_invoice
+					)
+				)
 		doc = make_purchase_invoice(source_name)
 		doc.set(CUSTOM_FIELD, vif.name)
+		requested_items = data.get("items") or []
+		if requested_items:
+			item_map = {}
+			for requested in requested_items:
+				requested = _dict(requested)
+				if requested.get("source_item"):
+					item_map[requested.source_item] = requested
+			for row in list(doc.items):
+				source_item = row.get("po_detail") or row.get("pr_detail")
+				requested = item_map.get(source_item)
+				if not requested:
+					doc.remove(row)
+					continue
+				qty = flt(requested.get("qty"))
+				if qty <= 0 or qty > flt(row.qty):
+					frappe.throw(
+						_("Invoice quantity for Item {0} must be positive and cannot exceed {1}.").format(
+							row.item_code, row.qty
+						)
+					)
+				row.qty = qty
+				if requested.get("rate") is not None:
+					row.rate = flt(requested.get("rate"))
+			if not doc.items:
+				frappe.throw(_("Select at least one item to invoice."))
 		doc.bill_no = data.get("supplier_invoice_number")
 		doc.bill_date = data.get("supplier_invoice_date")
 		doc.posting_date = data.get("posting_date") or nowdate()
 		doc.due_date = data.get("due_date")
 		_set_if_present(doc, {"conversion_rate": data.get("exchange_rate"), "taxes_and_charges": data.get("taxes_template"), "remarks": data.get("remarks")})
+		doc.run_method("calculate_taxes_and_totals")
+		doc.set_payment_schedule()
 		return _finish(doc, submit_now, vif.name)
 
 	return _with_idempotency("pi", vif.name, idempotency_key, make)
@@ -675,7 +764,9 @@ def create_landed_cost_voucher(vehicle_import_file, data=None, submit_now=0, ide
 		if not doc.purchase_receipts or not doc.taxes:
 			frappe.throw(_("Select at least one Purchase Receipt and one landed cost row."))
 		doc.get_items_from_purchase_receipts()
-		return _finish(doc, submit_now, vif.name)
+		result = _finish(doc, submit_now, vif.name)
+		result["cost_rows"] = [{"name": row.name, "idx": row.idx} for row in doc.taxes]
+		return result
 
 	return _with_idempotency("lcv", vif.name, idempotency_key, make)
 
@@ -753,21 +844,42 @@ def _update_vehicle_refs(doc, fieldname):
 
 @frappe.whitelist()
 def create_delivery_note(vehicle_import_file, data=None, submit_now=0, idempotency_key=None):
-	from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
-
 	vif = _require_import_file(vehicle_import_file)
 	_require_create("Delivery Note")
 	data = _dict(data)
-	so = _assert_import_doc("Sales Order", data.sales_order, vif.name)
+	source_type = data.get("source_type") or "Sales Order"
+	source_name = data.get("source_name") or data.get("sales_order")
+	if source_type == "Sales Order":
+		from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note
+	elif source_type == "Sales Invoice":
+		from erpnext.accounts.doctype.sales_invoice.sales_invoice import make_delivery_note
+	else:
+		frappe.throw(_("Select Sales Order or Sales Invoice as delivery source."))
+	selected = {
+		name
+		for name in (
+			v.get("vehicle_master") or v.get("name")
+			for v in map(_dict, data.get("vehicles") or [])
+		)
+		if name
+	}
+	source = _assert_vehicle_delivery_source(source_type, source_name, vif.name, selected)
 
 	def make():
-		doc = make_delivery_note(so.name)
+		doc = make_delivery_note(source.name)
 		doc.set(CUSTOM_FIELD, vif.name)
 		doc.posting_date = data.get("posting_date") or nowdate()
 		doc.posting_time = data.get("posting_time") or nowtime()
-		selected = {v.get("vehicle_master") or v.get("name") for v in map(_dict, data.get("vehicles") or [])}
+		if data.get("delivery_acknowledgment"):
+			doc.instructions = "\n\n".join(
+				value for value in (doc.get("instructions"), data.delivery_acknowledgment) if value
+			)
 		for row in list(doc.items):
-			if row.get("custom_vehicle_master") and selected and row.custom_vehicle_master not in selected:
+			if (
+				selected
+				and row.get("custom_vehicle_master") not in selected
+				and (data.get("delivery_acknowledgment") or row.get("custom_vehicle_master"))
+			):
 				doc.remove(row)
 				continue
 			if row.get("custom_vin"):
