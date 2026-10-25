@@ -27,6 +27,7 @@ from an_truck.warranty.setup import INTERNAL_MANAGER, INTERNAL_USER, PROVIDER_US
 from an_truck.warranty.quality import get_warranty_data_quality
 from an_truck.warranty.tasks import expire_vehicle_warranties, send_warranty_expiry_reminders
 from an_truck.warranty.timezone import get_company_local_date
+from an_truck.warranty.workflow import create_warranty_from_invoice, get_invoice_warranty_context
 from an_truck.warranty.reporting import (
 	active_vehicle_warranties,
 	expiring_warranties,
@@ -198,6 +199,9 @@ class TestVehicleWarrantyFlow(IntegrationTestCase):
 		self.assertEqual(frappe.db.get_value("Serial No", warranty.vin, "warranty_expiry_date"), warranty.warranty_expiry_date)
 		second = activate_vehicle_warranty(self.vehicle.name, warranty.delivery_date, activation_source="Delivery Note")
 		self.assertEqual(second, warranty.name)
+		warranty.coverage_snapshot[0].conditions = "Changed after issue"
+		self.assertRaises(frappe.PermissionError, warranty.save, ignore_permissions=True)
+		warranty.reload()
 		duplicate = frappe.get_doc({
 			"doctype": "Vehicle Warranty", "vehicle_master": self.vehicle.name,
 			"coverage_template": self.template.name, "warranty_provider": self.provider.name,
@@ -218,6 +222,39 @@ class TestVehicleWarrantyFlow(IntegrationTestCase):
 		self.assertTrue(frappe.db.exists("Vehicle Warranty", warranty.name))
 		self.assertEqual(frappe.db.get_value("Warranty Claim", historical_claim.name, "custom_vehicle_warranty"), warranty.name)
 		self.assertIn(historical_claim.name, {row.claim for row in warranty_claim_history_by_vin({"vin": warranty.vin})[1]})
+
+	def test_invoice_context_creation_and_duplicate_prevention(self):
+		invoice_name = frappe.db.get_value(
+			"Sales Invoice",
+			{"customer": self.vehicle.customer, "company": self.vehicle.company, "docstatus": 1},
+			"name",
+		)
+		if not invoice_name:
+			self.skipTest("A submitted Sales Invoice fixture is required for the invoice warranty test.")
+		item_name = frappe.db.get_value(
+			"Sales Invoice Item", {"parent": invoice_name, "parenttype": "Sales Invoice"}, "name"
+		)
+		if not item_name:
+			self.skipTest("The submitted Sales Invoice fixture has no items.")
+		frappe.db.set_value(
+			"Sales Invoice Item", item_name,
+			{"custom_vehicle_master": self.vehicle.name, "custom_vin": self.vehicle.vin},
+			update_modified=False,
+		)
+
+		context = get_invoice_warranty_context(invoice_name)
+		row = next(vehicle for vehicle in context["vehicles"] if vehicle["vehicle_master"] == self.vehicle.name)
+		self.assertEqual(row["vin"], self.vehicle.vin)
+		result = create_warranty_from_invoice(
+			invoice_name, self.vehicle.name, self.template.name, "2026-10-01",
+			self.provider.name, self.contract.name, "Created from invoice test",
+		)
+		self.assertEqual(frappe.db.get_value("Vehicle Warranty", result["name"], "sales_invoice"), invoice_name)
+		with self.assertRaises(frappe.ValidationError):
+			create_warranty_from_invoice(
+				invoice_name, self.vehicle.name, self.template.name, "2026-10-01",
+				self.provider.name, self.contract.name,
+			)
 
 	def test_complete_claim_cost_and_internal_approval_flow(self):
 		warranty = self.activate_sample_warranty()
