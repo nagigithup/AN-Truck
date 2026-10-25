@@ -52,6 +52,7 @@ doctype_js = {
 	"Purchase Invoice": "public/js/purchase_invoice.js",
 	"Landed Cost Voucher": "public/js/landed_cost_voucher.js",
 	"Payment Entry": "public/js/payment_entry.js",
+	"Sales Invoice": "public/js/sales_invoice_warranty.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -189,10 +190,12 @@ doc_events = {
 		"on_cancel": "an_truck.services.on_cancel_sales_order",
 	},
 	"Delivery Note": {
+		"before_validate": "an_truck.services.prepare_vehicle_stock_serials",
 		"on_submit": "an_truck.services.on_submit_delivery_note",
 		"on_cancel": "an_truck.services.on_cancel_delivery_note",
 	},
 	"Sales Invoice": {
+		"before_validate": "an_truck.services.prepare_vehicle_stock_serials",
 		"on_submit": "an_truck.services.on_submit_sales_invoice",
 		"on_cancel": "an_truck.services.on_cancel_sales_invoice",
 	},
