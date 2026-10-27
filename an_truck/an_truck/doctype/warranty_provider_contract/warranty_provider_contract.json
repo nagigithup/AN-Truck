@@ -2,37 +2,163 @@
  "actions": [],
  "allow_import": 1,
  "autoname": "field:contract_number",
+ "creation": "2026-10-03 23:06:49.738206",
  "doctype": "DocType",
  "engine": "InnoDB",
- "field_order": ["contract_number", "warranty_provider", "contract_type", "status", "start_date", "end_date", "auto_renewal", "renewal_date", "contract_document", "terms_and_conditions", "coverage_agreement", "financial_terms", "notes"],
+ "field_order": [
+  "contract_number",
+  "start_date",
+  "auto_renewal",
+  "renewal_date",
+  "contract_document",
+  "terms_and_conditions",
+  "financial_terms",
+  "column_break_rwgm",
+  "warranty_provider",
+  "end_date",
+  "contract_type",
+  "status",
+  "coverage_agreement",
+  "notes"
+ ],
  "fields": [
-  {"fieldname":"contract_number","fieldtype":"Data","label":"Contract Number","reqd":1,"unique":1,"in_list_view":1,"in_standard_filter":1},
-  {"fieldname":"warranty_provider","fieldtype":"Link","label":"Warranty Provider","options":"Warranty Provider","reqd":1,"in_list_view":1,"in_standard_filter":1},
-  {"fieldname":"contract_type","fieldtype":"Select","label":"Contract Type","options":"Fixed Period\nAnnual\nOpen Ended","reqd":1,"in_list_view":1},
-  {"fieldname":"status","fieldtype":"Select","label":"Status","options":"Draft\nActive\nExpired\nTerminated","default":"Draft","reqd":1,"in_list_view":1,"in_standard_filter":1},
-  {"fieldname":"start_date","fieldtype":"Date","label":"Start Date","reqd":1,"in_standard_filter":1},
-  {"fieldname":"end_date","fieldtype":"Date","label":"End Date","in_standard_filter":1},
-  {"fieldname":"auto_renewal","fieldtype":"Check","label":"Auto Renewal"},
-  {"fieldname":"renewal_date","fieldtype":"Date","label":"Renewal Date"},
-  {"fieldname":"contract_document","fieldtype":"Attach","label":"Contract Document"},
-  {"fieldname":"terms_and_conditions","fieldtype":"Text Editor","label":"Terms and Conditions"},
-  {"fieldname":"coverage_agreement","fieldtype":"Text Editor","label":"Coverage Agreement"},
-  {"fieldname":"financial_terms","fieldtype":"Text Editor","label":"Financial Terms","permlevel":1},
-  {"fieldname":"notes","fieldtype":"Text Editor","label":"Notes"}
+  {
+   "fieldname": "contract_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Contract Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "warranty_provider",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Warranty Provider",
+   "options": "Warranty Provider",
+   "reqd": 1
+  },
+  {
+   "fieldname": "contract_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Contract Type",
+   "options": "Fixed Period\nAnnual\nOpen Ended",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nActive\nExpired\nTerminated",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "End Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_renewal",
+   "fieldtype": "Check",
+   "label": "Auto Renewal"
+  },
+  {
+   "fieldname": "renewal_date",
+   "fieldtype": "Date",
+   "label": "Renewal Date"
+  },
+  {
+   "fieldname": "contract_document",
+   "fieldtype": "Attach",
+   "label": "Contract Document"
+  },
+  {
+   "fieldname": "terms_and_conditions",
+   "fieldtype": "Text Editor",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "coverage_agreement",
+   "fieldtype": "Text Editor",
+   "label": "Coverage Agreement"
+  },
+  {
+   "fieldname": "financial_terms",
+   "fieldtype": "Text Editor",
+   "label": "Financial Terms",
+   "permlevel": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "column_break_rwgm",
+   "fieldtype": "Column Break"
+  }
  ],
  "links": [],
+ "modified": "2026-10-24 23:01:37.130705",
+ "modified_by": "Administrator",
  "module": "AN Truck",
  "name": "Warranty Provider Contract",
  "naming_rule": "By fieldname",
+ "owner": "Administrator",
  "permissions": [
-  {"role":"System Manager","read":1,"write":1,"create":1,"delete":1,"print":1,"report":1,"export":1},
-  {"role":"AN Truck Warranty Manager","read":1,"write":1,"create":1,"delete":1,"print":1,"report":1,"export":1},
-  {"role":"AN Truck Warranty Manager","permlevel":1,"read":1,"write":1},
-  {"role":"AN Truck Warranty User","read":1,"print":1,"report":1}
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Warranty Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "AN Truck Warranty Manager",
+   "write": 1
+  },
+  {
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "AN Truck Warranty User"
+  }
  ],
+ "row_format": "Dynamic",
  "search_fields": "contract_number,warranty_provider,status",
  "sort_field": "start_date",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "contract_number",
  "track_changes": 1
 }

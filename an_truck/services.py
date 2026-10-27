@@ -46,6 +46,58 @@ def get_serials_for_row(row):
 	return list(dict.fromkeys(serials))
 
 
+def prepare_vehicle_stock_serials(doc, method=None):
+	"""Pin VIN-linked outward rows to the vehicle's actual serial and warehouse."""
+	if doc.doctype == "Sales Invoice" and not cint(doc.get("update_stock")):
+		return
+	if doc.doctype not in {"Delivery Note", "Sales Invoice"}:
+		return
+
+	use_serial_batch_fields = cint(
+		frappe.get_single_value("Stock Settings", "use_serial_batch_fields")
+	)
+	for row in doc.get("items", []):
+		vehicle_name = row.get("custom_vehicle_master")
+		if not vehicle_name:
+			continue
+		vehicle = frappe.db.get_value(
+			"Vehicle Master",
+			vehicle_name,
+			["name", "vin", "item_code"],
+			as_dict=True,
+		)
+		if not vehicle or not vehicle.vin:
+			frappe.throw(_("VIN is required."))
+		serial = frappe.db.get_value(
+			"Serial No",
+			{"serial_no": vehicle.vin},
+			["name", "serial_no", "item_code", "warehouse"],
+			as_dict=True,
+		)
+		if not serial:
+			serial = frappe.db.get_value(
+				"Serial No",
+				vehicle.vin,
+				["name", "serial_no", "item_code", "warehouse"],
+				as_dict=True,
+			)
+		if not serial:
+			frappe.throw(
+				_("Serial No {0} linked to Vehicle {1} was not found.").format(
+					vehicle.vin, vehicle.name
+				)
+			)
+		if serial.item_code != row.item_code or vehicle.item_code != row.item_code:
+			frappe.throw(_("Selected VIN does not match the source item."))
+
+		row.custom_vin = vehicle.vin
+		row.serial_no = serial.serial_no or serial.name
+		if serial.warehouse:
+			row.warehouse = serial.warehouse
+		if use_serial_batch_fields:
+			row.use_serial_batch_fields = 1
+
+
 def validate_import_file_for_purchase_doc(doc, method=None):
 	import_file = doc.get(CUSTOM_FIELD)
 	if not import_file:
@@ -334,17 +386,100 @@ def on_submit_delivery_note(doc, method=None):
 	activate_warranties_from_delivery(doc)
 
 
+def _latest_vehicle_parent(
+	doctype, child_doctype, vehicle_name, fields, date_field, extra_filters=None
+):
+	parents = frappe.get_all(
+		child_doctype,
+		filters={"custom_vehicle_master": vehicle_name, "docstatus": 1},
+		pluck="parent",
+	)
+	if not parents:
+		return None
+	filters = {"name": ["in", list(set(parents))], "docstatus": 1}
+	filters.update(extra_filters or {})
+	rows = frappe.get_all(
+		doctype,
+		filters=filters,
+		fields=fields,
+		order_by=f"{date_field} desc, creation desc",
+		limit=1,
+	)
+	return rows[0] if rows else None
+
+
+def recalculate_vehicle_sales_status(vehicle_name):
+	"""Derive delivery and sale state from submitted ERPNext documents only."""
+	delivery = _latest_vehicle_parent(
+		"Delivery Note",
+		"Delivery Note Item",
+		vehicle_name,
+		["name", "customer", "posting_date"],
+		"posting_date",
+	)
+	invoice = _latest_vehicle_parent(
+		"Sales Invoice",
+		"Sales Invoice Item",
+		vehicle_name,
+		["name", "customer", "posting_date", "update_stock"],
+		"posting_date",
+	)
+	stock_invoice = _latest_vehicle_parent(
+		"Sales Invoice",
+		"Sales Invoice Item",
+		vehicle_name,
+		["name", "customer", "posting_date", "update_stock"],
+		"posting_date",
+		{"update_stock": 1},
+	)
+	order = _latest_vehicle_parent(
+		"Sales Order",
+		"Sales Order Item",
+		vehicle_name,
+		["name", "customer", "transaction_date"],
+		"transaction_date",
+	)
+
+	if delivery:
+		status = "Delivered"
+		customer = delivery.customer
+	elif stock_invoice:
+		status = "Delivered"
+		customer = stock_invoice.customer
+	elif invoice:
+		status = "Sold"
+		customer = invoice.customer
+	elif order:
+		status = "Reserved"
+		customer = order.customer
+	else:
+		status = "Available"
+		customer = None
+
+	frappe.db.set_value(
+		"Vehicle Master",
+		vehicle_name,
+		{
+			"vehicle_status": status,
+			"customer": customer,
+			"sales_order": order.name if order else None,
+			"sales_invoice": (stock_invoice or invoice).name
+			if stock_invoice or invoice
+			else None,
+			"delivery_note": delivery.name if delivery else None,
+		},
+		update_modified=False,
+	)
+	return status
+
+
 def on_cancel_delivery_note(doc, method=None):
 	from an_truck.warranty.activation import cancel_warranties_for_source
 
 	cancel_warranties_for_source("Delivery Note", doc.name)
 	for row in doc.get("items", []):
 		if row.get("custom_vehicle_master"):
-			vm = frappe.get_doc("Vehicle Master", row.custom_vehicle_master)
-			if vm.delivery_note == doc.name and vm.vehicle_status == "Delivered" and not vm.sales_invoice:
-				vm.vehicle_status = "Reserved" if vm.sales_order else "Available"
-				vm.delivery_note = None
-				vm.save(ignore_permissions=True)
+			recalculate_vehicle_sales_status(row.custom_vehicle_master)
 	if doc.get(CUSTOM_FIELD):
 		refresh_import_file(doc.get(CUSTOM_FIELD))
 
@@ -383,8 +518,7 @@ def on_submit_sales_invoice(doc, method=None):
 					)
 			elif vm.vehicle_status not in {"Received", "Available"}:
 				frappe.throw(_("Vehicle {0} is not available for sale.").format(vm.vin))
-			if vm.vehicle_status != "Delivered":
-				vm.vehicle_status = "Sold"
+			vm.vehicle_status = "Delivered" if cint(doc.get("update_stock")) else "Sold"
 			vm.customer = doc.customer
 			vm.sales_invoice = doc.name
 			vm.selling_rate = row.rate
@@ -402,10 +536,6 @@ def on_cancel_sales_invoice(doc, method=None):
 	cancel_warranties_for_source("Sales Invoice", doc.name)
 	for row in doc.get("items", []):
 		if row.get("custom_vehicle_master"):
-			vm = frappe.get_doc("Vehicle Master", row.custom_vehicle_master)
-			if vm.sales_invoice == doc.name and vm.vehicle_status == "Sold":
-				vm.vehicle_status = "Reserved" if vm.sales_order else "Available"
-				vm.sales_invoice = None
-				vm.save(ignore_permissions=True)
+			recalculate_vehicle_sales_status(row.custom_vehicle_master)
 	if doc.get(CUSTOM_FIELD):
 		refresh_import_file(doc.get(CUSTOM_FIELD))
