@@ -1,4 +1,6 @@
 "Vehicle Import File","ملف استيراد المركبة"
+"Legacy vehicle specifications archived before schema migration: {0}","تمت أرشفة مواصفات المركبات القديمة قبل تحديث المخطط: {0}"
+"Could not verify the legacy vehicle specification archive. Migration stopped.","تعذر التحقق من أرشيف مواصفات المركبات القديمة. تم إيقاف الترحيل."
 "Vehicle Specification Template","قالب مواصفات المركبة"
 "Vehicle Specification Templates","قوالب مواصفات المركبات"
 "New Specification Template","قالب مواصفات جديد"

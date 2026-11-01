@@ -1,3 +1,11 @@
+"""Archive populated legacy specifications before removing their form fields.
+
+No Vehicle Master or technical-specification rows are changed or deleted. Frappe
+retains the old physical columns as an additional recovery/read-compatibility path.
+"""
+import gzip
+import hashlib
+
 import frappe
 from frappe import _
 
@@ -45,8 +53,46 @@ def execute():
 	):
 		populated.append("payload_capacity_unit")
 	if populated:
-		frappe.throw(
-			_("Vehicle specification migration stopped because these Vehicle Master fields contain data: {0}. Review and approve a migration plan before continuing.").format(
-				", ".join(populated)
-			)
+		archive = _archive_legacy_specifications(populated)
+		print(_("Legacy vehicle specifications archived before schema migration: {0}").format(archive.file_url))
+
+
+def _archive_legacy_specifications(populated):
+	"""Create a private, repeatable recovery snapshot; fail if it cannot be saved."""
+	columns = set(frappe.db.get_table_columns("Vehicle Master"))
+	fields = [field for field in ("name", "vin", "chassis_number", "modified", *SHARED_FIELDS, "payload_capacity_unit") if field in columns]
+	vehicles = frappe.db.sql(
+		"select " + ", ".join(f"`{field}`" for field in fields) + " from `tabVehicle Master` order by name",
+		as_dict=True,
+	)
+	children = []
+	if frappe.db.table_exists("Vehicle Technical Specification"):
+		children = frappe.db.sql(
+			"select * from `tabVehicle Technical Specification` where parenttype='Vehicle Master' order by parent, idx, name",
+			as_dict=True,
 		)
+	payload = {
+		"schema_version": 1,
+		"source_doctype": "Vehicle Master",
+		"populated_fields": populated,
+		"fields": fields,
+		"vehicles": vehicles,
+		"technical_specifications": children,
+	}
+	content = frappe.as_json(payload).encode("utf-8")
+	filename = f"vehicle-specifications-before-template-migration-{hashlib.sha256(content).hexdigest()[:16]}.json.gz"
+	compressed = gzip.compress(content, mtime=0)
+	existing = frappe.db.get_value("File", {"file_name": filename, "is_private": 1}, "name")
+	if existing:
+		archive = frappe.get_doc("File", existing)
+		if archive.exists_on_disk() and archive.get_content(encodings=[]) == compressed:
+			return archive
+	archive = frappe.get_doc({
+		"doctype": "File", "file_name": filename, "is_private": 1,
+		"content": compressed, "folder": "Home",
+	})
+	archive.insert()
+	stored = frappe.get_doc("File", archive.name)
+	if not stored.exists_on_disk() or stored.get_content(encodings=[]) != compressed:
+		frappe.throw(_("Could not verify the legacy vehicle specification archive. Migration stopped."))
+	return archive

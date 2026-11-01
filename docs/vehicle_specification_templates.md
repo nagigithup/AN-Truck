@@ -34,10 +34,17 @@ workflows continue to own stock movements.
    vehicle creation. No sample templates or automatic vehicle backfill are installed.
 
 The pre-model-sync patch audits every removed shared field and the old child
-table. If any non-default value exists, migration stops before the DocType is
-changed. Prepare and approve a separate migration plan for that site's data;
-this feature performs no data conversion. The default capacity unit `kg` alone
-is ignored, but a different unit blocks migration.
+table. If any values exist, it saves and verifies a private compressed JSON
+archive before continuing. The archive contains the existing VIN/name, legacy
+specification values, and technical-specification child rows. Its name starts
+with `vehicle-specifications-before-template-migration-` and it is available to
+authorized administrators in Files. Migration stops if the archive cannot be
+saved or verified. Retries reuse the same archive for unchanged data. This
+replaces the earlier behavior that blocked migration on populated fields.
+
+The default capacity unit `kg` alone does not require an archive. A non-default
+unit is included in the archive with all other legacy specification values.
+There is no automatic assignment of templates or conversion of existing vehicles.
 
 Frappe removes the old fields from DocType metadata but retains their physical
 database columns. No `DROP COLUMN`, document deletion, stock transaction, or mass
