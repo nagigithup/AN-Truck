@@ -4,8 +4,6 @@ No permission bypasses: every document is read/saved as the requesting user.
 Existing portal APIs remain available to their current consumers.
 """
 
-import re
-
 import frappe
 from frappe import _
 from frappe.utils import cint, cstr
@@ -182,7 +180,7 @@ def _linked(doc, kind, permission="read"):
 		]
 		# A shipping-only address must not become the billing address merely
 		# because it was the most recently edited linked Address.
-		if doc.doctype == "Customer":
+		if doc.doctype in ("Customer", "Supplier"):
 			filters.append(["Address", "address_type", "=", "Billing"])
 		rows = frappe.get_list(
 			"Address",
@@ -230,18 +228,16 @@ def get_party(doctype, name, company=None):
 		}
 	else:
 		data["address"] = {f: address.get(f) if address else "" for f in ("country", "city", "address_line1", "address_line2", "pincode")}
+		# Add national-address aliases while preserving the legacy supplier API
+		# keys consumed by the existing full-page form and integrations.
+		data["address"].update({
+			"district": address.get("custom_area") if address else "",
+			"street": address.get("address_line1") if address else "",
+			"building_number": address.get("custom_building_number") if address else "",
+			"additional_number": address.get("custom_additional_number") if address else "",
+			"short_address": address.get("custom_short_address") if address else "",
+		})
 	return {"record": data, "modified": str(doc.modified), "can_write": bool(frappe.has_permission(doctype, "write", doc=doc)), "linked_permissions": {kind: bool(frappe.has_permission(kind.title(), "write", doc=linked)) if linked else (not doc.get(f"{doctype.lower()}_primary_{kind}") and bool(frappe.has_permission(kind.title(), "create"))) for kind, linked in (("contact", contact), ("address", address))}}
-
-
-def _is_saudi_arabia(country):
-	if not country:
-		return False
-	code = frappe.get_cached_value("Country", country, "code") if frappe.db.exists("Country", country) else None
-	return cstr(code).casefold() in {"sa", "sau"} or cstr(country).strip().casefold() in {
-		"saudi arabia",
-		"السعودية",
-		"المملكة العربية السعودية",
-	}
 
 
 def _customer_address_values(values):
@@ -253,20 +249,6 @@ def _customer_address_values(values):
 		if not isinstance(value, (str, type(None))):
 			frappe.throw(_("Unsupported field"), frappe.ValidationError)
 		clean[key] = cstr(value).strip()
-	if _is_saudi_arabia(clean["country"]):
-		checks = (
-			("building_number", r"\d{4}", _("Building Number must contain exactly 4 digits.")),
-			("additional_number", r"\d{4}", _("Additional Number must contain exactly 4 digits.")),
-			("pincode", r"\d{5}", _("Postal Code must contain exactly 5 digits.")),
-			(
-				"short_address",
-				r"[A-Za-z]{4}\d{4}",
-				_("Short Address must contain 4 letters followed by 4 digits."),
-			),
-		)
-		for fieldname, pattern, message in checks:
-			if clean[fieldname] and not re.fullmatch(pattern, clean[fieldname]):
-				frappe.throw(message, frappe.ValidationError)
 	return {
 		"country": clean["country"],
 		"city": clean["city"],
@@ -291,7 +273,16 @@ def _save_linked(doc, kind, values):
 		values = _customer_address_values(values)
 		allowed = set(values)
 	else:
-		allowed = {"country", "city", "address_line1", "address_line2", "pincode"}
+		allowed = set(CUSTOMER_ADDRESS_FIELDS) | {"address_line1", "address_line2"}
+		if set(values) - allowed:
+			frappe.throw(_("Unsupported field"))
+		mapping = {"district": "custom_area", "street": "address_line1", "building_number": "custom_building_number", "additional_number": "custom_additional_number", "short_address": "custom_short_address"}
+		mapped = {mapping.get(key, key): cstr(value).strip() for key, value in values.items()}
+		if "address_line1" in values:
+			# The full-page supplier form still edits the legacy street key.
+			mapped["address_line1"] = cstr(values["address_line1"]).strip()
+		values = mapped
+		allowed = set(values)
 	if set(values) - allowed:
 		frappe.throw(_("Unsupported field"))
 	if not any(values.values()) and not doc.get(f"{doc.doctype.lower()}_primary_{kind}"):
@@ -300,8 +291,8 @@ def _save_linked(doc, kind, values):
 	if linked:
 		linked.check_permission("read")
 	if linked and all((linked.get(k) or "") == (v or "") for k, v in values.items()):
-		if kind == "address" and doc.doctype == "Customer":
-			doc.set("customer_primary_address", linked.name)
+		if kind == "address":
+			doc.set(f"{doc.doctype.lower()}_primary_address", linked.name)
 		return
 	if linked and len(linked.links) > 1:
 		frappe.throw(_("This contact or address is shared. Update it in Desk."))
@@ -333,8 +324,7 @@ def _save_linked(doc, kind, values):
 		linked.update(values)
 		linked.address_title = doc.get(f"{doc.doctype.lower()}_name")
 		linked.address_type = linked.address_type or "Billing"
-		if doc.doctype == "Customer":
-			linked.is_primary_address = 1
+		linked.is_primary_address = 1
 	else:
 		if "first_name" in values or linked.is_new():
 			linked.first_name = values.get("first_name") or doc.get(f"{doc.doctype.lower()}_name")

@@ -17,3 +17,5 @@ an_truck.patches.v1_0.add_warranty_phase6_query_indexes
 an_truck.patches.v1_0.add_national_address_fields
 an_truck.patches.v1_0.add_vehicle_specification_receipt_field
 an_truck.patches.v1_0.index_vehicle_specification_links
+an_truck.patches.v1_0.add_supplier_commercial_registration
+an_truck.patches.v1_0.add_sale_invoices_print_format

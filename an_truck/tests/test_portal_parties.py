@@ -121,16 +121,21 @@ class TestPortalParties(IntegrationTestCase):
 			1,
 		)
 
-	def test_saudi_address_validation_does_not_apply_to_other_countries(self):
+	def test_national_address_accepts_values_without_format_restrictions(self):
 		bad_saudi = self.data("Customer")
 		bad_saudi["address"] = {
 			"country": "Saudi Arabia",
 			"city": "Riyadh",
 			"street": "Test",
 			"building_number": "12",
+			"additional_number": "A-7",
+			"pincode": "123",
+			"short_address": "MY ADDRESS",
 		}
-		with self.assertRaises(frappe.ValidationError):
-			api.save_party("Customer", bad_saudi)
+		created = api.save_party("Customer", bad_saudi)
+		loaded = api.get_party("Customer", created["name"])["record"]["address"]
+		for key in ("building_number", "additional_number", "pincode", "short_address"):
+			self.assertEqual(loaded[key], bad_saudi["address"][key])
 
 		non_saudi = self.data("Customer")
 		non_saudi["address"] = {
@@ -150,10 +155,52 @@ class TestPortalParties(IntegrationTestCase):
 			with self.assertRaises(frappe.PermissionError):
 				api.get_options("Customer")
 
+	def test_supplier_national_address_and_registration_round_trip_preserves_legacy_address(self):
+		data = self.data("Supplier")
+		cr_field = next(field for field in api._fields("Supplier") if "commercial_registration" in field)
+		data.update({"country": "Saudi Arabia", "default_currency": "SAR", cr_field: "1010123456"})
+		data["address"] = {"country": "Saudi Arabia", "city": "Riyadh", "district": "Olaya", "street": "Billing Street", "building_number": "12", "additional_number": "A-7", "pincode": "123", "short_address": "ANY ADDRESS"}
+		created = api.save_party("Supplier", data)
+		supplier = frappe.get_doc("Supplier", created["name"])
+		self.assertEqual(supplier.get(cr_field), "1010123456")
+		address_name = supplier.supplier_primary_address
+		address = frappe.get_doc("Address", address_name)
+		self.assertEqual(address.address_type, "Billing")
+		self.assertTrue(address.is_primary_address)
+		address.address_line2 = "Preserve legacy address line"
+		address.save()
+		shipping = frappe.get_doc({"doctype": "Address", "address_title": data["supplier_name"], "address_type": "Shipping", "country": "Saudi Arabia", "city": "Jeddah", "address_line1": "Shipping Street", "links": [{"link_doctype": "Supplier", "link_name": supplier.name}]}).insert()
+		loaded = api.get_party("Supplier", supplier.name)
+		for key, value in data["address"].items():
+			self.assertEqual(loaded["record"]["address"][key], value)
+		new_address = {**data["address"], "district": "Malqa", "street": "Updated Billing Street"}
+		api.save_party("Supplier", {"address": new_address}, name=supplier.name, modified=loaded["modified"])
+		supplier.reload()
+		self.assertEqual(supplier.supplier_primary_address, address_name)
+		address.reload()
+		self.assertEqual(address.custom_area, "Malqa")
+		self.assertEqual(address.address_line1, "Updated Billing Street")
+		self.assertEqual(address.address_line2, "Preserve legacy address line")
+		shipping.reload()
+		self.assertEqual(shipping.address_line1, "Shipping Street")
+		self.assertEqual(frappe.db.count("Dynamic Link", {"parenttype": "Address", "link_doctype": "Supplier", "link_name": supplier.name}), 2)
+		# Old supplier detail forms can continue sending address_line1/line2.
+		loaded = api.get_party("Supplier", supplier.name)
+		loaded["record"]["address"]["address_line1"] = "Legacy form street update"
+		api.save_party("Supplier", {"address": loaded["record"]["address"]}, name=supplier.name, modified=loaded["modified"])
+		self.assertEqual(api.get_party("Supplier", supplier.name)["record"]["address"]["street"], "Legacy form street update")
+
+	def test_supplier_address_failure_is_atomic(self):
+		data = self.data("Supplier")
+		data["address"] = {"country": "Saudi Arabia", "city": "Riyadh", "street": "Street", "pincode": {"invalid": "payload"}}
+		with self.assertRaises(frappe.ValidationError):
+			api.save_party("Supplier", data)
+		self.assertFalse(frappe.db.exists("Supplier", {"supplier_name": data["supplier_name"]}))
+
 	def test_failed_address_rolls_back_customer_and_contact_creation(self):
 		data = self.data("Customer")
 		data["contact"] = {"first_name": data["customer_name"], "email_id": "atomic-test@example.invalid"}
-		data["address"] = {"country": "Saudi Arabia", "city": "Riyadh", "street": "Test Street", "building_number": "12"}
+		data["address"] = {"country": "Saudi Arabia", "city": "Riyadh", "street": "Test Street", "building_number": {"invalid": "payload"}}
 		with self.assertRaises(frappe.ValidationError):
 			api.save_party("Customer", data)
 		self.assertFalse(frappe.db.exists("Customer", {"customer_name": data["customer_name"]}))
@@ -166,7 +213,7 @@ class TestPortalParties(IntegrationTestCase):
 		with self.assertRaises(frappe.ValidationError):
 			api.save_party("Customer", {
 				"customer_name": "Name must roll back",
-				"address": {"country": "Saudi Arabia", "city": "Riyadh", "street": "Test", "pincode": "123"},
+				"address": {"country": "Saudi Arabia", "city": "Riyadh", "street": "Test", "pincode": {"invalid": "payload"}},
 			}, name=created["name"], modified=loaded["modified"])
 		self.assertEqual(frappe.db.get_value("Customer", created["name"], "customer_name"), data["customer_name"])
 
