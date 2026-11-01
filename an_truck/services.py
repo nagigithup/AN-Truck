@@ -145,6 +145,30 @@ def validate_purchase_receipt(doc):
 	seen = set()
 	for row in vehicle_rows:
 		serials = get_serials_for_row(row)
+		creates_vehicle = any(not frappe.db.exists("Vehicle Master", {"vin": vin}) for vin in serials)
+		template_name = row.get("custom_vehicle_specification_template")
+		if creates_vehicle and not template_name:
+			frappe.throw(
+				_("Row {0}, Item {1}: Vehicle Specification Template is required.").format(
+					row.idx, row.item_code
+				)
+			)
+		template = frappe.db.get_value(
+			"Vehicle Specification Template",
+			template_name,
+			["status", "active", "item_code"],
+			as_dict=True,
+		) if template_name else None
+		if template_name and (not template or template.status != "Published" or not template.active):
+			frappe.throw(_("Select an active published Vehicle Specification Template."))
+		if template and template.item_code and template.item_code != row.item_code:
+			frappe.throw(
+				_("Vehicle Specification Template {0} is associated with Item {1}.").format(
+					template_name, template.item_code
+				)
+			)
+		if template_name and creates_vehicle:
+			frappe.get_doc("Vehicle Specification Template", template_name).check_permission("read")
 		if not serials:
 			frappe.throw(_("Row {0}, Item {1}: VIN/Serial Number is required.").format(row.idx, row.item_code))
 		if len(serials) != cint(row.qty):
@@ -187,6 +211,7 @@ def create_or_update_vehicle_master(doc, row, vin):
 		"chassis_number": vin,
 		"item_code": row.item_code,
 		"item_name": row.item_name,
+		"specification_template": row.get("custom_vehicle_specification_template"),
 		"company": doc.company,
 		"supplier": doc.supplier,
 		"vehicle_import_file": doc.get(CUSTOM_FIELD),
@@ -208,6 +233,8 @@ def create_or_update_vehicle_master(doc, row, vin):
 			frappe.throw(_("VIN {0} already belongs to another Vehicle Import File.").format(vin))
 		if vm.vehicle_status == "Receipt Cancelled":
 			values["vehicle_status"] = "Received"
+			# A repeat receipt retains the vehicle's originally selected revision.
+			values.pop("specification_template", None)
 			vm.update(values)
 			vm.save(ignore_permissions=True)
 		return False

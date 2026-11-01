@@ -4,9 +4,26 @@ No permission bypasses: every document is read/saved as the requesting user.
 Existing portal APIs remain available to their current consumers.
 """
 
+import re
+
 import frappe
 from frappe import _
-from frappe.utils import cint
+from frappe.utils import cint, cstr
+
+
+COMMERCIAL_REGISTRATION_FIELD = "commercial_registration_number"
+COMMERCIAL_REGISTRATION_TYPE = "Commercial Registration Number"
+COMMERCIAL_REGISTRATION_CODE = "CRN"
+CUSTOMER_ADDRESS_FIELDS = (
+	"country",
+	"city",
+	"district",
+	"street",
+	"building_number",
+	"additional_number",
+	"pincode",
+	"short_address",
+)
 
 
 def _access(doctype, permission="read", company=None):
@@ -26,8 +43,60 @@ def _fields(doctype):
 	prefix = doctype.lower()
 	fields = [f"{prefix}_name", f"{prefix}_type", f"{prefix}_group", "territory" if doctype == "Customer" else "country", "tax_id", "default_currency", "disabled", f"{prefix}_details"]
 	meta = frappe.get_meta(doctype)
-	fields += [f for f in ("commercial_registration_number", "custom_commercial_registration_number") if meta.has_field(f)][:1]
+	if doctype == "Supplier":
+		fields += [
+			f
+			for f in ("commercial_registration_number", "custom_commercial_registration_number")
+			if meta.has_field(f)
+		][:1]
 	return [f for f in fields if meta.has_field(f) and not meta.get_field(f).permlevel]
+
+
+def _commercial_registration(doc):
+	if doc.doctype != "Customer" or not doc.meta.has_field("custom_additional_ids"):
+		return ""
+	row = next(
+		(
+			row
+			for row in doc.get("custom_additional_ids") or []
+			if row.type_code == COMMERCIAL_REGISTRATION_CODE
+			or row.type_name == COMMERCIAL_REGISTRATION_TYPE
+		),
+		None,
+	)
+	return cstr(row.value).strip() if row else ""
+
+
+def _set_commercial_registration(doc, value):
+	value = cstr(value).strip()[:140]
+	if not doc.meta.has_field("custom_additional_ids"):
+		if value:
+			frappe.throw(
+				_("Commercial Registration storage is not configured."), frappe.ValidationError
+			)
+		return
+	row = next(
+		(
+			row
+			for row in doc.get("custom_additional_ids") or []
+			if row.type_code == COMMERCIAL_REGISTRATION_CODE
+			or row.type_name == COMMERCIAL_REGISTRATION_TYPE
+		),
+		None,
+	)
+	if row:
+		row.type_name = COMMERCIAL_REGISTRATION_TYPE
+		row.type_code = COMMERCIAL_REGISTRATION_CODE
+		row.value = value
+	elif value:
+		doc.append(
+			"custom_additional_ids",
+			{
+				"type_name": COMMERCIAL_REGISTRATION_TYPE,
+				"type_code": COMMERCIAL_REGISTRATION_CODE,
+				"value": value,
+			},
+		)
 
 
 @frappe.whitelist()
@@ -38,6 +107,17 @@ def get_options(doctype, company=None):
 	for name in _fields(doctype):
 		field = meta.get_field(name)
 		fields.append({"name": name, "label": field.label, "type": field.fieldtype, "required": bool(field.reqd), "options": field.options, "read_only": bool(field.read_only or field.permlevel)})
+	if doctype == "Customer" and meta.has_field("custom_additional_ids"):
+		fields.append(
+			{
+				"name": COMMERCIAL_REGISTRATION_FIELD,
+				"label": _("Commercial Registration Number"),
+				"type": "Data",
+				"required": False,
+				"options": None,
+				"read_only": False,
+			}
+		)
 	return {"fields": fields, "create": frappe.has_permission(doctype, "create"), "linked_permissions": {kind: bool(frappe.has_permission(kind.title(), "create")) for kind in ("contact", "address")}}
 
 
@@ -94,6 +174,24 @@ def list_parties(doctype, search="", filters=None, page=1, company=None):
 
 def _linked(doc, kind, permission="read"):
 	name = doc.get(f"{doc.doctype.lower()}_primary_{kind}")
+	if not name and kind == "address":
+		filters = [
+			["Dynamic Link", "link_doctype", "=", doc.doctype],
+			["Dynamic Link", "link_name", "=", doc.name],
+			["Address", "disabled", "=", 0],
+		]
+		# A shipping-only address must not become the billing address merely
+		# because it was the most recently edited linked Address.
+		if doc.doctype == "Customer":
+			filters.append(["Address", "address_type", "=", "Billing"])
+		rows = frappe.get_list(
+			"Address",
+			filters=filters,
+			fields=["name"],
+			order_by="is_primary_address desc, modified desc",
+			page_length=1,
+		)
+		name = rows[0].name if rows else None
 	if not name:
 		return None
 	linked = frappe.get_doc(kind.title(), name)
@@ -114,14 +212,87 @@ def get_party(doctype, name, company=None):
 		frappe.throw(_("Not permitted"), frappe.PermissionError)
 	data = {f: doc.get(f) for f in _fields(doctype)}
 	contact, address = _linked(doc, "contact"), _linked(doc, "address")
+	if doctype == "Customer":
+		if not data.get("tax_id") and doc.meta.has_field("custom_vat_registration_number"):
+			data["tax_id"] = doc.get("custom_vat_registration_number") or ""
+		data[COMMERCIAL_REGISTRATION_FIELD] = _commercial_registration(doc)
 	data["contact"] = {f: contact.get(f) if contact else "" for f in ("first_name", "email_id", "mobile_no", "phone")}
-	data["address"] = {f: address.get(f) if address else "" for f in ("country", "city", "address_line1", "address_line2", "pincode")}
+	if doctype == "Customer":
+		data["address"] = {
+			"country": address.get("country") if address else "",
+			"city": address.get("city") if address else "",
+			"district": address.get("custom_area") if address else "",
+			"street": address.get("address_line1") if address else "",
+			"building_number": address.get("custom_building_number") if address else "",
+			"additional_number": address.get("custom_additional_number") if address else "",
+			"pincode": address.get("pincode") if address else "",
+			"short_address": address.get("custom_short_address") if address else "",
+		}
+	else:
+		data["address"] = {f: address.get(f) if address else "" for f in ("country", "city", "address_line1", "address_line2", "pincode")}
 	return {"record": data, "modified": str(doc.modified), "can_write": bool(frappe.has_permission(doctype, "write", doc=doc)), "linked_permissions": {kind: bool(frappe.has_permission(kind.title(), "write", doc=linked)) if linked else (not doc.get(f"{doctype.lower()}_primary_{kind}") and bool(frappe.has_permission(kind.title(), "create"))) for kind, linked in (("contact", contact), ("address", address))}}
 
 
+def _is_saudi_arabia(country):
+	if not country:
+		return False
+	code = frappe.get_cached_value("Country", country, "code") if frappe.db.exists("Country", country) else None
+	return cstr(code).casefold() in {"sa", "sau"} or cstr(country).strip().casefold() in {
+		"saudi arabia",
+		"السعودية",
+		"المملكة العربية السعودية",
+	}
+
+
+def _customer_address_values(values):
+	if not isinstance(values, dict) or set(values) - set(CUSTOMER_ADDRESS_FIELDS):
+		frappe.throw(_("Unsupported field"), frappe.ValidationError)
+	clean = {}
+	for key in CUSTOMER_ADDRESS_FIELDS:
+		value = values.get(key)
+		if not isinstance(value, (str, type(None))):
+			frappe.throw(_("Unsupported field"), frappe.ValidationError)
+		clean[key] = cstr(value).strip()
+	if _is_saudi_arabia(clean["country"]):
+		checks = (
+			("building_number", r"\d{4}", _("Building Number must contain exactly 4 digits.")),
+			("additional_number", r"\d{4}", _("Additional Number must contain exactly 4 digits.")),
+			("pincode", r"\d{5}", _("Postal Code must contain exactly 5 digits.")),
+			(
+				"short_address",
+				r"[A-Za-z]{4}\d{4}",
+				_("Short Address must contain 4 letters followed by 4 digits."),
+			),
+		)
+		for fieldname, pattern, message in checks:
+			if clean[fieldname] and not re.fullmatch(pattern, clean[fieldname]):
+				frappe.throw(message, frappe.ValidationError)
+	return {
+		"country": clean["country"],
+		"city": clean["city"],
+		"custom_area": clean["district"],
+		"address_line1": clean["street"],
+		"custom_building_number": clean["building_number"],
+		"custom_additional_number": clean["additional_number"],
+		"pincode": clean["pincode"],
+		"custom_short_address": clean["short_address"].upper(),
+	}
+
+
 def _save_linked(doc, kind, values):
-	allowed = {"first_name", "email_id", "mobile_no", "phone"} if kind == "contact" else {"country", "city", "address_line1", "address_line2", "pincode"}
-	if not isinstance(values, dict) or set(values) - allowed:
+	if not isinstance(values, dict):
+		frappe.throw(_("Unsupported field"), frappe.ValidationError)
+	if kind != "address" or doc.doctype != "Customer":
+		if any(not isinstance(value, (str, type(None))) for value in values.values()):
+			frappe.throw(_("Unsupported field"), frappe.ValidationError)
+	if kind == "contact":
+		allowed = {"first_name", "email_id", "mobile_no", "phone"}
+	elif doc.doctype == "Customer":
+		values = _customer_address_values(values)
+		allowed = set(values)
+	else:
+		allowed = {"country", "city", "address_line1", "address_line2", "pincode"}
+	if set(values) - allowed:
 		frappe.throw(_("Unsupported field"))
 	if not any(values.values()) and not doc.get(f"{doc.doctype.lower()}_primary_{kind}"):
 		return
@@ -129,6 +300,8 @@ def _save_linked(doc, kind, values):
 	if linked:
 		linked.check_permission("read")
 	if linked and all((linked.get(k) or "") == (v or "") for k, v in values.items()):
+		if kind == "address" and doc.doctype == "Customer":
+			doc.set("customer_primary_address", linked.name)
 		return
 	if linked and len(linked.links) > 1:
 		frappe.throw(_("This contact or address is shared. Update it in Desk."))
@@ -137,9 +310,31 @@ def _save_linked(doc, kind, values):
 		linked.check_permission("create")
 		linked.append("links", {"link_doctype": doc.doctype, "link_name": doc.name})
 	if kind == "address":
+		missing_fields = [
+			label
+			for fieldname, label in (
+				("country", _("Country")),
+				("city", _("City")),
+				("address_line1", _("Street")),
+			)
+			if any(values.values()) and not values.get(fieldname)
+		]
+		if missing_fields:
+			frappe.throw(
+				_("Please complete required address fields: {0}").format(", ".join(missing_fields)),
+				frappe.MandatoryError,
+			)
+		for fieldname, value in values.items():
+			if not linked.meta.has_field(fieldname) and value:
+				frappe.throw(
+					_("National Address fields are not installed. Run the site migration."),
+					frappe.ValidationError,
+				)
 		linked.update(values)
 		linked.address_title = doc.get(f"{doc.doctype.lower()}_name")
 		linked.address_type = linked.address_type or "Billing"
+		if doc.doctype == "Customer":
+			linked.is_primary_address = 1
 	else:
 		if "first_name" in values or linked.is_new():
 			linked.first_name = values.get("first_name") or doc.get(f"{doc.doctype.lower()}_name")
@@ -165,9 +360,25 @@ def _save_linked(doc, kind, values):
 
 @frappe.whitelist(methods=["POST"])
 def save_party(doctype, data, name=None, modified=None, company=None):
+	# Keep the same atomic behavior for HTTP callers and internal callers that
+	# catch validation errors and continue their surrounding transaction.
+	savepoint = "portal_party_" + frappe.generate_hash(length=10)
+	frappe.db.savepoint(savepoint)
+	try:
+		result = _save_party(doctype, data, name, modified, company)
+	except Exception:
+		frappe.db.rollback(save_point=savepoint)
+		frappe.db.release_savepoint(savepoint)
+		raise
+	frappe.db.release_savepoint(savepoint)
+	return result
+
+
+def _save_party(doctype, data, name=None, modified=None, company=None):
 	_access(doctype, "write" if name else "create", company)
 	data = frappe.parse_json(data) if isinstance(data, str) else data
-	if not isinstance(data, dict) or set(data) - set(_fields(doctype)) - {"contact", "address"}:
+	extra_fields = {COMMERCIAL_REGISTRATION_FIELD} if doctype == "Customer" else set()
+	if not isinstance(data, dict) or set(data) - set(_fields(doctype)) - extra_fields - {"contact", "address"}:
 		frappe.throw(_("Unsupported field"))
 	doc = frappe.get_doc(doctype, name) if name else frappe.new_doc(doctype)
 	doc.check_permission("write" if name else "create")
@@ -189,6 +400,16 @@ def save_party(doctype, data, name=None, modified=None, company=None):
 			if not isinstance(data[key], (str, int, float, type(None))):
 				frappe.throw(_("Unsupported field"))
 			doc.set(key, data[key])
+	if doctype == "Customer":
+		if COMMERCIAL_REGISTRATION_FIELD in data:
+			if not isinstance(data[COMMERCIAL_REGISTRATION_FIELD], (str, type(None))):
+				frappe.throw(_("Unsupported field"), frappe.ValidationError)
+			_set_commercial_registration(doc, data[COMMERCIAL_REGISTRATION_FIELD])
+		# KSA Compliance print formats and e-invoice helpers use this custom VAT
+		# field in some installations. Keep it aligned with ERPNext's standard
+		# tax_id without creating a second editable value in the portal.
+		if "tax_id" in data and doc.meta.has_field("custom_vat_registration_number"):
+			doc.custom_vat_registration_number = cstr(data.get("tax_id")).strip()
 	missing = [_(doc.meta.get_field(key).label) for key in _fields(doctype) if doc.meta.get_field(key).reqd and doc.get(key) in (None, "")]
 	if missing:
 		frappe.throw(_("Please complete required fields: {0}").format(", ".join(missing)), frappe.MandatoryError)

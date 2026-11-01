@@ -85,7 +85,7 @@ def get_data(filters):
 				vm.name AS vehicle_master,
 				vm.vin,
 				vm.item_code,
-				vm.model,
+				COALESCE(spec.model, vm.model) AS model,
 				vm.vehicle_import_file,
 				vm.vehicle_status,
 				vm.customer,
@@ -102,6 +102,7 @@ def get_data(filters):
 				si.posting_date AS sale_date,
 				si.docstatus AS sales_invoice_docstatus
 			FROM `tabVehicle Master` vm
+			LEFT JOIN `tabVehicle Specification Template` spec ON spec.name = vm.specification_template
 			LEFT JOIN `tabSales Invoice` si
 				ON si.name = vm.sales_invoice AND si.docstatus = 1
 			WHERE {" AND ".join(conditions)}

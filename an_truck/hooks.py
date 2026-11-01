@@ -161,7 +161,11 @@ doc_events = {
 		"on_trash": "an_truck.warranty.claim.prevent_warranty_claim_delete",
 	},
 	"File": {
-		"validate": "an_truck.warranty.claim.validate_claim_file",
+		"validate": [
+			"an_truck.warranty.claim.validate_claim_file",
+			"an_truck.an_truck.doctype.vehicle_specification_template.vehicle_specification_template.protect_published_template_file",
+		],
+		"on_trash": "an_truck.an_truck.doctype.vehicle_specification_template.vehicle_specification_template.protect_published_template_file",
 	},
 	"Purchase Order": {
 		"validate": "an_truck.services.validate_import_file_for_purchase_doc",

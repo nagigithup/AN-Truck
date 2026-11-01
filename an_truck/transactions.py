@@ -373,7 +373,7 @@ def _append_legacy_purchase_documents(import_file, documents, purchase_fields, r
 def _get_vehicles(import_file):
 	if not frappe.has_permission("Vehicle Master", "read"):
 		return []
-	return frappe.get_list(
+	rows = frappe.get_list(
 		"Vehicle Master",
 		filters={"vehicle_import_file": import_file},
 		fields=[
@@ -394,6 +394,8 @@ def _get_vehicles(import_file):
 		order_by="modified desc",
 		limit=200,
 	)
+	from an_truck.an_truck.doctype.vehicle_master.vehicle_master import resolve_vehicle_rows
+	return resolve_vehicle_rows(rows)
 
 
 def _get_workspace_vehicles(import_file):
@@ -413,6 +415,8 @@ def _get_workspace_vehicles(import_file):
 		order_by="modified desc",
 		limit=500,
 	)
+	from an_truck.an_truck.doctype.vehicle_master.vehicle_master import resolve_vehicle_rows
+	resolve_vehicle_rows(vehicles)
 	warranties = {}
 	if frappe.db.exists("DocType", "Vehicle Warranty") and frappe.has_permission("Vehicle Warranty", "read"):
 		vins = [row.vin for row in vehicles if row.vin]
@@ -519,6 +523,21 @@ def get_purchase_order_items(purchase_order, vehicle_import_file):
 	for row in po.items:
 		remaining = flt(row.qty) - flt(row.received_qty)
 		if remaining > 0:
+			templates = []
+			if is_vehicle_item(row.item_code) and frappe.has_permission(
+				"Vehicle Specification Template", "read"
+			):
+				templates = frappe.get_list(
+					"Vehicle Specification Template",
+					filters={
+						"status": "Published",
+						"active": 1,
+						"item_code": ["in", ["", row.item_code]],
+					},
+					fields=["name", "template_name", "revision", "item_code"],
+					order_by="template_name asc, revision desc",
+					page_length=200,
+				)
 			rows.append(
 				{
 					"purchase_order_item": row.name,
@@ -533,6 +552,7 @@ def get_purchase_order_items(purchase_order, vehicle_import_file):
 					"rate": row.rate,
 					"warehouse": row.warehouse,
 					"is_vehicle_item": is_vehicle_item(row.item_code),
+					"specification_templates": templates,
 				}
 			)
 	return rows
@@ -615,6 +635,13 @@ def create_purchase_receipt(vehicle_import_file, data=None, submit_now=0, idempo
 			row.qty = flt(source.qty)
 			row.warehouse = source.get("warehouse") or row.warehouse
 			if is_vehicle_item(row.item_code):
+				row.custom_vehicle_specification_template = source.get("specification_template")
+				if not row.custom_vehicle_specification_template:
+					frappe.throw(
+						_("Vehicle Specification Template is required for Item {0}.").format(
+							row.item_code
+						)
+					)
 				if not cint(frappe.db.get_value("Item", row.item_code, "has_serial_no")):
 					frappe.throw(_("Item {0} must be serialized before receiving vehicles.").format(row.item_code))
 				vins = [v.vin for v in vin_map.get(row.item_code, [])]

@@ -48,6 +48,9 @@ class VehicleWarranty(Document):
 				as_dict=True,
 			)
 			if vehicle:
+				from an_truck.an_truck.doctype.vehicle_master.vehicle_master import resolve_vehicle_rows
+				vehicle.name = self.vehicle_master
+				resolve_vehicle_rows([vehicle])
 				if self.is_new() or not self.vin:
 					self.vin = vehicle.vin
 				if self.is_new() or not self.item_code:

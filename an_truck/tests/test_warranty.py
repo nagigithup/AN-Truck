@@ -94,6 +94,12 @@ class TestVehicleWarrantyFlow(IntegrationTestCase):
 		if not base_name:
 			self.skipTest("A sold Vehicle Master fixture is required for warranty integration tests.")
 		base = frappe.get_doc("Vehicle Master", base_name)
+		from an_truck.an_truck.doctype.vehicle_specification_template.vehicle_specification_template import publish_template
+		self.specification_template = frappe.get_doc({
+			"doctype": "Vehicle Specification Template", "template_name": f"Warranty specs {self.suffix}",
+			"item_code": base.item_code, "model": "Warranty test model",
+		}).insert()
+		publish_template(self.specification_template.name)
 		vin = f"TEST-WARRANTY-VIN-{self.suffix}"
 		frappe.get_doc({
 			"doctype": "Serial No", "serial_no": vin, "item_code": base.item_code,
@@ -101,6 +107,7 @@ class TestVehicleWarrantyFlow(IntegrationTestCase):
 		}).insert(ignore_permissions=True)
 		return frappe.get_doc({
 			"doctype": "Vehicle Master", "vin": vin, "item_code": base.item_code,
+			"specification_template": self.specification_template.name,
 			"company": base.company, "customer": base.customer, "vehicle_status": "Delivered",
 		}).insert(ignore_permissions=True)
 
@@ -130,6 +137,7 @@ class TestVehicleWarrantyFlow(IntegrationTestCase):
 		}).insert(ignore_permissions=True)
 		return frappe.get_doc({
 			"doctype": "Vehicle Master", "vin": vin, "item_code": self.vehicle.item_code,
+			"specification_template": self.specification_template.name,
 			"company": company, "customer": self.vehicle.customer, "vehicle_status": "Delivered",
 		}).insert(ignore_permissions=True)
 

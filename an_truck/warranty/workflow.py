@@ -24,6 +24,8 @@ def _vehicle(value, *, check_permission=True):
 	if check_permission and not frappe.has_permission("Vehicle Master", "read", name):
 		frappe.throw(_("Not permitted to read Vehicle Master."), frappe.PermissionError)
 	vehicle = frappe.db.get_value("Vehicle Master", name, VEHICLE_FIELDS, as_dict=True)
+	from an_truck.an_truck.doctype.vehicle_master.vehicle_master import resolve_vehicle_rows
+	resolve_vehicle_rows([vehicle])
 	if vehicle.disabled:
 		frappe.throw(_("Cannot issue a warranty for a disabled Vehicle Master."))
 	return vehicle

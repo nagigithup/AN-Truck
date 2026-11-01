@@ -66,6 +66,8 @@ def get_vin_summary(vin):
 	)
 	if not rows:
 		return None
+	from an_truck.an_truck.doctype.vehicle_master.vehicle_master import resolve_vehicle_rows
+	resolve_vehicle_rows(rows)
 	row = rows[0]
 	return {
 		"vin": row.vin,
