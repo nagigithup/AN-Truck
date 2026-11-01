@@ -37,6 +37,7 @@ async function load_vehicle(frm) {
 	const { message } = await frappe.call({
 		method: "an_truck.warranty.workflow.get_vehicle_warranty_context",
 		args: { vin: frm.doc.vin },
+		type: "GET",
 	});
 	if (!message) return;
 	await frm.set_value({
@@ -56,6 +57,7 @@ async function refresh_configuration(frm) {
 		method: "an_truck.warranty.workflow.get_warranty_configuration",
 		args: { vehicle_master: frm.doc.vehicle_master, coverage_template: frm.doc.coverage_template,
 			start_date: frm.doc.warranty_start_date, provider: frm.doc.warranty_provider || undefined },
+		type: "GET",
 	});
 	if (!message) return;
 	frm.toggle_display("warranty_provider", message.providers.length > 1);

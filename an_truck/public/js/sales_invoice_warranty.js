@@ -2,6 +2,9 @@ frappe.ui.form.on("Sales Invoice", {
 	refresh(frm) {
 		if (frm.doc.docstatus !== 1 || !frappe.model.can_read("Vehicle Warranty")) return;
 		frappe.call({ method: "an_truck.warranty.workflow.get_invoice_warranty_context", args: { sales_invoice: frm.doc.name },
+			type: "GET", silent: true,
+			error_handlers: { PermissionError: () => {} },
+			error: () => {},
 			callback: ({ message }) => {
 				if (!message?.vehicles?.length) return;
 				const hasOpen = message.can_create && message.vehicles.some((row) => !row.existing_warranty);
@@ -53,7 +56,7 @@ function show_warranty_dialog(frm, context) {
 		if (!(values.coverage_template && values.warranty_start_date) || row.existing_warranty) return;
 		const { message } = await frappe.call({ method: "an_truck.warranty.workflow.get_warranty_configuration", args: {
 			vehicle_master: row.vehicle_master, coverage_template: values.coverage_template,
-			start_date: values.warranty_start_date, provider: values.warranty_provider || undefined } });
+			start_date: values.warranty_start_date, provider: values.warranty_provider || undefined }, type: "GET" });
 		const template = templates.find((entry) => entry.name === values.coverage_template);
 		dialog.set_value("duration", template ? `${template.duration} ${__(template.duration_unit)}` : "");
 		dialog.set_value("warranty_expiry_date", message.expiry_date);
