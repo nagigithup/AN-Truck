@@ -50,8 +50,6 @@ class VehicleMaster(Document):
 		previous = self.get_doc_before_save()
 		if previous and self.vin != previous.vin:
 			frappe.throw(_("VIN / Chassis Number cannot be changed after the Vehicle Master is created."))
-		if self.is_new() and not self.specification_template:
-			frappe.throw(_("Specification Template is required for new vehicles."))
 		template_changed = self.is_new() or not previous or previous.specification_template != self.specification_template
 		if previous and template_changed:
 			frappe.db.get_value("Vehicle Master", self.name, "name", for_update=True)

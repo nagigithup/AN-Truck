@@ -147,12 +147,6 @@ def validate_purchase_receipt(doc):
 		serials = get_serials_for_row(row)
 		creates_vehicle = any(not frappe.db.exists("Vehicle Master", {"vin": vin}) for vin in serials)
 		template_name = row.get("custom_vehicle_specification_template")
-		if creates_vehicle and not template_name:
-			frappe.throw(
-				_("Row {0}, Item {1}: Vehicle Specification Template is required.").format(
-					row.idx, row.item_code
-				)
-			)
 		template = frappe.db.get_value(
 			"Vehicle Specification Template",
 			template_name,
@@ -185,7 +179,7 @@ def validate_purchase_receipt(doc):
 				frappe.throw(_("VIN {0} is already linked to another Item or Vehicle Import File.").format(vin))
 
 	expected = flt(vif.total_expected_vehicles)
-	if expected and flt(vif.total_received_vehicles) + len(seen) > expected and not frappe.has_role("System Manager"):
+	if expected and flt(vif.total_received_vehicles) + len(seen) > expected and "System Manager" not in frappe.get_roles():
 		frappe.throw(_("Received VIN count would exceed expected vehicles for Vehicle Import File {0}.").format(vif.name))
 
 

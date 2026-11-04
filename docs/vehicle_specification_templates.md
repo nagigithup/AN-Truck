@@ -1,8 +1,9 @@
 # Vehicle specification templates
 
 Vehicle Master stores `specification_template`, a Link to one specific Vehicle
-Specification Template revision. New Vehicle Masters require an active published
-revision. Existing vehicles may retain an empty link. No migration assigns links,
+Specification Template revision. The link is optional for new and existing
+vehicles and vehicle receipts. A selected revision must be active and published.
+No migration assigns links,
 saves vehicles, renames VINs, or updates transaction records.
 
 Shared fieldnames were moved from Vehicle Master into Vehicle Specification
@@ -11,7 +12,7 @@ the template. `engine_number`, color, actual manufacturing date, vehicle photo,
 registration, stock, purchasing, sales, and costing fields remain on Vehicle
 Master. `specification_exceptions` holds individual exceptions.
 
-Publish a completed draft before receiving new vehicles. Published specification
+Publish a completed draft before selecting it on vehicles or quotations. Published specification
 values and additional-specification rows are immutable, including for managers.
 Use **Create New Revision** to produce an editable draft. Deactivation prevents
 new selection while existing links remain readable. Published revisions cannot

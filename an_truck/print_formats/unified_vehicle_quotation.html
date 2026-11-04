@@ -1,0 +1,84 @@
+{% set quotation = quotation_print_data(doc) %}
+{% macro label(ar, en) %}<span lang="ar">{{ ar }}</span><small lang="en" dir="ltr">{{ en }}</small>{% endmacro %}
+{% macro money(value) %}{{ frappe.utils.fmt_money(value or 0, currency=doc.currency) }}{% endmacro %}
+{% macro company_footer() %}<div>{{ doc.company | e }}{% for field in ['phone_no','email','website'] %}{% if quotation.company.get(field) %} · <bdi>{{ quotation.company[field] | e }}</bdi>{% endif %}{% endfor %}</div>{% if doc.company_address_display %}<div>{{ doc.company_address_display }}</div>{% endif %}{% endmacro %}
+<style>
+@page {size:A4; margin:12mm 10mm;}
+.print-format {padding:0!important;font-family:Tahoma,Arial,sans-serif;color:#13384f;font-size:9pt;}
+.an-quotation {direction:rtl;line-height:1.4;}
+.an-quotation * {box-sizing:border-box;}
+.an-quotation h1,.an-quotation h2,.an-quotation h3 {color:#073754;margin:0 0 8px;}
+.an-quotation small {display:block;color:#607889;font-size:7pt;}
+.an-quotation .brand {text-align:center;border-bottom:3px solid #d7a33d;padding-bottom:10px;margin-bottom:14px;}
+.an-quotation .brand b {font-size:18pt;letter-spacing:2px;}
+.an-quotation .hero {background:#073754;color:white;padding:14px;border-radius:8px;margin-bottom:14px;}
+.an-quotation .hero::after {content:"";display:block;clear:both;}
+.an-quotation .hero h2 {color:white;}
+.an-quotation img {max-width:100%;object-fit:contain;}
+.an-quotation .hero img {float:left;max-height:125px;max-width:48%;background:white;margin:0 12px 0 0;}
+.an-quotation table {width:100%;border-collapse:collapse;margin:7px 0;table-layout:fixed;}
+.an-quotation th {background:#073754!important;color:white!important;text-align:right;padding:6px;border:1px solid #cfdee6;}
+.an-quotation td {padding:6px;border:1px solid #cfdee6;vertical-align:top;overflow-wrap:anywhere;}
+.an-quotation th small,.an-quotation .hero small {color:#efbd57;}
+.an-quotation tr,.an-quotation .terms,.an-quotation .signatures {page-break-inside:avoid;}
+.an-quotation thead {display:table-header-group;}
+.an-quotation h3 {border-bottom:2px solid #d7a33d;padding:8px 0;page-break-after:avoid;}
+.an-quotation .technical {page-break-before:always;}
+.an-quotation .technical .brand {page-break-after:avoid;page-break-inside:avoid;}
+.an-quotation .photos img {max-height:180px;max-width:48%;margin:5px;}
+.an-quotation .notes {white-space:pre-line;}
+.an-quotation .terms h3 {font-size:10pt;padding:3px 0;margin:4px 0;}
+.an-quotation .term-label {margin-inline-end:6px;}
+.an-quotation .term-label small {display:inline;margin-inline-start:6px;}
+.an-quotation .footer {border-top:2px solid #d7a33d;margin-top:18px;padding-top:8px;}
+.an-quotation .signatures td {height:65px;}
+@media print {.an-quotation th,.an-quotation .hero {-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+</style>
+<div class="an-quotation">
+ <div class="brand"><b dir="ltr">ANYUAN MOTORS</b><div>{{ doc.company | e }}</div>{% if quotation.company.get('tax_id') %}<small>{{ label('الرقم الضريبي','VAT No.') }}<bdi>{{ quotation.company.tax_id | e }}</bdi></small>{% endif %}</div>
+ <section class="hero">
+ {% if quotation.models %}{% set first = quotation.models[0] %}{% if first.images.main_vehicle_photo %}<img src="{{ first.images.main_vehicle_photo | e }}" alt="{{ first.model_name_en | e }}">{% endif %}{% endif %}
+ <h2>{{ label('عرض سعر مركبات', 'Vehicle Quotation') }}</h2>
+ {% if quotation.models %}{% set first = quotation.models[0] %}
+ <div>{{ first.model_name_ar | e }} {% if first.model_name_en != first.model_name_ar %}<bdi>{{ first.model_name_en | e }}</bdi>{% endif %}</div>
+ {% endif %}</section>
+ <table><tbody><tr><td>{{ label('رقم العرض','Quotation No.') }}<bdi>{{ doc.name | e }}</bdi></td><td>{{ label('التاريخ','Date') }}{{ doc.get_formatted('transaction_date') }}</td><td>{{ label('صالح حتى','Valid Till') }}{{ doc.get_formatted('valid_till') }}</td></tr>
+ <tr><td colspan="2">{{ label('العميل','Customer') }}{{ (doc.customer_name or doc.party_name) | e }}</td><td>{{ label('العملة','Currency') }}{{ doc.currency | e }}</td></tr>
+ {% if quotation.customer.get('commercial_registration') or quotation.customer.get('tax_id') or quotation.customer.get('mobile_no') %}<tr><td>{{ label('السجل التجاري للعميل','Customer CR No.') }}<bdi>{{ (quotation.customer.commercial_registration or '') | e }}</bdi></td><td>{{ label('الرقم الضريبي للعميل','Customer VAT No.') }}<bdi>{{ (quotation.customer.tax_id or '') | e }}</bdi></td><td>{{ label('الجوال','Mobile') }}<bdi>{{ (quotation.customer.mobile_no or '') | e }}</bdi></td></tr>{% endif %}</tbody></table>
+ {% if doc.address_display %}<div>{{ doc.address_display }}</div>{% endif %}
+ <table><thead><tr><th style="width:40%">{{ label('المنتج / الموديل','Product / Model') }}</th><th>{{ label('الكمية','Quantity') }}</th><th>{{ label('سعر الوحدة','Unit Price') }}</th><th>{{ label('المبلغ','Amount') }}</th></tr></thead><tbody>
+ {% for row in doc.items %}{% set spec = quotation.lines[loop.index0] %}<tr><td><b>{{ row.item_name | e }}</b><small>{{ row.item_code | e }}</small>
+ {% if spec %}<div>{{ spec.model_name_ar | e }} {% if spec.model_name_en != spec.model_name_ar %}<bdi>{{ spec.model_name_en | e }}</bdi>{% endif %}</div>{% if spec.configuration %}<div>{{ spec.configuration | e }}</div>{% endif %}{% endif %}
+ {% if row.custom_vehicle_master %}<div><bdi>{{ (row.custom_vin or row.custom_vehicle_master) | e }}</bdi></div>{% endif %}
+ {{ row.description }}</td><td>{{ row.get_formatted('qty') }} {{ row.uom | e }}</td><td>{{ money(row.rate) }}</td><td>{{ money(row.amount) }}</td></tr>{% endfor %}
+ </tbody></table>
+ <table><tbody><tr><td>{{ label('الإجمالي قبل الضريبة','Net Total') }}</td><td>{{ money(doc.net_total) }}</td></tr>
+ {% for tax in doc.taxes %}<tr><td>{{ tax.description | e }}{% if tax.charge_type == 'On Net Total' %} ({{ tax.rate }}%){% endif %}</td><td>{{ money(tax.tax_amount_after_discount_amount) }}</td></tr>{% endfor %}
+ {% if doc.discount_amount %}<tr><td>{{ label('الخصم الإضافي','Additional Discount') }}</td><td>{{ money(doc.discount_amount) }}</td></tr>{% endif %}
+ <tr><th>{{ label('الإجمالي شامل الضريبة','Grand Total') }}</th><th>{{ money(doc.grand_total) }}</th></tr>
+ {% if doc.rounding_adjustment %}<tr><td>{{ label('الإجمالي المقرب','Rounded Total') }}</td><td>{{ money(doc.rounded_total) }}</td></tr>{% endif %}</tbody></table>
+ {% for row in doc.items %}{% set spec = quotation.lines[loop.index0] %}
+ {% set warranty = spec.get('warranty_terms') or row.custom_vehicle_warranty_terms %}{% set delivery = spec.get('delivery_terms') or row.custom_vehicle_delivery_terms %}
+ {% if warranty or delivery %}<section class="terms"><h3>{{ (spec.get('model_name_ar') or row.item_name) | e }}{% if spec.get('configuration') %} · {{ spec.configuration | e }}{% endif %}</h3>
+ {% if warranty %}<div class="notes"><b class="term-label">{{ label('الضمان','Warranty') }}</b> {{ warranty | e }}</div>{% endif %}
+ {% if delivery %}<div class="notes"><b class="term-label">{{ label('شروط التسليم','Delivery Conditions') }}</b> {{ delivery | e }}</div>{% endif %}</section>{% endif %}{% endfor %}
+ {% if doc.terms %}<section><h3>{{ label('شروط الدفع والتسليم','Payment and Delivery Terms') }}</h3>{{ doc.terms }}</section>{% endif %}
+ {% if doc.custom_vehicle_quotation_notes %}<div class="notes">{{ doc.custom_vehicle_quotation_notes | e }}</div>{% endif %}
+ {% if doc.payment_schedule %}<table><thead><tr><th>{{ label('شرط الدفع','Payment Term') }}</th><th>{{ label('تاريخ الاستحقاق','Due Date') }}</th><th>{{ label('المبلغ','Amount') }}</th></tr></thead><tbody>{% for payment in doc.payment_schedule %}<tr><td>{{ (payment.payment_term or '') | e }}</td><td>{{ payment.get_formatted('due_date') }}</td><td>{{ money(payment.payment_amount) }}</td></tr>{% endfor %}</tbody></table>{% endif %}
+ {% if quotation.bank %}<section class="terms"><h3>{{ label('البيانات البنكية','Bank Details') }}</h3>{% for key in ['account_name','bank','bank_account_no','iban'] %}{% if quotation.bank.get(key) %}<div><bdi>{{ quotation.bank[key] | e }}</bdi></div>{% endif %}{% endfor %}</section>{% endif %}
+ <table class="signatures"><tbody><tr><td>{{ label('مندوب المبيعات','Sales Representative') }}{% for person in doc.sales_team %}<div>{{ person.sales_person | e }}</div>{% endfor %}</td><td>{{ label('توقيع العميل','Customer Signature') }}</td><td>{{ label('الختم والتوقيع','Company Stamp and Signature') }}</td></tr></tbody></table>
+ <div class="footer">{{ company_footer() }}</div>
+ {% for model in quotation.models %}<section class="technical">
+ <div class="brand"><b dir="ltr">ANYUAN MOTORS</b><div>{{ doc.company | e }}</div></div>
+ <h2>{{ model.model_name_ar | e }} {% if model.model_name_en != model.model_name_ar %}<bdi>{{ model.model_name_en | e }}</bdi>{% endif %}</h2>
+ <p>{{ label('المواصفات الفنية','Technical Specifications') }}<bdi>{{ model.template | e }} · {{ model.revision }}</bdi>{% if model.configuration %} · {{ model.configuration | e }}{% endif %}</p>
+ <div class="photos">{% for field in ['main_vehicle_photo','technical_photo','cabin_photo'] %}{% if model.images.get(field) %}<img src="{{ model.images[field] | e }}" alt="{{ model.model_name_en | e }}">{% endif %}{% endfor %}{% for url in model.get('additional_images', []) %}<img src="{{ url | e }}" alt="{{ model.model_name_en | e }}">{% endfor %}</div>
+ {% if model.highlights %}<div class="notes">{{ model.highlights | e }}</div>{% endif %}
+ {% for section in model.sections %}<h3>{{ section.label_ar | e }}<small dir="ltr">{{ section.label_en | e }}</small></h3><table><tbody>
+ {% for field in section.fields %}{% if field.fieldtype == 'Table' %}
+ {% for entry in field.value %}<tr><td>{{ entry.specification_name | e }}{% if entry.specification_category %}<small>{{ entry.specification_category | e }}</small>{% endif %}</td><td>{{ entry.value | e }} {{ (entry.uom or '') | e }}{% if entry.notes %}<small>{{ entry.notes | e }}</small>{% endif %}</td></tr>{% endfor %}
+ {% elif field.fieldtype != 'Attach' %}<tr><td>{{ field.label_ar | e }}<small dir="ltr">{{ field.label_en | e }}</small></td><td>{% if field.fieldtype == 'Check' %}{{ label('نعم','Yes') }}{% else %}{{ field.value | e }}{% endif %}</td></tr>{% endif %}{% endfor %}
+ </tbody></table>{% endfor %}
+ <div class="footer">{{ company_footer() }} · <bdi>{{ doc.name | e }}</bdi></div>
+ </section>{% endfor %}
+</div>

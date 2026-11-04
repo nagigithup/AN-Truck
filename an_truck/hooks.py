@@ -44,6 +44,7 @@ app_include_css = "/assets/an_truck/css/an_truck.css"
 
 # include js in doctype views
 doctype_js = {
+	"Quotation": "public/js/vehicle_quotation.js",
 	"Vehicle Import File": "public/js/vehicle_import_file.js",
 	"Vehicle Master": "public/js/vehicle_master_warranty.js",
 	"Warranty Claim": "public/js/warranty_claim.js",
@@ -90,6 +91,7 @@ role_home_page = {
 # ----------
 
 # add methods and filters to jinja environment
+jinja = {"methods": ["an_truck.vehicle_quotation.quotation_print_data", "an_truck.financial_vouchers.voucher_print_data"]}
 # jinja = {
 # 	"methods": "an_truck.utils.jinja_methods",
 # 	"filters": "an_truck.utils.jinja_filters"
@@ -152,6 +154,11 @@ role_home_page = {
 # Hook on document methods and events
 
 doc_events = {
+	"Quotation": {
+		"validate": "an_truck.vehicle_quotation.validate_quotation",
+		"before_update_after_submit": "an_truck.vehicle_quotation.validate_quotation",
+		"before_cancel": "an_truck.vehicle_quotation.validate_quotation",
+	},
 	"Company": {
 		"validate": "an_truck.warranty.timezone.validate_company_warranty_timezone",
 	},
@@ -163,9 +170,7 @@ doc_events = {
 	"File": {
 		"validate": [
 			"an_truck.warranty.claim.validate_claim_file",
-			"an_truck.an_truck.doctype.vehicle_specification_template.vehicle_specification_template.protect_published_template_file",
 		],
-		"on_trash": "an_truck.an_truck.doctype.vehicle_specification_template.vehicle_specification_template.protect_published_template_file",
 	},
 	"Purchase Order": {
 		"validate": "an_truck.services.validate_import_file_for_purchase_doc",
@@ -205,12 +210,31 @@ doc_events = {
 	},
 }
 
+# File's own on_trash removes bytes before doc-event hooks run. Guard first.
+extend_doctype_class = {
+	"File": ["an_truck.an_truck.doctype.vehicle_specification_template.vehicle_specification_template.PublishedTemplateFileGuard"],
+}
+
 permission_query_conditions = {
 	"Warranty Claim": "an_truck.warranty.access.claim_permission_query",
+	"Payment Entry": "an_truck.voucher_permissions.payment_query",
+	"Company": "an_truck.voucher_permissions.company_query",
+	"Account": "an_truck.voucher_permissions.account_query",
+	"Sales Invoice": "an_truck.voucher_permissions.sales_query",
+	"Purchase Invoice": "an_truck.voucher_permissions.purchase_query",
+	"Address": "an_truck.voucher_permissions.address_query",
+	"Contact": "an_truck.voucher_permissions.contact_query",
 }
 
 has_permission = {
 	"Warranty Claim": "an_truck.warranty.access.claim_has_permission",
+	"Payment Entry": "an_truck.voucher_permissions.has_permission",
+	"Company": "an_truck.voucher_permissions.has_permission",
+	"Account": "an_truck.voucher_permissions.has_permission",
+	"Sales Invoice": "an_truck.voucher_permissions.has_permission",
+	"Purchase Invoice": "an_truck.voucher_permissions.has_permission",
+	"Address": "an_truck.voucher_permissions.has_permission",
+	"Contact": "an_truck.voucher_permissions.has_permission",
 }
 
 scheduler_events = {

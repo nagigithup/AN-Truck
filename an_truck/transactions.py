@@ -636,12 +636,6 @@ def create_purchase_receipt(vehicle_import_file, data=None, submit_now=0, idempo
 			row.warehouse = source.get("warehouse") or row.warehouse
 			if is_vehicle_item(row.item_code):
 				row.custom_vehicle_specification_template = source.get("specification_template")
-				if not row.custom_vehicle_specification_template:
-					frappe.throw(
-						_("Vehicle Specification Template is required for Item {0}.").format(
-							row.item_code
-						)
-					)
 				if not cint(frappe.db.get_value("Item", row.item_code, "has_serial_no")):
 					frappe.throw(_("Item {0} must be serialized before receiving vehicles.").format(row.item_code))
 				vins = [v.vin for v in vin_map.get(row.item_code, [])]

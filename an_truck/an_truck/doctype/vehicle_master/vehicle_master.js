@@ -9,7 +9,7 @@ frappe.ui.form.on("Vehicle Master", {
 		}));
 	},
 	refresh(frm) {
-		frm.set_df_property("specification_template", "reqd", frm.is_new());
+		frm.set_df_property("specification_template", "reqd", false);
 		frm.set_df_property("vin", "read_only", !frm.is_new());
 		frm._confirmed_specification_template = frm.doc.specification_template || "";
 		render_specifications(frm);

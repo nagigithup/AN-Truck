@@ -19,3 +19,5 @@ an_truck.patches.v1_0.add_vehicle_specification_receipt_field
 an_truck.patches.v1_0.index_vehicle_specification_links
 an_truck.patches.v1_0.add_supplier_commercial_registration
 an_truck.patches.v1_0.add_sale_invoices_print_format
+an_truck.patches.v1_0.setup_vehicle_quotation
+an_truck.patches.v1_0.setup_financial_vouchers

@@ -1,0 +1,52 @@
+{% set voucher = voucher_print_data(doc) %}
+{% set ar = voucher.rtl %}
+{% set receive = doc.payment_type == 'Receive' %}
+{% set transfer = doc.payment_type == 'Internal Transfer' %}
+{% set title = ('سند تحويل' if ar else 'TRANSFER VOUCHER') if transfer else (('سند قبض' if ar else 'RECEIPT VOUCHER') if receive else ('سند صرف' if ar else 'PAYMENT VOUCHER')) %}
+<style>
+@page {size:A4;margin:15mm 12mm;}
+.print-format {padding:0!important;font-family:Tahoma,Arial,sans-serif;color:#17233b;font-size:11pt;}
+.truck-voucher {direction:{{ 'rtl' if ar else 'ltr' }};text-align:{{ 'right' if ar else 'left' }};line-height:1.65;}
+.truck-voucher * {box-sizing:border-box;}
+.truck-voucher table {width:100%;border-collapse:collapse;table-layout:fixed;}
+.truck-voucher td {vertical-align:top;overflow-wrap:anywhere;padding:8px;}
+.truck-voucher .top td {width:33%;vertical-align:middle;}
+.truck-voucher .logo {width:90px;max-height:65px;object-fit:contain;}
+.truck-voucher h1 {font-size:23pt;text-align:center;margin:24px 0;color:#17233b;}
+.truck-voucher .serial {font-size:10pt;}
+.truck-voucher .amount-box {border:1px solid #c9b574;border-radius:5px;padding:10px;display:inline-block;min-width:120px;text-align:center;}
+.truck-voucher .amount {font-size:17pt;font-weight:bold;}
+.truck-voucher .brand-rule {border-bottom:2px solid #b59b50;margin:12px 0;}
+.truck-voucher .rows {margin:25px 0;}
+.truck-voucher .rows td {padding:14px 6px;}
+.truck-voucher .voucher-label {width:24%;font-weight:bold;color:#24324b;}
+.truck-voucher .value {border-bottom:1px dotted #7e8795;white-space:pre-line;}
+.truck-voucher .words {display:block;font-size:10pt;margin-top:5px;}
+.truck-voucher .reference {font-size:10pt;margin:10px 0;}
+.truck-voucher .signatures {margin-top:36px;page-break-inside:avoid;}
+.truck-voucher .signatures td {height:85px;text-align:center;width:33%;}
+.truck-voucher .sign-line {border-bottom:1px dotted #7e8795;width:78%;margin:38px auto 0;}
+.truck-voucher .footer {border-top:2px solid #b59b50;text-align:center;font-size:9pt;color:#526078;margin-top:28px;padding-top:12px;page-break-inside:avoid;}
+.truck-voucher .status {font-size:9pt;color:#777;text-align:center;}
+.truck-voucher .closing {break-inside:avoid;page-break-inside:avoid;}
+@media print {.truck-voucher {-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+</style>
+<div class="truck-voucher" lang="{{ voucher.lang }}" dir="{{ 'rtl' if ar else 'ltr' }}">
+ <table class="top"><tbody><tr>
+ <td><img class="logo" src="{{ voucher.logo | e }}" alt="AN Truck" /></td>
+ <td class="serial">{{ 'رقم السند' if ar else 'Voucher No.' }}<br><bdi>{{ doc.name | e }}</bdi></td>
+ <td><div class="amount-box"><div class="amount"><bdi>{{ frappe.utils.fmt_money(voucher.amount) }}</bdi></div><bdi>{{ voucher.currency | e }}</bdi></div></td>
+ </tr></tbody></table>
+ <div class="brand-rule"></div><h1>{{ title }}</h1>
+ {% if doc.docstatus != 1 %}<div class="status">{{ ('مسودة' if doc.docstatus == 0 else 'ملغى') if ar else ('Draft' if doc.docstatus == 0 else 'Cancelled') }}</div>{% endif %}
+ <table class="rows"><tbody>
+ <tr><td class="voucher-label">{% if transfer %}{{ 'من حساب إلى حساب' if ar else 'From / To Account' }}{% elif receive %}{{ 'استلمنا من السيد / السادة' if ar else 'Received From' }}{% else %}{{ 'الصرف للسيد / السادة' if ar else 'Pay To' }}{% endif %}</td><td class="value">{{ ((doc.paid_from ~ ' → ' ~ doc.paid_to) if transfer else (doc.party_name or doc.party or '')) | e }}</td></tr>
+ <tr><td class="voucher-label">{{ 'مبلغ وقدره' if ar else 'The Sum Of' }}</td><td class="value"><bdi>{{ frappe.utils.fmt_money(voucher.amount) }} {{ voucher.currency | e }}</bdi><span class="words">{{ voucher.words | e }}</span></td></tr>
+ <tr><td class="voucher-label">{{ 'نقداً / شيك' if ar else 'Cash / Cheque' }}</td><td class="value">{{ _(doc.mode_of_payment or '', lang=voucher.lang) | e }}{% if doc.reference_no %}<div class="reference">{{ 'رقم المرجع' if ar else 'Reference No.' }}: <bdi>{{ doc.reference_no | e }}</bdi>{% if doc.reference_date %} · {{ 'تاريخ المرجع' if ar else 'Reference Date' }}: <bdi>{{ doc.get_formatted('reference_date') }}</bdi>{% endif %}</div>{% endif %}</td></tr>
+ <tr><td class="voucher-label">{{ ('وذلك عن' if receive else 'وذلك مقابل') if ar else ('For' if receive else 'In Exchange For') }}</td><td class="value">{{ (doc.remarks or '') | e }}</td></tr>
+ <tr><td class="voucher-label">{{ 'التاريخ' if ar else 'Date' }}</td><td class="value"><bdi>{{ doc.get_formatted('posting_date') }}</bdi></td></tr>
+ </tbody></table>
+ {% if voucher.references %}<div class="reference"><b>{{ 'الفواتير المرتبطة' if ar else 'Related Invoices' }}:</b> {% for row in voucher.references %}<bdi>{{ row.reference_name | e }}</bdi>{% if not loop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+ <div class="closing"><table class="signatures"><tbody><tr>{% for label in (['المستلم','المحاسب','المدير'] if ar else ['Receiver','Accountant','Manager']) %}<td>{{ label }}<div class="sign-line"></div></td>{% endfor %}</tr></tbody></table>
+ <div class="footer"><b>{{ voucher.company.company_name | e }}</b>{% if voucher.address %}<div>{{ voucher.address }}</div>{% endif %}<div>{% for field in ['phone_no','email','website'] %}{% if voucher.contact.get(field) %}<bdi>{{ voucher.contact[field] | e }}</bdi> {% endif %}{% endfor %}</div></div>
+</div></div>

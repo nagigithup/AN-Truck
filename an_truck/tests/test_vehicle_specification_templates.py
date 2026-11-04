@@ -80,8 +80,11 @@ class TestVehicleSpecificationTemplates(IntegrationTestCase):
 			with self.assertRaises(frappe.PermissionError):
 				api.get_linked_vehicles(self.template.name)
 
-	def test_existing_vehicle_without_template_and_required_new_vehicle(self):
-		base = frappe.get_doc("Vehicle Master", self.base.name)
+	def test_existing_vehicle_without_template_and_vin_immutability(self):
+		name = frappe.db.get_value("Vehicle Master", {"specification_template": ["is", "not set"]}, "name")
+		if not name:
+			self.skipTest("An existing vehicle without a template is required")
+		base = frappe.get_doc("Vehicle Master", name)
 		self.assertFalse(base.specification_template)
 		self.assertTrue(get_vehicle_specifications(base.name)["legacy"])
 		new = self.vehicle(1)
@@ -132,11 +135,12 @@ class TestVehicleSpecificationTemplates(IntegrationTestCase):
 			self.assertEqual(created.model, "Model One")
 			self.assertFalse(frappe.db.get_value("Vehicle Master", vin, "model"))
 
-	def test_required_template_and_published_child_immutability(self):
+	def test_optional_template_and_published_child_immutability(self):
 		vin = f"SPEC-EMPTY-{self.suffix}"
 		frappe.get_doc({"doctype": "Serial No", "serial_no": vin, "item_code": self.base.item_code, "company": self.base.company}).insert()
-		with self.assertRaises(frappe.ValidationError):
-			frappe.get_doc({"doctype": "Vehicle Master", "vin": vin, "item_code": self.base.item_code, "company": self.base.company}).insert()
+		vehicle = frappe.get_doc({"doctype": "Vehicle Master", "vin": vin, "item_code": self.base.item_code, "company": self.base.company}).insert()
+		self.assertEqual(vehicle.vin, vin)
+		self.assertFalse(vehicle.specification_template)
 		self.template.technical_specifications[0].value = "Edited"
 		with self.assertRaises(frappe.ValidationError):
 			self.template.save()

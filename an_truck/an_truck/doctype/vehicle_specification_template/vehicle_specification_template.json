@@ -22,9 +22,20 @@
   "suspension_section", "front_suspension_type", "rear_suspension_type", "suspension_column", "suspension_description",
   "fuel_tank_section", "fuel_tank_material", "fuel_tank_capacity_l", "fuel_tank_column", "number_of_fuel_tanks",
   "fifth_wheel_section", "fifth_wheel_size", "fifth_wheel_brand", "fifth_wheel_column", "fifth_wheel_type",
-  "additional_specifications_section", "technical_specifications", "specifications"
+  "additional_specifications_section", "technical_specifications", "specifications",
+  "quotation_assets_section", "model_name_ar", "model_name_en", "configuration_of", "configuration_name", "main_vehicle_photo", "technical_photo", "cabin_photo", "technical_highlights", "quotation_warranty_terms"
  ],
  "fields": [
+  {"fieldname":"quotation_assets_section","fieldtype":"Section Break","label":"Quotation Assets and Terms"},
+  {"fieldname":"model_name_ar","fieldtype":"Data","label":"Arabic Model Name"},
+  {"fieldname":"model_name_en","fieldtype":"Data","label":"English Model Name"},
+  {"fieldname":"configuration_of","fieldtype":"Link","options":"Vehicle Specification Template","label":"Configuration Of"},
+  {"fieldname":"configuration_name","fieldtype":"Data","label":"Configuration Name"},
+  {"fieldname":"main_vehicle_photo","fieldtype":"Attach","label":"Main Vehicle Photo"},
+  {"fieldname":"technical_photo","fieldtype":"Attach","label":"Technical Photo"},
+  {"fieldname":"cabin_photo","fieldtype":"Attach","label":"Cabin Photo"},
+  {"fieldname":"technical_highlights","fieldtype":"Small Text","label":"Technical Highlights"},
+  {"fieldname":"quotation_warranty_terms","fieldtype":"Small Text","label":"Quotation Warranty Terms"},
   {"fieldname":"template_section","fieldtype":"Section Break","label":"Template Information"},
   {"fieldname":"template_name","fieldtype":"Data","in_list_view":1,"in_standard_filter":1,"label":"Template Name","reqd":1},
   {"fieldname":"item_code","fieldtype":"Link","in_list_view":1,"in_standard_filter":1,"label":"Item Code","options":"Item"},
