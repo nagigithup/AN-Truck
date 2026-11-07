@@ -1,5 +1,8 @@
 # Unified vehicle quotations
 
+Current presentation and verification: [ANYUAN original-design restoration](anyuan_quotation_design_review.md).
+The dated restoration report supersedes the initial generic layout and its page-count results below.
+
 The authoritative document is standard ERPNext **Quotation**. No second sales,
 stock, pricing or accounting engine is introduced. The format is named
 **AN Truck - Unified Vehicle Quotation** and uses Frappe's standard Chrome PDF

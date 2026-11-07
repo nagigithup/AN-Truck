@@ -1,0 +1,278 @@
+/* Original supplied H7/KC stylesheet, scoped to this quotation. */
+.anyuan-quotation *{box-sizing:border-box}
+.anyuan-quotation .qpage{position:relative;width:210mm;height:297mm;background:#fff;overflow:hidden;page-break-after:always}
+.anyuan-quotation .qpage:last-child{page-break-after:auto}
+.anyuan-quotation{--navy:#073754;--navy2:#0c4b70;--gold:#d7a33d;--ink:#13384f;--muted:#607889;--line:#cfdee6;--soft:#f3f8fb;--field:#fbfdff}
+.anyuan-quotation .header{position:absolute;top:4mm;left:10mm;width:190mm;height:17mm;border-bottom:.65mm solid var(--gold);text-align:center;padding-top:1.2mm}
+.anyuan-quotation .header .ar{display:block;font-size:11.8pt;font-weight:700;color:var(--navy);line-height:7mm;height:7mm}
+.anyuan-quotation .header .en{display:block;font-size:6pt;font-weight:700;letter-spacing:.4mm;color:#5c7585;direction:ltr;line-height:4mm;height:4mm}
+.anyuan-quotation .hero{position:absolute;top:25mm;left:10mm;width:190mm;height:46mm;border-radius:4.2mm;overflow:hidden;border:.25mm solid #d3e2ea;background:#f5f9fb;box-shadow:0 1mm 3mm rgba(0,40,65,.10)}
+.anyuan-quotation .hero .photo{position:absolute;left:0;top:0;width:110mm;height:46mm}
+.anyuan-quotation .hero .photo img{width:100%;height:100%;object-fit:contain;object-position:center;background:#f7fafb}
+.anyuan-quotation .hero .copy{position:absolute;right:0;top:0;width:80mm;height:46mm;padding:5.5mm 6mm;color:#fff;background:var(--navy)}
+.anyuan-quotation .hero h1{font-size:18pt;margin:0;font-weight:700;line-height:1.05}
+.anyuan-quotation .hero .en{direction:ltr;text-align:right;font-size:7pt;color:#f0c15c;font-weight:700;margin-top:1mm}
+.anyuan-quotation .hero .model{direction:ltr;text-align:right;font-size:11.5pt;font-weight:700;margin-top:2.5mm}
+.anyuan-quotation .hero .sub{font-size:6.3pt;color:#e3edf2;margin-top:1.3mm;line-height:1.45}
+.anyuan-quotation .box{border:.25mm solid var(--line);border-radius:3.4mm;overflow:hidden;background:#fff}
+.anyuan-quotation .boxtitle{height:8mm;background:var(--navy);color:white;padding:0 4mm;display:flex;align-items:center;justify-content:space-between;font-size:7.2pt;font-weight:700}
+.anyuan-quotation .boxtitle .en{direction:ltr;color:#efbd57;font-size:5.1pt;font-weight:700;letter-spacing:.08mm;max-width:48%;white-space:nowrap;overflow:hidden}
+.anyuan-quotation .info{position:absolute;top:75mm;left:10mm;width:190mm;height:43mm}
+.anyuan-quotation .info .body{padding:3mm 4mm;height:35mm}
+.anyuan-quotation .grid{display:grid;gap:2.5mm;direction:ltr}
+.anyuan-quotation .grid.top{grid-template-columns:1fr 1fr 1.18fr}
+.anyuan-quotation .grid.client{grid-template-columns:1.55fr 1fr .95fr;margin-top:3.2mm}
+.anyuan-quotation .fieldgroup{direction:rtl}
+.anyuan-quotation .q-label{font-size:5.9pt;color:#526d7f;font-weight:700;white-space:nowrap;line-height:1.2}
+.anyuan-quotation .slot{height:7.3mm;margin-top:1.1mm;border:.25mm solid #bfd2dd;border-radius:1.7mm;background:var(--field)}
+.anyuan-quotation .product{position:absolute;top:122mm;left:10mm;width:190mm;height:35mm}
+.anyuan-quotation .phead,.anyuan-quotation .prow{display:grid;direction:ltr;grid-template-columns:35mm 34mm 21mm 22mm 78mm}
+.anyuan-quotation .phead{height:9mm;background:var(--navy);color:#fff}
+.anyuan-quotation .prow{height:26mm}
+.anyuan-quotation .cell{border-left:.2mm solid #d9e4e9;display:flex;align-items:center;justify-content:center;text-align:center;padding:1.2mm;direction:rtl;font-size:6.7pt;line-height:1.35}
+.anyuan-quotation .cell:first-child{border-left:none}
+.anyuan-quotation .phead .cell{font-size:5.8pt;font-weight:700;border-color:rgba(255,255,255,.18);flex-direction:column;gap:.15mm;line-height:1.15}
+.anyuan-quotation .phead .cell .arh{direction:rtl;display:block}
+.anyuan-quotation .phead .cell .enh{direction:ltr;display:block;font-size:5.2pt;color:#eaf2f6}
+.anyuan-quotation .product .entry{width:88%;height:8.3mm;border:.25mm solid #bfd2dd;border-radius:1.6mm;background:#fbfdff}
+.anyuan-quotation .product .fixed{direction:ltr;font-weight:700;font-size:7.3pt;color:#0c3955}
+.anyuan-quotation .product .desc{font-size:5.3pt;color:#5d7787;margin-top:.4mm;line-height:1.25}
+.anyuan-quotation .prodwrap{display:flex;align-items:center;justify-content:flex-start;gap:1.8mm;width:100%;direction:ltr}
+.anyuan-quotation .prodthumb{width:18mm;height:18mm;border:.2mm solid #d4e1e7;border-radius:2mm;background:#f7fafc;overflow:hidden;flex:0 0 auto}
+.anyuan-quotation .prodthumb img{width:100%;height:100%;object-fit:contain;object-position:center}
+.anyuan-quotation .prodmeta{flex:1;min-width:0;text-align:right;direction:rtl}
+.anyuan-quotation .prodmeta .arname{font-size:6.15pt;font-weight:700;color:#0c3955;line-height:1.35;text-align:center;direction:rtl}
+.anyuan-quotation .prodmeta .enname{font-size:5.75pt;font-weight:700;color:#0c3955;direction:ltr;text-align:center;line-height:1.25;margin-top:.55mm}
+.anyuan-quotation .prodmeta .ptype-ar{font-size:5.1pt;color:#5d7787;line-height:1.25;margin-top:.7mm;text-align:center;direction:rtl}
+.anyuan-quotation .prodmeta .ptype-en{font-size:4.8pt;color:#6b8290;direction:ltr;text-align:center;line-height:1.2;margin-top:.25mm}
+.anyuan-quotation .hint{position:absolute;top:158.2mm;left:10mm;width:190mm;text-align:center;font-size:5.3pt;color:#748b98}
+.anyuan-quotation .cab{position:absolute;top:162mm;left:10mm;width:190mm;height:43mm}
+.anyuan-quotation .cab .content{height:35mm;padding:2.4mm 3.2mm;display:grid;grid-template-columns:55mm 70mm 55mm;gap:2.2mm;direction:ltr}
+.anyuan-quotation .cabcard{position:relative;border:.22mm solid #d4e1e7;border-radius:2.5mm;overflow:hidden;background:#f8fbfc;min-width:0}
+.anyuan-quotation .cabcard img{width:100%;height:26.5mm;object-fit:contain;object-position:center;background:#fff}
+.anyuan-quotation .cabcard .cap{height:5.9mm;display:flex;align-items:center;justify-content:center;font-size:6pt;font-weight:700;color:#183e54;direction:rtl}
+.anyuan-quotation .selector{display:flex;flex-direction:column;align-items:stretch;justify-content:center;padding:1.7mm;direction:rtl}
+.anyuan-quotation .selector .lab{font-size:6.5pt;font-weight:700;text-align:center}
+.anyuan-quotation .selector .selectslot{height:8mm;margin-top:1.4mm;border:.3mm solid #abc5d3;border-radius:1.8mm;background:#fff}
+.anyuan-quotation .selector .note{font-size:5.2pt;color:#78909e;text-align:center;margin-top:1mm;line-height:1.5}
+.anyuan-quotation .lower{position:absolute;top:205mm;left:10mm;width:190mm;height:55mm;display:block;direction:ltr}
+.anyuan-quotation .card{height:55mm;min-width:0;position:absolute;top:0}
+.anyuan-quotation .lower .totals{left:0;width:84mm}
+.anyuan-quotation .lower .terms{right:0;width:102mm}
+.anyuan-quotation .totals .r{height:11.2mm;display:grid;grid-template-columns:1fr 39mm;align-items:center;padding:0 3mm;border-bottom:.2mm solid #e2eaee;direction:rtl}
+.anyuan-quotation .totals .r:last-child{border-bottom:none;background:#edf5f8}
+.anyuan-quotation .totals .tl{font-size:6.1pt;font-weight:700;color:#4e6a7b}
+.anyuan-quotation .totals .v{height:7.2mm;border:.25mm solid #bfd2dd;border-radius:1.6mm;background:#fff}
+.anyuan-quotation .terms .body{padding:2.2mm 3.2mm}
+.anyuan-quotation .termrow{display:grid;grid-template-columns:31mm 1fr;gap:2mm;align-items:center;margin-bottom:1.3mm}
+.anyuan-quotation .termrow .key{font-size:5.8pt;font-weight:700;color:#466276}
+.anyuan-quotation .termrow .fixed{font-size:6pt;font-weight:700;color:#153d55;border:.22mm solid #d0dde4;background:#f5f9fb;border-radius:1.5mm;height:6.6mm;display:flex;align-items:center;padding:0 2mm}
+.anyuan-quotation .termrow .fill{height:6.6mm;border:.25mm solid #bfd2dd;border-radius:1.5mm;background:#fff}
+.anyuan-quotation .warrgrid{display:grid;grid-template-columns:1fr 1fr;gap:3mm;border-top:.18mm solid #dfe8ed;padding-top:1.5mm;margin-top:1mm}
+.anyuan-quotation .warrcol{font-size:5.15pt;line-height:1.42;color:#334f61;overflow:visible}
+.anyuan-quotation .warrcol.ar{direction:rtl;text-align:right;padding-right:.5mm}
+.anyuan-quotation .warrcol.en{direction:ltr;text-align:left;padding-left:.5mm}
+.anyuan-quotation .warrcol .wh{font-size:5.35pt;font-weight:800;color:#173d54;margin-bottom:.35mm}
+.anyuan-quotation .warrcol .sp{margin-top:.85mm}
+.anyuan-quotation .warrcol .bullet{color:#b8861b;font-weight:800}
+.anyuan-quotation .warrcol div{margin-bottom:.22mm;white-space:normal}
+.anyuan-quotation .sign{position:absolute;top:264mm;left:10mm;width:190mm;height:17mm;display:block;direction:ltr}
+.anyuan-quotation .sign .signbox{position:absolute;top:0;height:17mm;border:.25mm solid #d2dfe6;border-radius:2.5mm;padding:1.4mm 2.4mm;direction:rtl;min-width:0;overflow:hidden}
+.anyuan-quotation .sign .signbox:nth-child(1){left:0;width:64mm}
+.anyuan-quotation .sign .signbox:nth-child(2){left:67mm;width:58mm}
+.anyuan-quotation .sign .signbox:nth-child(3){left:128mm;width:62mm}
+.anyuan-quotation .signbox .q-label{font-size:4.9pt;text-align:center;white-space:normal}
+.anyuan-quotation .signbox .slot{height:7mm;margin-top:.6mm}
+.anyuan-quotation .stamp{height:11.5mm;margin-top:.6mm;border:.25mm dashed #bdced8;border-radius:2mm;display:flex;align-items:center;justify-content:center;color:#94a6b0;font-size:5.7pt}
+.anyuan-quotation .footer{position:absolute;bottom:4mm;left:10mm;width:190mm;height:8.5mm;background:var(--navy);border-radius:2.5mm;color:white;display:flex;align-items:center;direction:ltr;padding:0 3mm;font-size:4.9pt}
+.anyuan-quotation .footer .qr{width:7.5mm;height:7.5mm;background:white;padding:.4mm;border-radius:.8mm}
+.anyuan-quotation .footer .qr img{width:100%;height:100%}
+.anyuan-quotation .footer .contacts{flex:1;min-width:0;overflow:hidden;text-align:center;direction:ltr;white-space:nowrap;font-size:4.15pt}
+.anyuan-quotation .footer b{color:#efbf60}
+.anyuan-quotation .p2 .headspec{position:absolute;top:25mm;left:10mm;width:190mm;height:18mm;border-radius:3.5mm;background:var(--navy);color:#fff;text-align:center;padding-top:2.2mm}
+.anyuan-quotation .p2 .headspec .ar{display:block;font-size:10.5pt;font-weight:700;line-height:6mm}
+.anyuan-quotation .p2 .headspec .en{display:block;font-size:6pt;color:#efc15c;font-weight:700;direction:ltr;line-height:4mm;letter-spacing:.2mm}
+.anyuan-quotation .p2 .cabshow{position:absolute;top:47mm;left:10mm;width:190mm;height:39mm;display:block;direction:ltr}
+.anyuan-quotation .p2 .pic{position:absolute;top:0;width:93.5mm;height:39mm;border:.25mm solid #d4e1e7;border-radius:3mm;overflow:hidden;background:#f7fafc}
+.anyuan-quotation .p2 .pic:nth-child(1){left:0}
+.anyuan-quotation .p2 .pic:nth-child(2){left:96.5mm}
+.anyuan-quotation .p2 .pic img{width:100%;height:31mm;object-fit:contain;object-position:center;background:#fff}
+.anyuan-quotation .p2 .pic .tag{position:absolute;bottom:0;left:0;right:0;height:8mm;background:rgba(7,55,84,.94);color:#fff;display:flex;align-items:center;justify-content:center;font-size:6.5pt;font-weight:700;direction:rtl}
+.anyuan-quotation .badges{position:absolute;top:90mm;left:10mm;width:190mm;height:16mm;display:block;direction:ltr}
+.anyuan-quotation .q-badge{position:absolute;top:0;width:36.56mm;height:16mm;border:.25mm solid #d2e0e7;border-radius:2.5mm;background:#f7fafc;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.anyuan-quotation .q-badge:nth-child(1){left:0}
+.anyuan-quotation .q-badge:nth-child(2){left:38.36mm}
+.anyuan-quotation .q-badge:nth-child(3){left:76.72mm}
+.anyuan-quotation .q-badge:nth-child(4){left:115.08mm}
+.anyuan-quotation .q-badge:nth-child(5){left:153.44mm}
+.anyuan-quotation .q-badge b{font-size:7.2pt;color:#0a3a57}
+.anyuan-quotation .q-badge span{font-size:4.7pt;color:#6a8190;direction:ltr;margin-top:.5mm}
+.anyuan-quotation .specgrid{position:absolute;top:110mm;left:10mm;width:190mm;height:162mm;display:block;direction:ltr}
+.anyuan-quotation .specbox{position:absolute;width:93.5mm;border:.25mm solid #d4e1e8;border-radius:3mm;overflow:hidden;background:#fff;direction:rtl;min-width:0}
+.anyuan-quotation .specbox h3{height:8mm;margin:0;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 2mm;font-size:5.5pt;font-weight:700;line-height:1.18;white-space:normal}
+.anyuan-quotation .specbox table{width:100%;border-collapse:collapse;table-layout:fixed}
+.anyuan-quotation .specbox td{border-bottom:.18mm solid #e3eaee;padding:1.02mm 1.35mm;vertical-align:middle;line-height:1.18;overflow-wrap:anywhere}
+.anyuan-quotation .specbox tr:last-child td{border-bottom:none}
+.anyuan-quotation .specbox .key{width:49%;font-size:4.85pt;font-weight:700;color:#4d697a}
+.anyuan-quotation .specbox .val{width:51%;font-size:4.8pt;color:#173d54;direction:ltr;text-align:left;font-weight:600}
+.anyuan-quotation .specbox .val.arval{direction:rtl;text-align:right;font-weight:500}
+.anyuan-quotation .specbox:nth-child(1){left:0;top:0;height:49mm}
+.anyuan-quotation .specbox:nth-child(2){left:96.5mm;top:0;height:49mm}
+.anyuan-quotation .specbox:nth-child(3){left:0;top:52mm;height:48mm}
+.anyuan-quotation .specbox:nth-child(4){left:96.5mm;top:52mm;height:48mm}
+.anyuan-quotation .specbox:nth-child(5){left:0;top:103mm;height:59mm}
+.anyuan-quotation .specbox:nth-child(6){left:96.5mm;top:103mm;height:59mm}
+.anyuan-quotation .foot2{position:absolute;bottom:7mm;left:10mm;width:190mm;height:12mm;border-top:.6mm solid var(--gold);display:flex;align-items:center;justify-content:space-between;font-size:5.1pt;color:#657d8b;direction:rtl}
+.anyuan-quotation .foot2 b{direction:ltr;color:#123f5a;font-size:6pt}
+.anyuan-quotation .qpage{margin:0 auto 12px auto;box-shadow:0 2mm 8mm rgba(0,0,0,.12)}
+.anyuan-quotation .entry,.anyuan-quotation .slot,.anyuan-quotation .selectslot,.anyuan-quotation .totals .v,.anyuan-quotation .termrow .fill{overflow:hidden}
+.anyuan-quotation .outval{display:flex;width:100%;height:100%;align-items:center;justify-content:center;font-size:7pt;direction:ltr;font-variant-numeric:tabular-nums;padding:0 1mm}
+@media  screen and (max-width:900px){.anyuan-quotation .qpage{width:210mm;max-width:none}}
+@media  print{.anyuan-quotation .qpage{margin:0;box-shadow:none}}
+.anyuan-quotation .outval{direction:ltr;unicode-bidi:isolate;display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-variant-numeric:tabular-nums;}
+@media  print{.anyuan-quotation input,.anyuan-quotation select{font-family:Tahoma,Arial,"Geeza Pro","Noto Sans Arabic",sans-serif!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.anyuan-quotation input::placeholder{color:transparent!important;}}
+@media  print{.anyuan-quotation{--navy:#002f4a;--navy2:#00456b;--gold:#c88a18;--ink:#082f46;--muted:#425f70;--line:#9fb8c5;--soft:#eef5f8;--field:#ffffff}
+.anyuan-quotation .qpage,.anyuan-quotation .box,.anyuan-quotation .card,.anyuan-quotation .specbox,.anyuan-quotation .cabcard,.anyuan-quotation .signbox,.anyuan-quotation .slot,.anyuan-quotation .entry,.anyuan-quotation .selectslot,.anyuan-quotation .totals .v,.anyuan-quotation .termrow .fill{
+    -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;
+  }
+.anyuan-quotation .hero .copy,.anyuan-quotation .boxtitle,.anyuan-quotation .phead,.anyuan-quotation .footer,.anyuan-quotation .p2 .headspec,.anyuan-quotation .specbox h3,.anyuan-quotation .p2 .pic .tag{
+    background:#002f4a!important;color:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;
+  }
+.anyuan-quotation .hero .en,.anyuan-quotation .boxtitle .en,.anyuan-quotation .p2 .headspec .en{color:#f0b93f!important}
+.anyuan-quotation .header{border-bottom-color:#c88a18!important}
+.anyuan-quotation .foot2{border-top-color:#c88a18!important}
+.anyuan-quotation .box,.anyuan-quotation .specbox,.anyuan-quotation .cabcard,.anyuan-quotation .signbox{border-color:#9fb8c5!important}
+.anyuan-quotation .slot,.anyuan-quotation .entry,.anyuan-quotation .selectslot,.anyuan-quotation .totals .v,.anyuan-quotation .termrow .fill{border-color:#9ab5c4!important;background:#fff!important}
+.anyuan-quotation .phead .cell{border-color:#416a80!important}
+.anyuan-quotation .cell{border-color:#b8cbd4!important}
+.anyuan-quotation .q-label,.anyuan-quotation .totals .tl,.anyuan-quotation .termrow .key,.anyuan-quotation .warranty,.anyuan-quotation .bankbox{color:#183f55!important}
+.anyuan-quotation .warranty{font-size:5.7pt!important;line-height:1.6!important}
+.anyuan-quotation .bankbox{font-size:5.55pt!important;line-height:1.55!important}
+.anyuan-quotation input,.anyuan-quotation select{color:#082f46!important;-webkit-text-fill-color:#082f46!important;background:#fff!important}}
+.anyuan-quotation .p2 .specgrid{top:108mm;height:166mm}
+.anyuan-quotation .p2 .specbox{border-color:#c8d9e2}
+.anyuan-quotation .p2 .specbox h3{height:7mm;font-size:5.35pt;justify-content:space-between;padding:0 2.3mm}
+.anyuan-quotation .p2 .specbox h3 .arh2{direction:rtl;text-align:right}
+.anyuan-quotation .p2 .specbox h3 .enh2{direction:ltr;text-align:left;color:#efc15c;font-size:4.6pt}
+.anyuan-quotation .p2 .specbox td{padding:.68mm 1.05mm;line-height:1.14}
+.anyuan-quotation .p2 .specbox .key{width:43%;font-size:4.45pt}
+.anyuan-quotation .p2 .specbox .val{width:57%;font-size:4.35pt}
+.anyuan-quotation .p2 .specbox .bi{direction:rtl;text-align:right;font-weight:600}
+.anyuan-quotation .p2 .specbox .bi .enline{display:block;direction:ltr;text-align:left;font-size:4.05pt;color:#5b7484;font-weight:500;margin-top:.25mm}
+.anyuan-quotation .p2 .specbox:nth-child(1){left:0;top:0;height:49mm}
+.anyuan-quotation .p2 .specbox:nth-child(2){left:96.5mm;top:0;height:49mm}
+.anyuan-quotation .p2 .specbox:nth-child(3){left:0;top:52mm;height:53mm}
+.anyuan-quotation .p2 .specbox:nth-child(4){left:96.5mm;top:52mm;height:53mm}
+.anyuan-quotation .p2 .specbox:nth-child(5){left:0;top:108mm;height:58mm}
+.anyuan-quotation .p2 .specbox:nth-child(6){left:96.5mm;top:108mm;height:58mm}
+.anyuan-quotation .p2 .foot2{bottom:5mm;height:10mm}
+@media  print{.anyuan-quotation .p2 .specbox h3{background:#002f4a!important;color:#fff!important}
+.anyuan-quotation .p2 .specbox h3 .enh2{color:#f0b93f!important}}
+.anyuan-quotation .p2 .headspec{top:24mm;height:19mm;padding-top:2.5mm;border-radius:3mm;box-shadow:none}
+.anyuan-quotation .p2 .headspec .ar{font-size:11pt;line-height:6mm}
+.anyuan-quotation .p2 .headspec .en{font-size:6.2pt;line-height:4.2mm;letter-spacing:.12mm}
+.anyuan-quotation .p2 .cabshow{top:47mm;height:36mm}
+.anyuan-quotation .p2 .pic{height:36mm;width:93mm;border-radius:2.5mm}
+.anyuan-quotation .p2 .pic:nth-child(2){left:97mm}
+.anyuan-quotation .p2 .pic img{height:28mm;object-fit:contain;background:#fff}
+.anyuan-quotation .p2 .pic .tag{height:8mm;font-size:6.1pt;gap:1mm}
+.anyuan-quotation .p2 .badges{top:87mm;height:15mm}
+.anyuan-quotation .p2 .q-badge{height:15mm;width:36.4mm;border-radius:2mm;background:#f5f9fb}
+.anyuan-quotation .p2 .q-badge:nth-child(1){left:0}
+.anyuan-quotation .p2 .q-badge:nth-child(2){left:38.4mm}
+.anyuan-quotation .p2 .q-badge:nth-child(3){left:76.8mm}
+.anyuan-quotation .p2 .q-badge:nth-child(4){left:115.2mm}
+.anyuan-quotation .p2 .q-badge:nth-child(5){left:153.6mm}
+.anyuan-quotation .p2 .q-badge b{font-size:7pt}
+.anyuan-quotation .p2 .q-badge span{font-size:4.5pt;margin-top:.25mm}
+.anyuan-quotation .p2 .specgrid{top:106mm;height:164mm}
+.anyuan-quotation .p2 .specbox{width:93mm;border:.28mm solid #b9cdd8;border-radius:2.4mm;box-shadow:0 .35mm 1.2mm rgba(0,47,74,.05)}
+.anyuan-quotation .p2 .specbox:nth-child(1){left:0;top:0;height:50mm}
+.anyuan-quotation .p2 .specbox:nth-child(2){left:97mm;top:0;height:50mm}
+.anyuan-quotation .p2 .specbox:nth-child(3){left:0;top:53mm;height:59mm}
+.anyuan-quotation .p2 .specbox:nth-child(4){left:97mm;top:53mm;height:59mm}
+.anyuan-quotation .p2 .specbox:nth-child(5){left:0;top:115mm;height:49mm}
+.anyuan-quotation .p2 .specbox:nth-child(6){left:97mm;top:115mm;height:49mm}
+.anyuan-quotation .p2 .specbox h3{height:8.5mm;justify-content:space-between;padding:0 3mm;font-size:5.8pt;direction:rtl}
+.anyuan-quotation .p2 .specbox h3 .arh2{font-size:6pt;font-weight:800;direction:rtl;text-align:right}
+.anyuan-quotation .p2 .specbox h3 .enh2{font-size:4.6pt;color:#f0bd54;font-weight:700;direction:ltr;text-align:left}
+.anyuan-quotation .p2 .specbox table{height:calc(100% - 8.5mm);table-layout:fixed}
+.anyuan-quotation .p2 .specbox td{padding:.7mm 1.5mm;line-height:1.15;border-bottom:.18mm solid #dbe6eb;vertical-align:middle}
+.anyuan-quotation .p2 .specbox tr:nth-child(even) td{background:#f7fafc}
+.anyuan-quotation .p2 .specbox .key{width:43%;font-size:4.65pt;font-weight:700;color:#36586c;direction:rtl;text-align:right}
+.anyuan-quotation .p2 .specbox .val{width:57%;font-size:4.7pt;color:#0d3b56;direction:ltr;text-align:left;font-weight:700;overflow-wrap:normal;word-break:normal}
+.anyuan-quotation .p2 .specbox .val .arline{display:block;direction:rtl;text-align:right;font-size:4.65pt;font-weight:700;line-height:1.15;color:#123f59}
+.anyuan-quotation .p2 .specbox .val .enline{display:block;direction:ltr;text-align:left;font-size:4.2pt;font-weight:600;line-height:1.12;color:#607889;margin-top:.25mm}
+.anyuan-quotation .p2 .foot2{bottom:5mm;height:11mm;font-size:4.8pt;background:#f8fbfc;border-top:.65mm solid var(--gold);padding:0 2mm}
+@media  print{.anyuan-quotation .p2 .specbox{box-shadow:none!important}
+.anyuan-quotation .p2 .specbox tr:nth-child(even) td{background:#f4f8fa!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+.anyuan-quotation .p2 .headspec{top:24mm;height:18mm;padding-top:2mm}
+.anyuan-quotation .p2 .headspec .ar{font-size:12pt;line-height:6.4mm}
+.anyuan-quotation .p2 .headspec .en{font-size:7pt;line-height:4.5mm}
+.anyuan-quotation .p2 .cabshow{top:46mm;height:32mm}
+.anyuan-quotation .p2 .pic{height:32mm}
+.anyuan-quotation .p2 .pic img{height:24mm}
+.anyuan-quotation .p2 .pic .tag{height:8mm;font-size:7pt}
+.anyuan-quotation .p2 .badges{top:81mm;height:16mm}
+.anyuan-quotation .p2 .q-badge{height:16mm}
+.anyuan-quotation .p2 .q-badge b{font-size:8pt}
+.anyuan-quotation .p2 .q-badge span{font-size:5.3pt}
+.anyuan-quotation .p2 .specgrid{top:101mm;height:169mm}
+.anyuan-quotation .p2 .specbox{width:93mm}
+.anyuan-quotation .p2 .specbox:nth-child(1){left:0;top:0;height:50mm}
+.anyuan-quotation .p2 .specbox:nth-child(2){left:97mm;top:0;height:50mm}
+.anyuan-quotation .p2 .specbox:nth-child(3){left:0;top:53mm;height:61mm}
+.anyuan-quotation .p2 .specbox:nth-child(4){left:97mm;top:53mm;height:61mm}
+.anyuan-quotation .p2 .specbox:nth-child(5){left:0;top:117mm;height:52mm}
+.anyuan-quotation .p2 .specbox:nth-child(6){left:97mm;top:117mm;height:52mm}
+.anyuan-quotation .p2 .specbox h3{height:9mm;padding:0 2.6mm}
+.anyuan-quotation .p2 .specbox h3 .arh2{font-size:7.1pt}
+.anyuan-quotation .p2 .specbox h3 .enh2{font-size:5.25pt}
+.anyuan-quotation .p2 .specbox table{height:calc(100% - 9mm)}
+.anyuan-quotation .p2 .specbox td{padding:.75mm 1.35mm;line-height:1.2}
+.anyuan-quotation .p2 .specbox .key{width:40%;font-size:5.55pt;line-height:1.22}
+.anyuan-quotation .p2 .specbox .val{width:60%;font-size:5.55pt;line-height:1.2}
+.anyuan-quotation .p2 .specbox .val .arline{font-size:5.55pt;line-height:1.2}
+.anyuan-quotation .p2 .specbox .val .enline{font-size:4.9pt;line-height:1.15;margin-top:.2mm}
+.anyuan-quotation .p2 .foot2{bottom:4mm;height:10mm;font-size:5.2pt}
+.anyuan-quotation .p2 .specbox td{font-size:5.35pt!important;line-height:1.22!important;}
+.anyuan-quotation .p2 .specbox .key{font-size:5.15pt!important;line-height:1.22!important;font-weight:700!important;}
+.anyuan-quotation .p2 .specbox .val{font-size:5.35pt!important;line-height:1.2!important;font-weight:700!important;}
+.anyuan-quotation .p2 .specbox .bi{font-size:5.35pt!important;line-height:1.2!important;font-weight:700!important;direction:rtl!important;text-align:right!important;color:#123f59!important;}
+.anyuan-quotation .p2 .specbox .bi .enline{display:block!important;font-size:4.25pt!important;line-height:1.12!important;font-weight:500!important;direction:ltr!important;text-align:left!important;color:#607889!important;margin-top:.25mm!important;}
+.anyuan-quotation .p2 .specbox h3 .arh2{font-size:6.4pt!important;line-height:1.1!important;}
+.anyuan-quotation .p2 .specbox h3 .enh2{font-size:4.65pt!important;line-height:1.05!important;}
+.anyuan-quotation .lower .terms,.anyuan-quotation .lower .terms .body{overflow:hidden!important;}
+.anyuan-quotation .lower .terms .body{box-sizing:border-box;}
+.anyuan-quotation .warrgrid{overflow:hidden!important;box-sizing:border-box;}
+.anyuan-quotation .warrcol{overflow:hidden!important;}
+.anyuan-quotation .warrcol>div{overflow:hidden!important;}
+.anyuan-quotation .p1 .hero .photo,.anyuan-quotation .p1 .hero .copy{height:100%!important;}
+.anyuan-quotation .p1 .hero img,.anyuan-quotation .p1 .cabcard img,.anyuan-quotation .p1 .footer img{display:block!important;}
+.anyuan-quotation .p1 .info .body{height:calc(100% - 8mm)!important;}
+.anyuan-quotation .p1 .product .phead{width:100%!important;height:9mm!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .product .prow{width:100%!important;height:calc(100% - 9mm)!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .product .cell{min-width:0!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .cab .content{height:calc(100% - 8mm)!important;padding:1mm 3.2mm!important;}
+.anyuan-quotation .p1 .cabcard{height:100%!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .cabcard img{height:26.5mm!important;max-height:calc(100% - 5.9mm)!important;object-fit:contain!important;}
+.anyuan-quotation .p1 .cabcard .cap{height:5.9mm!important;line-height:1.15!important;white-space:nowrap!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .lower{height:59.2mm!important;}
+.anyuan-quotation .p1 .lower .card{height:59.2mm!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .terms .body{overflow:hidden!important;}
+.anyuan-quotation .p1 .warrgrid{border:.18mm solid #d9e4e9!important;border-radius:1.4mm!important;gap:0!important;padding:0!important;margin-top:.7mm!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .warrcol{overflow:hidden!important;padding:.7mm 1mm!important;min-width:0!important;}
+.anyuan-quotation .p1 .warrcol.en{border-left:.18mm solid #d9e4e9!important;}
+.anyuan-quotation .p1 .warrcol>div{overflow-wrap:anywhere!important;word-break:normal!important;}
+.anyuan-quotation .p1 .sign{top:267mm!important;height:17mm!important;}
+.anyuan-quotation .p1 .sign .signbox{height:17mm!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .stamp{height:10mm!important;overflow:hidden!important;}
+.anyuan-quotation .p1 .box,.anyuan-quotation .p1 .card,.anyuan-quotation .p1 .signbox,.anyuan-quotation .p1 .slot,.anyuan-quotation .p1 .entry,.anyuan-quotation .p1 .selectslot,.anyuan-quotation .p1 .totals .v,.anyuan-quotation .p1 .termrow .fixed,.anyuan-quotation .p1 .bankbox,.anyuan-quotation .p1 .warrgrid,.anyuan-quotation .p1 .warrcol{
+  box-sizing:border-box!important;max-width:100%!important;
+}
+.anyuan-quotation .p1 .boxtitle,.anyuan-quotation .p1 .q-label,.anyuan-quotation .p1 .key,.anyuan-quotation .p1 .fixed,.anyuan-quotation .p1 .warrcol,.anyuan-quotation .p1 .contacts{
+  overflow-wrap:anywhere!important;
+}
+.anyuan-quotation .p1 .product .phead,.anyuan-quotation .p1 .product .prow{grid-template-columns:35fr 34fr 21fr 22fr 78fr!important;}
+.anyuan-quotation .p1 .lower,.anyuan-quotation .p1 .lower .card{height:59.8mm!important;}

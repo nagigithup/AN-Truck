@@ -1,84 +1,128 @@
 {% set quotation = quotation_print_data(doc) %}
-{% macro label(ar, en) %}<span lang="ar">{{ ar }}</span><small lang="en" dir="ltr">{{ en }}</small>{% endmacro %}
-{% macro money(value) %}{{ frappe.utils.fmt_money(value or 0, currency=doc.currency) }}{% endmacro %}
-{% macro company_footer() %}<div>{{ doc.company | e }}{% for field in ['phone_no','email','website'] %}{% if quotation.company.get(field) %} · <bdi>{{ quotation.company[field] | e }}</bdi>{% endif %}{% endfor %}</div>{% if doc.company_address_display %}<div>{{ doc.company_address_display }}</div>{% endif %}{% endmacro %}
+{% macro money(value) %}{{ frappe.utils.fmt_money(value or 0) }} {{ doc.currency | e }}{% endmacro %}
+{% macro header() %}
+<div class="header"><div class="ar">شركة ان يوان موتورز كو</div><div class="en">ANYUAN MOTORS CO</div><div class="registration" dir="ltr">{% if quotation.company.get('company_name') and (quotation.company.company_name | lower) != 'alnagi' %}{{ quotation.company.company_name | e }} &nbsp; {% endif %}{% if quotation.company.get('commercial_registration') %}CR No. {{ quotation.company.commercial_registration | e }}{% endif %}{% if quotation.company.get('tax_id') %} &nbsp; VAT No. {{ quotation.company.tax_id | e }}{% endif %}</div></div>
+{% endmacro %}
+{% macro footer(technical=false) %}
+{% if technical %}<div class="foot2"><span><bdi>{{ doc.name | e }}</bdi></span><b>ANYUAN MOTORS CO</b></div>
+{% else %}<div class="footer"><div class="contacts">{% for field in ['phone_no','email','website'] %}{% if quotation.company.get(field) %}<bdi>{{ quotation.company[field] | e }}</bdi> &nbsp; {% endif %}{% endfor %}{% if quotation.footer_address %}<span>{{ quotation.footer_address | e }}</span>{% endif %}</div></div>{% endif %}
+{% endmacro %}
+{% macro slot(value, cls='') %}<div class="slot"><div class="print-value {{ cls }}">{{ (value or '') | e }}</div></div>{% endmacro %}
+{% macro photo(url, caption='') %}<div class="cabcard">{% if url %}<img src="{{ url | e }}" alt="{{ caption | e }}">{% else %}<div class="missing-photo">الصورة غير مرفقة / Image not supplied</div>{% endif %}<div class="cap">{{ caption | e }}</div></div>{% endmacro %}
 <style>
-@page {size:A4; margin:12mm 10mm;}
-.print-format {padding:0!important;font-family:Tahoma,Arial,sans-serif;color:#13384f;font-size:9pt;}
-.an-quotation {direction:rtl;line-height:1.4;}
-.an-quotation * {box-sizing:border-box;}
-.an-quotation h1,.an-quotation h2,.an-quotation h3 {color:#073754;margin:0 0 8px;}
-.an-quotation small {display:block;color:#607889;font-size:7pt;}
-.an-quotation .brand {text-align:center;border-bottom:3px solid #d7a33d;padding-bottom:10px;margin-bottom:14px;}
-.an-quotation .brand b {font-size:18pt;letter-spacing:2px;}
-.an-quotation .hero {background:#073754;color:white;padding:14px;border-radius:8px;margin-bottom:14px;}
-.an-quotation .hero::after {content:"";display:block;clear:both;}
-.an-quotation .hero h2 {color:white;}
-.an-quotation img {max-width:100%;object-fit:contain;}
-.an-quotation .hero img {float:left;max-height:125px;max-width:48%;background:white;margin:0 12px 0 0;}
-.an-quotation table {width:100%;border-collapse:collapse;margin:7px 0;table-layout:fixed;}
-.an-quotation th {background:#073754!important;color:white!important;text-align:right;padding:6px;border:1px solid #cfdee6;}
-.an-quotation td {padding:6px;border:1px solid #cfdee6;vertical-align:top;overflow-wrap:anywhere;}
-.an-quotation th small,.an-quotation .hero small {color:#efbd57;}
-.an-quotation tr,.an-quotation .terms,.an-quotation .signatures {page-break-inside:avoid;}
-.an-quotation thead {display:table-header-group;}
-.an-quotation h3 {border-bottom:2px solid #d7a33d;padding:8px 0;page-break-after:avoid;}
-.an-quotation .technical {page-break-before:always;}
-.an-quotation .technical .brand {page-break-after:avoid;page-break-inside:avoid;}
-.an-quotation .photos img {max-height:180px;max-width:48%;margin:5px;}
-.an-quotation .notes {white-space:pre-line;}
-.an-quotation .terms h3 {font-size:10pt;padding:3px 0;margin:4px 0;}
-.an-quotation .term-label {margin-inline-end:6px;}
-.an-quotation .term-label small {display:inline;margin-inline-start:6px;}
-.an-quotation .footer {border-top:2px solid #d7a33d;margin-top:18px;padding-top:8px;}
-.an-quotation .signatures td {height:65px;}
-@media print {.an-quotation th,.an-quotation .hero {-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+{% include 'an_truck/print_formats/anyuan_quotation.css' %}
+/* Rendering/pagination adaptations to the original millimetre layout. */
+@page{size:A4;margin:0}
+.print-format{padding:0!important;margin:0!important;margin-top:0mm;margin-bottom:0mm;margin-left:0mm;margin-right:0mm;max-width:none!important;width:210mm!important;min-height:0!important;font-family:Tahoma,Arial,'Geeza Pro','Noto Sans Arabic',sans-serif!important;color:#13384f!important;background:#fff!important;}
+.print-format-gutter{padding:0!important;background:#fff!important;}
+.print-format>.page-break{page-break-after:auto;}
+.anyuan-quotation{--navy:#073754;--navy2:#0c4b70;--gold:#d7a33d;--ink:#13384f;--muted:#607889;--line:#cfdee6;--soft:#f3f8fb;--field:#fbfdff;direction:rtl;color:#13384f;font-family:Tahoma,Arial,'Geeza Pro','Noto Sans Arabic',sans-serif;font-size:7pt;line-height:normal;}
+.anyuan-quotation .qpage{margin:0!important;box-shadow:none!important;break-after:page;}
+.anyuan-quotation .qpage:last-child{break-after:auto;page-break-after:auto;}
+.anyuan-quotation .registration{font-size:4.6pt;color:#607889;margin-top:-.6mm;}
+.anyuan-quotation .q-label{border:0;display:block;background:transparent;padding:0;border-radius:0;text-shadow:none;}
+.anyuan-quotation .print-value{display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:0 1mm;font-size:7pt;line-height:1.25;overflow-wrap:anywhere;}
+.anyuan-quotation .print-value.num{direction:ltr;font-variant-numeric:tabular-nums;}
+.anyuan-quotation .print-value.right{direction:rtl;text-align:right;justify-content:flex-start;}
+.anyuan-quotation .missing-photo{height:26.5mm;display:flex;align-items:center;justify-content:center;font-size:5.5pt;color:#607889;}
+.anyuan-quotation .hero .missing-photo{height:100%;}
+.anyuan-quotation .p1 .cab .selectslot{height:auto;min-height:8mm;}
+.anyuan-quotation .p1 .cab .selectslot .print-value{min-height:8mm;font-size:6pt;}
+.anyuan-quotation .p1 .terms .body{padding:2mm 3.2mm;}
+.anyuan-quotation .bankbox{border:.22mm solid #d0dde4;background:#f7fafc;border-radius:1.7mm;padding:1mm 2mm;margin-bottom:1mm;font-size:5pt;line-height:1.35;overflow-wrap:anywhere;}
+.anyuan-quotation .bankbox b{font-size:5.5pt;}
+.anyuan-quotation .approved-terms{border:.18mm solid #d9e4e9;border-radius:1.4mm;padding:1mm;font-size:5.35pt;line-height:1.5;white-space:pre-line;overflow-wrap:anywhere;}
+.anyuan-quotation .warrgrid{white-space:pre-line;}
+.anyuan-quotation .terms .fixed{height:auto;min-height:6.6mm;font-size:5.8pt;white-space:pre-line;}
+.anyuan-quotation .totals .r{height:auto;min-height:10.7mm;grid-template-columns:1fr 39mm;}
+.anyuan-quotation .totals .r .v{height:7.2mm;}
+.anyuan-quotation .totals .r.tax .tl{font-size:5.4pt;line-height:1.2;}
+.anyuan-quotation .totals .r small{display:block;font-size:4.5pt;color:#607889;}
+.anyuan-quotation .totals .r.grand{background:#edf5f8;font-weight:bold;}
+.anyuan-quotation .totals .tax-note{font-size:4.8pt;padding:1mm 3mm;}
+.anyuan-quotation .footer .contacts{white-space:normal;line-height:1.3;font-size:4.5pt;}
+.anyuan-quotation .footer .contacts span{display:block;}
+.anyuan-quotation .footer .contacts p{margin:0!important;}
+.anyuan-quotation .p2 .pic.single{width:190mm;left:0;}
+.anyuan-quotation .p2.kc .cabshow{top:47mm;height:50mm;}
+.anyuan-quotation .p2.kc .pic{width:190mm;height:50mm;left:0;}
+.anyuan-quotation .p2.kc .pic img{height:42mm;}
+.anyuan-quotation .p2.kc .badges{top:101mm;}
+.anyuan-quotation .p2.kc .specgrid{top:121mm!important;}
+.anyuan-quotation .p2 .specgrid{height:auto!important;}
+.anyuan-quotation .p2 .specrow{display:flex;gap:4mm;align-items:stretch;direction:ltr;margin-bottom:3mm;}
+.anyuan-quotation .p2 .specrow .specbox{position:relative!important;left:auto!important;top:auto!important;width:93mm!important;height:auto!important;min-height:0!important;flex:1 1 0;overflow:visible;}
+.anyuan-quotation .p2 .specrow .specbox table{margin:0!important;height:auto!important;border-collapse:collapse;font-size:5.35pt;}
+.anyuan-quotation .p2 .specrow .specbox h3{height:8.5mm;min-height:8.5mm;border-radius:2mm 2mm 0 0;}
+.anyuan-quotation .p2 .specrow .specbox td{padding:1.05mm 1.35mm!important;line-height:1.2!important;white-space:pre-line;}
+.anyuan-quotation .p2 .specrow .specbox .key{width:42%!important;}
+.anyuan-quotation .p2 .specrow .specbox .val{width:58%!important;direction:ltr;text-align:left;}
+.anyuan-quotation .p2 .specrow .specbox .val[dir=auto]{unicode-bidi:plaintext;}
+.anyuan-quotation .p2 .specbox .key .enline{display:block;direction:ltr;text-align:left;font-size:4.6pt;color:#607889;margin-top:.25mm;}
+.anyuan-quotation .p2 .specrow .specbox tr:nth-child(even) td{background:#f7fafc;}
+.anyuan-quotation .p2:not(.kc) .specrow:nth-child(1){height:50mm;}
+.anyuan-quotation .p2:not(.kc) .specrow:nth-child(2){height:61mm;}
+.anyuan-quotation .p2:not(.kc) .specrow:nth-child(3){height:52mm;}
+.anyuan-quotation .p2:not(.kc) .specrow .specbox{height:100%!important;}
+.anyuan-quotation .p2:not(.kc) .specrow .specbox table{height:calc(100% - 8.5mm)!important;}
+.anyuan-quotation .p2.continuation .specgrid{top:47mm!important;}
+.anyuan-quotation .attachment-photo{position:absolute;left:10mm;top:48mm;width:190mm;height:106mm;object-fit:contain;}
+.anyuan-quotation .attachment-photo:nth-of-type(2){top:160mm;}
+.anyuan-quotation .appendix .continuation-body{position:absolute;top:47mm;left:10mm;width:190mm;white-space:pre-wrap;overflow-wrap:anywhere;font-size:9pt;line-height:1.8;}
+.anyuan-quotation .appendix h2{font-size:11pt;color:#073754;margin:0 0 5mm;}
+@media print{.anyuan-quotation{--navy:#002f4a;--navy2:#00456b;--gold:#c88a18;} .anyuan-quotation *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}}
 </style>
-<div class="an-quotation">
- <div class="brand"><b dir="ltr">ANYUAN MOTORS</b><div>{{ doc.company | e }}</div>{% if quotation.company.get('tax_id') %}<small>{{ label('الرقم الضريبي','VAT No.') }}<bdi>{{ quotation.company.tax_id | e }}</bdi></small>{% endif %}</div>
- <section class="hero">
- {% if quotation.models %}{% set first = quotation.models[0] %}{% if first.images.main_vehicle_photo %}<img src="{{ first.images.main_vehicle_photo | e }}" alt="{{ first.model_name_en | e }}">{% endif %}{% endif %}
- <h2>{{ label('عرض سعر مركبات', 'Vehicle Quotation') }}</h2>
- {% if quotation.models %}{% set first = quotation.models[0] %}
- <div>{{ first.model_name_ar | e }} {% if first.model_name_en != first.model_name_ar %}<bdi>{{ first.model_name_en | e }}</bdi>{% endif %}</div>
- {% endif %}</section>
- <table><tbody><tr><td>{{ label('رقم العرض','Quotation No.') }}<bdi>{{ doc.name | e }}</bdi></td><td>{{ label('التاريخ','Date') }}{{ doc.get_formatted('transaction_date') }}</td><td>{{ label('صالح حتى','Valid Till') }}{{ doc.get_formatted('valid_till') }}</td></tr>
- <tr><td colspan="2">{{ label('العميل','Customer') }}{{ (doc.customer_name or doc.party_name) | e }}</td><td>{{ label('العملة','Currency') }}{{ doc.currency | e }}</td></tr>
- {% if quotation.customer.get('commercial_registration') or quotation.customer.get('tax_id') or quotation.customer.get('mobile_no') %}<tr><td>{{ label('السجل التجاري للعميل','Customer CR No.') }}<bdi>{{ (quotation.customer.commercial_registration or '') | e }}</bdi></td><td>{{ label('الرقم الضريبي للعميل','Customer VAT No.') }}<bdi>{{ (quotation.customer.tax_id or '') | e }}</bdi></td><td>{{ label('الجوال','Mobile') }}<bdi>{{ (quotation.customer.mobile_no or '') | e }}</bdi></td></tr>{% endif %}</tbody></table>
- {% if doc.address_display %}<div>{{ doc.address_display }}</div>{% endif %}
- <table><thead><tr><th style="width:40%">{{ label('المنتج / الموديل','Product / Model') }}</th><th>{{ label('الكمية','Quantity') }}</th><th>{{ label('سعر الوحدة','Unit Price') }}</th><th>{{ label('المبلغ','Amount') }}</th></tr></thead><tbody>
- {% for row in doc.items %}{% set spec = quotation.lines[loop.index0] %}<tr><td><b>{{ row.item_name | e }}</b><small>{{ row.item_code | e }}</small>
- {% if spec %}<div>{{ spec.model_name_ar | e }} {% if spec.model_name_en != spec.model_name_ar %}<bdi>{{ spec.model_name_en | e }}</bdi>{% endif %}</div>{% if spec.configuration %}<div>{{ spec.configuration | e }}</div>{% endif %}{% endif %}
- {% if row.custom_vehicle_master %}<div><bdi>{{ (row.custom_vin or row.custom_vehicle_master) | e }}</bdi></div>{% endif %}
- {{ row.description }}</td><td>{{ row.get_formatted('qty') }} {{ row.uom | e }}</td><td>{{ money(row.rate) }}</td><td>{{ money(row.amount) }}</td></tr>{% endfor %}
- </tbody></table>
- <table><tbody><tr><td>{{ label('الإجمالي قبل الضريبة','Net Total') }}</td><td>{{ money(doc.net_total) }}</td></tr>
- {% for tax in doc.taxes %}<tr><td>{{ tax.description | e }}{% if tax.charge_type == 'On Net Total' %} ({{ tax.rate }}%){% endif %}</td><td>{{ money(tax.tax_amount_after_discount_amount) }}</td></tr>{% endfor %}
- {% if doc.discount_amount %}<tr><td>{{ label('الخصم الإضافي','Additional Discount') }}</td><td>{{ money(doc.discount_amount) }}</td></tr>{% endif %}
- <tr><th>{{ label('الإجمالي شامل الضريبة','Grand Total') }}</th><th>{{ money(doc.grand_total) }}</th></tr>
- {% if doc.rounding_adjustment %}<tr><td>{{ label('الإجمالي المقرب','Rounded Total') }}</td><td>{{ money(doc.rounded_total) }}</td></tr>{% endif %}</tbody></table>
- {% for row in doc.items %}{% set spec = quotation.lines[loop.index0] %}
- {% set warranty = spec.get('warranty_terms') or row.custom_vehicle_warranty_terms %}{% set delivery = spec.get('delivery_terms') or row.custom_vehicle_delivery_terms %}
- {% if warranty or delivery %}<section class="terms"><h3>{{ (spec.get('model_name_ar') or row.item_name) | e }}{% if spec.get('configuration') %} · {{ spec.configuration | e }}{% endif %}</h3>
- {% if warranty %}<div class="notes"><b class="term-label">{{ label('الضمان','Warranty') }}</b> {{ warranty | e }}</div>{% endif %}
- {% if delivery %}<div class="notes"><b class="term-label">{{ label('شروط التسليم','Delivery Conditions') }}</b> {{ delivery | e }}</div>{% endif %}</section>{% endif %}{% endfor %}
- {% if doc.terms %}<section><h3>{{ label('شروط الدفع والتسليم','Payment and Delivery Terms') }}</h3>{{ doc.terms }}</section>{% endif %}
- {% if doc.custom_vehicle_quotation_notes %}<div class="notes">{{ doc.custom_vehicle_quotation_notes | e }}</div>{% endif %}
- {% if doc.payment_schedule %}<table><thead><tr><th>{{ label('شرط الدفع','Payment Term') }}</th><th>{{ label('تاريخ الاستحقاق','Due Date') }}</th><th>{{ label('المبلغ','Amount') }}</th></tr></thead><tbody>{% for payment in doc.payment_schedule %}<tr><td>{{ (payment.payment_term or '') | e }}</td><td>{{ payment.get_formatted('due_date') }}</td><td>{{ money(payment.payment_amount) }}</td></tr>{% endfor %}</tbody></table>{% endif %}
- {% if quotation.bank %}<section class="terms"><h3>{{ label('البيانات البنكية','Bank Details') }}</h3>{% for key in ['account_name','bank','bank_account_no','iban'] %}{% if quotation.bank.get(key) %}<div><bdi>{{ quotation.bank[key] | e }}</bdi></div>{% endif %}{% endfor %}</section>{% endif %}
- <table class="signatures"><tbody><tr><td>{{ label('مندوب المبيعات','Sales Representative') }}{% for person in doc.sales_team %}<div>{{ person.sales_person | e }}</div>{% endfor %}</td><td>{{ label('توقيع العميل','Customer Signature') }}</td><td>{{ label('الختم والتوقيع','Company Stamp and Signature') }}</td></tr></tbody></table>
- <div class="footer">{{ company_footer() }}</div>
- {% for model in quotation.models %}<section class="technical">
- <div class="brand"><b dir="ltr">ANYUAN MOTORS</b><div>{{ doc.company | e }}</div></div>
- <h2>{{ model.model_name_ar | e }} {% if model.model_name_en != model.model_name_ar %}<bdi>{{ model.model_name_en | e }}</bdi>{% endif %}</h2>
- <p>{{ label('المواصفات الفنية','Technical Specifications') }}<bdi>{{ model.template | e }} · {{ model.revision }}</bdi>{% if model.configuration %} · {{ model.configuration | e }}{% endif %}</p>
- <div class="photos">{% for field in ['main_vehicle_photo','technical_photo','cabin_photo'] %}{% if model.images.get(field) %}<img src="{{ model.images[field] | e }}" alt="{{ model.model_name_en | e }}">{% endif %}{% endfor %}{% for url in model.get('additional_images', []) %}<img src="{{ url | e }}" alt="{{ model.model_name_en | e }}">{% endfor %}</div>
- {% if model.highlights %}<div class="notes">{{ model.highlights | e }}</div>{% endif %}
- {% for section in model.sections %}<h3>{{ section.label_ar | e }}<small dir="ltr">{{ section.label_en | e }}</small></h3><table><tbody>
- {% for field in section.fields %}{% if field.fieldtype == 'Table' %}
- {% for entry in field.value %}<tr><td>{{ entry.specification_name | e }}{% if entry.specification_category %}<small>{{ entry.specification_category | e }}</small>{% endif %}</td><td>{{ entry.value | e }} {{ (entry.uom or '') | e }}{% if entry.notes %}<small>{{ entry.notes | e }}</small>{% endif %}</td></tr>{% endfor %}
- {% elif field.fieldtype != 'Attach' %}<tr><td>{{ field.label_ar | e }}<small dir="ltr">{{ field.label_en | e }}</small></td><td>{% if field.fieldtype == 'Check' %}{{ label('نعم','Yes') }}{% else %}{{ field.value | e }}{% endif %}</td></tr>{% endif %}{% endfor %}
- </tbody></table>{% endfor %}
- <div class="footer">{{ company_footer() }} · <bdi>{{ doc.name | e }}</bdi></div>
- </section>{% endfor %}
+<div class="anyuan-quotation">
+{% for commercial in quotation.commercial_sheets %}
+{% set row = commercial.row %}{% set spec = commercial.spec %}{% set sheet = commercial.sheet %}{% set images = spec.get('images', {}) %}
+<section class="qpage p1">
+ {{ header() }}
+ <div class="hero"><div class="photo">{% if images.get('main_vehicle_photo') %}<img src="{{ images.main_vehicle_photo | e }}" alt="{{ spec.get('model_name_en', row.item_name) | e }}">{% else %}<div class="missing-photo">الصورة غير مرفقة / Image not supplied</div>{% endif %}</div><div class="copy"><h1>عرض سعر</h1><div class="en">QUOTATION</div><div class="model">{{ (spec.get('model_name_en') or row.item_name) | e }}</div><div class="sub">{{ (spec.get('highlights') or '') | e }}</div></div></div>
+ <div class="box info"><div class="boxtitle"><span>بيانات العرض والعميل</span><span class="en">QUOTATION &amp; CUSTOMER INFORMATION</span></div><div class="body">
+  <div class="grid top"><div class="fieldgroup"><div class="q-label">رقم العرض / Quotation No.</div>{{ slot(doc.name, 'num') }}</div><div class="fieldgroup"><div class="q-label">التاريخ / Date</div>{{ slot(doc.get_formatted('transaction_date'), 'num') }}</div><div class="fieldgroup"><div class="q-label">صالح حتى / Valid Until</div>{{ slot(doc.get_formatted('valid_till'), 'num') }}</div></div>
+  <div class="grid client"><div class="fieldgroup"><div class="q-label">اسم العميل / الشركة - Customer / Company</div>{{ slot(doc.customer_name or doc.party_name, 'right') }}</div><div class="fieldgroup"><div class="q-label">رقم السجل للعميل / Customer CR No.</div>{{ slot(quotation.customer.get('commercial_registration'), 'num') }}</div><div class="fieldgroup"><div class="q-label">رقم الجوال / Phone</div>{{ slot(quotation.customer.get('mobile_no'), 'num') }}</div></div>
+ </div></div>
+ <div class="box product"><div class="phead"><div class="cell"><span class="arh">الإجمالي قبل الضريبة</span><span class="enh">Total Before Tax</span></div><div class="cell"><span class="arh">سعر الوحدة قبل الضريبة</span><span class="enh">Unit Price</span></div><div class="cell"><span class="arh">الكمية</span><span class="enh">Qty</span></div><div class="cell"><span class="arh">الموديل</span><span class="enh">Model</span></div><div class="cell"><span class="arh">اسم المنتج</span><span class="enh">Product Name</span></div></div>
+  <div class="prow"><div class="cell"><div class="entry"><span class="print-value num">{{ money(row.net_amount) }}</span></div></div><div class="cell"><div class="entry"><span class="print-value num">{{ money(row.net_rate) }}</span></div></div><div class="cell"><div class="entry"><span class="print-value num">{{ row.get_formatted('qty') }}</span></div></div><div class="cell"><div class="entry"><span class="print-value num">{% if sheet.fields.get('model_year') %}{{ sheet.fields.model_year.value | e }}{% endif %}</span></div></div><div class="cell"><div class="prodmeta" style="text-align:center;width:100%"><div class="arname">{{ (spec.get('model_name_ar') or row.item_name) | e }}</div><div class="enname">{{ (spec.get('model_name_en') or row.item_code) | e }}</div>{% if sheet.fields.get('vehicle_type') %}<div class="ptype-ar">النوع / Type: {{ sheet.fields.vehicle_type.value | e }}</div>{% endif %}{% if commercial.show_description %}<div class="desc">{{ commercial.description | e }}</div>{% endif %}{% if quotation.commercial_sheets | length > 1 %}<div class="ptype-en">البند / Item {{ loop.index }} / {{ quotation.commercial_sheets | length }}</div>{% endif %}</div></div></div>
+ </div>
+ <div class="box cab"><div class="boxtitle"><span>المقصورة والتجهيز</span><span class="en">CABIN CONFIGURATION</span></div><div class="content">
+  {{ photo(images.get('technical_photo') or images.get('main_vehicle_photo'), spec.get('configuration') or 'المقصورة / Cabin') }}
+  <div class="selector"><div class="lab">نوع الغمارة / Cabin Type</div><div class="selectslot"><div class="print-value">{{ (spec.get('configuration') or (sheet.fields.get('cabin_type', {}).get('value')) or '') | e }}</div></div></div>
+  {{ photo(images.get('cabin_photo'), 'تجهيز المقصورة / Cabin Equipment') }}
+ </div></div>
+ <div class="lower">
+  <div class="box card totals"><div class="boxtitle"><span>{{ 'ملخص السعر' if commercial.last else 'ملخص البند' }}</span><span class="en">{{ 'PRICE SUMMARY' if commercial.last else 'ITEM SUMMARY' }}</span></div>
+   {% if commercial.last %}<div class="r"><div class="tl">الإجمالي قبل الضريبة / Net Total</div><div class="v"><span class="print-value num">{{ money(doc.net_total) }}</span></div></div>
+   {% for tax in quotation.tax_rows[:2] %}<div class="r tax"><div class="tl">{{ tax.description | e }}{% if tax.rate is not none %} ({{ tax.rate }}%){% endif %}<small>{{ tax.kind | e }}</small></div><div class="v"><span class="print-value num">{{ money(tax.amount) }}</span></div></div>{% endfor %}
+   {% if quotation.tax_rows | length > 2 %}<div class="tax-note">تفاصيل بقية الرسوم بالتكملة / More charges on continuation</div>{% endif %}
+   <div class="r grand"><div class="tl">الإجمالي النهائي / Grand Total</div><div class="v"><span class="print-value num">{{ money(doc.grand_total) }}</span></div></div>
+   {% else %}<div class="r"><div class="tl">قيمة البند / Item Net Amount</div><div class="v"><span class="print-value num">{{ money(row.net_amount) }}</span></div></div><div class="r"><div class="tl">الإجمالي النهائي في آخر صفحة تجارية<br>Quotation totals on final commercial sheet</div></div>{% endif %}
+  </div>
+  <div class="box card terms"><div class="boxtitle"><span>الشروط والضمان</span><span class="en">TERMS &amp; WARRANTY</span></div><div class="body">
+   <div class="termrow"><div class="key">مدة التسليم / Delivery</div><div class="fixed">{{ commercial.delivery | e }}</div></div>
+   <div class="bankbox"><div style="text-align:center"><b>الحساب البنكي المعتمد | APPROVED BANK ACCOUNT</b></div><div>اسم الحساب / Account Name: {{ quotation.bank.get('account_name', '') | e }}</div><div>البنك / Bank: {{ quotation.bank.get('bank', '') | e }}</div><div dir="ltr">Account No.: {{ quotation.bank.get('bank_account_no', '') | e }}</div><div dir="ltr">IBAN: {{ quotation.bank.get('iban', '') | e }}</div></div>
+   {% if commercial.warranty %}<div class="warrgrid"><div class="warrcol ar">{{ commercial.warranty_ar | e }}</div><div class="warrcol en">{{ commercial.warranty_en | e }}</div></div>{% endif %}
+  </div></div>
+ </div>
+ <div class="sign"><div class="signbox"><div class="q-label">مسؤول المبيعات / Sales Representative</div>{{ slot(doc.sales_team | map(attribute='sales_person') | join('، '), 'right') }}</div><div class="signbox"><div class="q-label">التوقيع / Signature</div><div class="stamp">التوقيع</div></div><div class="signbox"><div class="q-label">ختم الشركة / Company Stamp</div><div class="stamp">مكان الختم</div></div></div>
+ {{ footer() }}
+</section>
+{% endfor %}
+{% for sheet in quotation.technical_sheets %}{% set model = sheet.model %}
+{% for cards in sheet.card_pages %}
+<section class="qpage p2 {{ 'kc' if sheet.kc else '' }} {{ 'continuation' if not loop.first else '' }}">
+ {{ header() }}
+ <div class="headspec"><div class="ar">المواصفات الفنية التفصيلية{% if not loop.first %} — تكملة{% endif %}</div><div class="en">{{ model.model_name_en | e }} - DETAILED TECHNICAL SPECIFICATIONS</div></div>
+ {% if loop.first %}<div class="cabshow">{% for url in sheet.photos %}<div class="pic {{ 'single' if sheet.photos | length == 1 else '' }}"><img src="{{ url | e }}" alt="{{ model.model_name_en | e }}"><div class="tag">{{ ((model.configuration or model.model_name_ar) if loop.first else model.model_name_ar) | e }}</div></div>{% endfor %}</div>
+ <div class="badges">{% for badge in sheet.badges %}<div class="q-badge"><b>{{ badge.value | e }}</b><span>{{ badge.en | e }} / {{ badge.ar | e }}</span></div>{% endfor %}</div>{% endif %}
+ <div class="specgrid">{% for pair in cards | batch(2) %}<div class="specrow">{% for card in pair %}<div class="specbox"><h3><span class="arh2">{{ card.ar | e }}</span><span class="enh2">{{ card.en | e }}</span></h3><table><tbody>{% for field in card.rows %}<tr><td class="key">{{ field.ar | e }}<span class="enline">{{ field.en | e }}</span></td><td class="val" dir="auto">{{ field.value | e }}</td></tr>{% endfor %}</tbody></table></div>{% endfor %}</div>{% endfor %}</div>
+ {{ footer(true) }}
+</section>
+{% endfor %}
+{% for photos in sheet.image_pages %}<section class="qpage p2">{{ header() }}<div class="headspec"><div class="ar">صور فنية إضافية</div><div class="en">{{ model.model_name_en | e }} — ADDITIONAL TECHNICAL PHOTOS</div></div>{% for url in photos %}<img class="attachment-photo" src="{{ url | e }}" alt="{{ model.model_name_en | e }}">{% endfor %}{{ footer(true) }}</section>{% endfor %}
+{% endfor %}
+{% if quotation.tax_rows | length > 2 or doc.discount_amount or doc.rounding_adjustment %}
+{% for taxes in quotation.tax_pages %}<section class="qpage p2 appendix">{{ header() }}<div class="headspec"><div class="ar">تفاصيل السعر والرسوم</div><div class="en">PRICE &amp; CHARGES DETAILS</div></div><div class="continuation-body">{% for tax in taxes %}<div>{{ tax.description | e }} · {{ tax.kind | e }}{% if tax.rate is not none %} ({{ tax.rate }}%){% endif %}: {{ money(tax.amount) }}</div>{% endfor %}{% if loop.last %}{% if doc.discount_amount %}<div>الخصم الإضافي / Additional Discount: {{ money(doc.discount_amount) }}</div>{% endif %}{% if doc.rounding_adjustment %}<div>تعديل التقريب / Rounding Adjustment: {{ money(doc.rounding_adjustment) }}</div><div>الإجمالي المقرب / Rounded Total: {{ money(doc.rounded_total) }}</div>{% endif %}{% endif %}</div>{{ footer(true) }}</section>{% endfor %}
+{% endif %}
+{% for appendix in quotation.appendices %}<section class="qpage p2 appendix">{{ header() }}<div class="headspec"><div class="ar">تكملة عرض السعر</div><div class="en">QUOTATION CONTINUATION</div></div><div class="continuation-body"><h2>{{ appendix.title | e }}</h2>{{ appendix.value | e }}</div>{{ footer(true) }}</section>{% endfor %}
 </div>

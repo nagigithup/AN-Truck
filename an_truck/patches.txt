@@ -21,3 +21,4 @@ an_truck.patches.v1_0.add_supplier_commercial_registration
 an_truck.patches.v1_0.add_sale_invoices_print_format
 an_truck.patches.v1_0.setup_vehicle_quotation
 an_truck.patches.v1_0.setup_financial_vouchers
+an_truck.patches.v1_0.restore_anyuan_quotation_design

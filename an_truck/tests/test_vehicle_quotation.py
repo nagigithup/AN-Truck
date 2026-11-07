@@ -249,3 +249,53 @@ class TestVehicleQuotation(IntegrationTestCase):
 		row.serial_no = ""
 		with self.assertRaises(frappe.ValidationError):
 			services.validate_purchase_receipt(receipt)
+
+	def test_original_anyuan_layout_and_expense_is_not_vat(self):
+		from bs4 import BeautifulSoup
+		doc = self.quotation()
+		account = frappe.db.get_value("Account", {"company":doc.company, "root_type":"Expense", "is_group":0}, "name")
+		self.assertTrue(account)
+		doc.set("taxes", [])
+		doc.append("taxes", {"charge_type":"On Net Total", "account_head":account, "description":"Marketing Expenses", "rate":15})
+		doc.save()
+		before = doc.reload().as_json()
+		data = domain.quotation_print_data(doc)
+		self.assertEqual(data["tax_rows"][0]["kind"], "Charge / رسوم")
+		self.assertEqual(data["tax_rows"][0]["amount"], doc.taxes[0].tax_amount_after_discount_amount)
+		html = frappe.get_print("Quotation", doc.name, domain.PRINT_FORMAT, no_letterhead=1)
+		soup = BeautifulSoup(html, 'html.parser')
+		page = soup.select_one('.anyuan-quotation .p1')
+		for selector in ['.header','.hero .photo','.info .grid.top','.info .grid.client','.product .phead','.cab .content','.lower .totals','.lower .terms','.sign','.footer']:
+			self.assertIsNotNone(page.select_one(selector),selector)
+		self.assertIn('ANYUAN MOTORS CO',page.select_one('.header').get_text())
+		self.assertNotIn(doc.company, page.get_text())
+		self.assertIn('Marketing Expenses',page.get_text())
+		self.assertNotIn('VAT 15%',page.get_text())
+		self.assertEqual(frappe.get_doc('Quotation',doc.name).as_json(),before)
+
+	def test_no_template_has_no_invented_technical_sheet(self):
+		doc = self.quotation()
+		doc.items[0].set(domain.LINK,None)
+		doc.save()
+		data = domain.quotation_print_data(doc)
+		self.assertEqual(data['models'],[])
+		self.assertEqual(data['technical_sheets'],[])
+		self.assertEqual(len(data['commercial_sheets']),1)
+		html = frappe.get_print('Quotation',doc.name,domain.PRINT_FORMAT,no_letterhead=1)
+		self.assertNotIn('DETAILED TECHNICAL SPECIFICATIONS',html)
+
+	def test_print_uses_sealed_company_context_and_long_terms_are_paginated(self):
+		doc = self.quotation()
+		doc.items[0].set(domain.COMMERCIAL_FIELDS[1],'Approved delivery\n'*100+'DELIVERY-END')
+		doc.items[0].set(domain.COMMERCIAL_FIELDS[0],'Approved warranty condition '*30+'WARRANTY-END')
+		doc.save()
+		doc.submit()
+		sealed = doc.custom_vehicle_quotation_context
+		before = doc.reload().as_json()
+		with patch.object(domain,'_company_print_details',side_effect=AssertionError('Do not refresh historical Company facts')):
+			data = domain.quotation_print_data(doc)
+		self.assertEqual(data['company'],json.loads(sealed)['company'])
+		self.assertTrue(any('DELIVERY-END' in block['value'] for block in data['appendices']))
+		self.assertTrue(any('WARRANTY-END' in block['value'] for block in data['appendices']))
+		self.assertTrue(all(len(block['value'].splitlines())<=30 for block in data['appendices']))
+		self.assertEqual(frappe.get_doc('Quotation',doc.name).as_json(),before)

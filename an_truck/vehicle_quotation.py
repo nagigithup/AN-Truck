@@ -147,7 +147,44 @@ def _commercial_context(doc):
 			customer = {"commercial_registration": _commercial_registration(party),
 				"tax_id": party.tax_id, "mobile_no": doc.get("contact_mobile") or party.get("mobile_no") or ""}
 	return {"bank": _bank(doc), "captured_at": now(), "customer": customer,
-		"company": {key: company.get(key) for key in ("company_name", "tax_id", "phone_no", "email", "website")} if company.has_permission("read") else {}}
+		"company": _company_print_details(company, doc) if company.has_permission("read") else {}}
+
+
+def _company_print_details(company, doc):
+	"""Approved Company/ZATCA facts only; never copy reference artwork's IDs."""
+	data = {key: company.get(key) for key in ("company_name", "tax_id", "phone_no", "email", "website")}
+	data["commercial_registration"] = ""
+	# ZATCA's existing seller IDs are authoritative when one readable active
+	# configuration exists. Multiple business units must not be chosen arbitrarily.
+	if frappe.db.exists("DocType", "ZATCA Business Settings") and frappe.has_permission("ZATCA Business Settings", "read"):
+		settings = frappe.get_list("ZATCA Business Settings", filters={"company": company.name, "status": "Active"}, pluck="name", page_length=2)
+		if len(settings) == 1:
+			seller = frappe.get_doc("ZATCA Business Settings", settings[0])
+			data["company_name"] = seller.seller_name or data["company_name"]
+			data["tax_id"] = seller.vat_registration_number or data["tax_id"]
+			ids = [row.value for row in seller.other_ids if row.type_code == "CRN" and row.value]
+			if len(set(ids)) == 1:
+				data["commercial_registration"] = ids[0]
+	if not data["tax_id"] and frappe.db.exists("DocType", "ZATCA Phase 1 Business Settings") and frappe.has_permission("ZATCA Phase 1 Business Settings", "read"):
+		settings = frappe.get_list("ZATCA Phase 1 Business Settings", filters={"company": company.name, "status": "Active"},
+			fields=["vat_registration_number"], page_length=2)
+		if len(settings) == 1:
+			data["tax_id"] = settings[0].vat_registration_number
+	data["address"] = doc.get("company_address_display") or ""
+	if not data["address"]:
+		from erpnext.setup.doctype.company.company import get_default_company_address
+		from frappe.contacts.doctype.address.address import get_address_display
+		address = get_default_company_address(company.name)
+		if address and frappe.has_permission("Address", "read", address):
+			data["address"] = get_address_display(address)
+	if not data["phone_no"] or not data["email"]:
+		from frappe.contacts.doctype.contact.contact import get_default_contact
+		contact = get_default_contact("Company", company.name)
+		if contact and frappe.has_permission("Contact", "read", contact):
+			person = frappe.get_doc("Contact", contact)
+			data["phone_no"] = data["phone_no"] or person.phone or person.mobile_no
+			data["email"] = data["email"] or person.email_id
+	return data
 
 
 def validate_quotation(doc, method=None):
@@ -201,4 +238,20 @@ def quotation_print_data(doc):
 			models.append(data)
 	if not doc.docstatus:
 		context = _commercial_context(doc)
-	return {"lines": lines, "models": models, **{key: context.get(key, {}) for key in ("bank", "company", "customer")}}
+	data = {"lines": lines, "models": models, **{key: context.get(key, {}) for key in ("bank", "company", "customer")}}
+	if not data["company"].get("address") and doc.get("company_address_display"):
+		# This is the document's own saved address, not today's Company address.
+		data["company"] = {**data["company"], "address": doc.company_address_display}
+	# Tax descriptions/amounts always come from this Quotation. An Expense or
+	# Chargeable account must never be presented as VAT because its rate is 15%.
+	data["tax_rows"] = []
+	for row in doc.taxes:
+		kind = "Tax / Charge — ضريبة / رسوم"
+		if frappe.has_permission("Account", "read", row.account_head):
+			account_type = frappe.get_cached_value("Account", row.account_head, "account_type")
+			kind = "Tax / ضريبة" if account_type == "Tax" else "Charge / رسوم"
+		data["tax_rows"].append({"description": row.description or row.account_head,
+			"rate": row.rate if row.charge_type == "On Net Total" else None,
+			"amount": row.tax_amount_after_discount_amount, "kind": kind})
+	from an_truck.quotation_presentation import layout
+	return {**data, **layout(doc, data)}
