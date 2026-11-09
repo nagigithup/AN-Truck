@@ -292,7 +292,10 @@ def on_landed_cost_change(doc, method=None):
 	validate_landed_cost_voucher(doc)
 	for row in doc.get("purchase_receipts", []):
 		if row.receipt_document_type == "Purchase Receipt" and row.receipt_document:
-			for name in frappe.get_all("Vehicle Master", filters={"purchase_receipt": row.receipt_document}, pluck="name"):
+			filters = {"purchase_receipt": row.receipt_document}
+			if doc.get("custom_portal_truck_cost_vehicle"):
+				filters["name"] = doc.get("custom_portal_truck_cost_vehicle")
+			for name in frappe.get_all("Vehicle Master", filters=filters, pluck="name"):
 				vm = frappe.get_doc("Vehicle Master", name)
 				vm.refresh_costs()
 				vm.save(ignore_permissions=True)
