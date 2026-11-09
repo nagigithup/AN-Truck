@@ -98,6 +98,11 @@ class VehicleMaster(Document):
 			self.purchase_valuation_rate = get_purchase_rate(self.purchase_receipt_item)
 		self.landed_cost_added = get_landed_cost_added(self.purchase_receipt, self.purchase_receipt_item)
 		self.final_valuation_rate = flt(self.purchase_valuation_rate) + flt(self.landed_cost_added)
+		if self.meta.has_field("custom_portal_serial_cost_adjustment"):
+			from an_truck.serial_vehicle_cost import FIELD, valuation_basis
+			basis = valuation_basis(self)
+			self.set(FIELD,0 if basis is None else basis-self.final_valuation_rate)
+			if basis is not None: self.final_valuation_rate = basis
 
 	def validate_registration_dates(self):
 		if (

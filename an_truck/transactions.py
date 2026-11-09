@@ -114,6 +114,7 @@ def get_import_workspace(vehicle_import_file):
 	documents = _get_documents(vif.name)
 	vehicles = _get_workspace_vehicles(vif.name)
 	costs = _get_landed_cost_rows(documents.get("landed_cost_vouchers") or [])
+	costs.extend(_get_serial_cost_rows(documents.get("serial_cost_adjustments") or [],vif.company_currency))
 	permissions = _get_permissions()
 	summary = _get_workspace_summary(vif, documents, vehicles, costs)
 	return {
@@ -210,7 +211,7 @@ def _receiving_status(expected, received):
 
 def _get_process(vif, summary, documents):
 	has_po = any(row.docstatus < 2 for row in documents.get("purchase_orders", []))
-	has_cost = any(row.docstatus == 1 for row in documents.get("landed_cost_vouchers", []))
+	has_cost = any(row.docstatus == 1 for row in documents.get("landed_cost_vouchers", [])+documents.get("serial_cost_adjustments", []))
 	shipping_started = bool(vif.actual_shipping_date or vif.bill_of_lading_number or vif.status in {"In Transit", "At Port", "Under Clearance", "Partially Received", "Fully Received", "Completed"})
 	receipt_complete = bool(summary["expected"] and summary["received"] >= summary["expected"])
 	steps = [
@@ -275,6 +276,7 @@ def _get_activity(vif, documents):
 		"purchase_receipts": "Vehicles received",
 		"purchase_invoices": "Purchase Invoice created",
 		"landed_cost_vouchers": "Landed Cost updated",
+		"serial_cost_adjustments": "Serial Valuation Adjustment",
 	}
 	for key, label in labels.items():
 		for row in documents.get(key, []):
@@ -290,6 +292,7 @@ def _get_permissions():
 		"Purchase Invoice",
 		"Payment Entry",
 		"Landed Cost Voucher",
+		"Stock Reconciliation",
 		"Quotation",
 		"Sales Order",
 		"Delivery Note",
@@ -343,6 +346,10 @@ def _get_documents(import_file):
 		"sales_invoices": rows("Sales Invoice", fields=["name", "posting_date as date", "customer as party", "currency", "grand_total as amount", "outstanding_amount", "status", "docstatus", "creation", "modified"]),
 		"customer_payments": rows("Payment Entry", {"payment_type": "Receive"}, ["name", "posting_date as date", "party", "paid_to_account_currency as currency", "received_amount as amount", "status", "docstatus", "creation", "modified"]),
 	}
+	if frappe.get_meta("Stock Reconciliation").has_field("custom_portal_truck_cost_vehicle"):
+		documents["serial_cost_adjustments"] = rows("Stock Reconciliation",{"custom_portal_truck_cost_vehicle":["is","set"]},
+			["name","posting_date as date","company as party","difference_amount as amount","docstatus","creation","modified",
+			 "expense_account","custom_portal_truck_cost_vehicle","custom_portal_truck_cost_description"])
 	_append_legacy_purchase_documents(import_file, documents, common_purchase, common_stock)
 	return documents
 
@@ -482,6 +489,14 @@ def _get_landed_cost_rows(vouchers):
 			}
 		)
 	return rows
+
+
+def _get_serial_cost_rows(vouchers,currency):
+	return [{"name":v.name,"idx":1,"voucher":v.name,"doctype":"Stock Reconciliation",
+		"description":" · ".join(filter(None,[v.custom_portal_truck_cost_vehicle,v.custom_portal_truck_cost_description])),
+		"expense_account":v.expense_account,"account_currency":currency,"exchange_rate":1,
+		"amount":v.amount,"base_amount":v.amount,"date":v.date,"docstatus":v.docstatus,"attachments":[]}
+		for v in vouchers]
 
 
 @frappe.whitelist()
